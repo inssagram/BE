@@ -27,7 +27,7 @@ public class MemberService {
         memberRepository.save(setAccount(request));
     }
 
-    public void signin(SigninRequest request) {
+    public Member signin(SigninRequest request) {
         boolean checkMember = memberRepository.existsByEmail(request.getEmail());
 
         if(checkMember == false){
@@ -38,6 +38,8 @@ public class MemberService {
         if (!this.passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new WrongInfoException();
         }
+
+        return member;
     }
 
     private Member setAccount (SignupRequest request) {
