@@ -21,4 +21,5 @@ public class MemberExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleWrongInfoException(RuntimeException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.createError(exception.getMessage()));
     }
+
 }
