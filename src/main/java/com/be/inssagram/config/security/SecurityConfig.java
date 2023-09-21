@@ -20,7 +20,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> {
             try {
                 authorize
-                        .requestMatchers("/*")// 해당 경로는 인증 없이 접근 가능
+                        .requestMatchers("/*","member/update/*") // 해당 경로는 인증 없이 접근 가능
                         .permitAll();
             } catch (Exception e) {
                 throw new RuntimeException(e);
