@@ -29,8 +29,13 @@ public class ApiResponse<T> {
     }
 
     //api 성공했을시 응답값이 필요없지만 메세지가 필요할때
-    public static <T> ApiResponse<T> Success(String msg) {
+    public static <T> ApiResponse<T> createMessage(String msg) {
         return new ApiResponse<>(SUCCESS_STATUS, null, msg);
+    }
+
+    //api 성공했을시 응답값과 메세지가 필요할때
+    public static <T> ApiResponse<T> createSuccessWithMessage(T data, String msg) {
+        return new ApiResponse<>(SUCCESS_STATUS, data, msg);
     }
 
     //api 성곻시 응답값이 필요없을때
