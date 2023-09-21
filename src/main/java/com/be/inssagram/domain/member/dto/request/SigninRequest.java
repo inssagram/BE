@@ -1,4 +1,4 @@
-package com.be.inssagram.domain.member.dto;
+package com.be.inssagram.domain.member.dto.request;
 
 
 import lombok.*;
