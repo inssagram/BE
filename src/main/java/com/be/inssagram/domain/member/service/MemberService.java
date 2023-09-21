@@ -9,7 +9,8 @@ import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.exception.member.DuplicatedUserException;
 import com.be.inssagram.exception.member.UserDoesNotExistException;
-import com.be.inssagram.exception.member.WrongInfoException;
+import com.be.inssagram.exception.member.WrongEmailException;
+import com.be.inssagram.exception.member.WrongPasswordException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,12 +35,12 @@ public class MemberService {
         boolean checkMember = memberRepository.existsByEmail(request.getEmail());
 
         if(checkMember == false){
-            throw new WrongInfoException();
+            throw new WrongEmailException();
         }
         Member member = memberRepository.findByEmail(request.getEmail());
 
         if (!this.passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new WrongInfoException();
+            throw new WrongPasswordException();
         }
 
         return member;
