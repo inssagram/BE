@@ -1,8 +1,10 @@
 package com.be.inssagram.domain.member.service;
 
 
-import com.be.inssagram.domain.member.dto.SigninRequest;
-import com.be.inssagram.domain.member.dto.SignupRequest;
+import com.be.inssagram.domain.member.dto.request.SigninRequest;
+import com.be.inssagram.domain.member.dto.request.SignupRequest;
+import com.be.inssagram.domain.member.dto.request.UpdateRequest;
+import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.exception.member.DuplicatedUserException;
@@ -40,6 +42,21 @@ public class MemberService {
         }
 
         return member;
+    }
+
+    public InfoResponse updateMember(Long id, UpdateRequest request) {
+        Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("does not exists"));
+        if(request.getPassword() != null) {
+            request.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        member.updateFields(request);
+        memberRepository.save(member);
+        return InfoResponse.fromEntity(member);
+    }
+
+    public void deleteMember(Long id){
+        Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("does not exists"));
+        memberRepository.delete(member);
     }
 
     private Member setAccount (SignupRequest request) {
