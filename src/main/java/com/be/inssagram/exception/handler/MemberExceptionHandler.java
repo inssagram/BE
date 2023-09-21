@@ -3,6 +3,7 @@ package com.be.inssagram.exception.handler;
 
 import com.be.inssagram.common.ApiResponse;
 import com.be.inssagram.exception.member.DuplicatedUserException;
+import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.be.inssagram.exception.member.WrongInfoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,11 @@ public class MemberExceptionHandler {
 
     @ExceptionHandler(WrongInfoException.class)
     public ResponseEntity<ApiResponse<?>> handleWrongInfoException(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.createError(exception.getMessage()));
+    }
+
+    @ExceptionHandler(UserDoesNotExistException.class)
+    public ResponseEntity<ApiResponse<?>> handleUserDoesNotExistException(RuntimeException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.createError(exception.getMessage()));
     }
 

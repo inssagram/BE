@@ -8,6 +8,7 @@ import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.exception.member.DuplicatedUserException;
+import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.be.inssagram.exception.member.WrongInfoException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,7 +46,7 @@ public class MemberService {
     }
 
     public InfoResponse updateMember(Long id, UpdateRequest request) {
-        Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("does not exists"));
+        Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
         if(request.getPassword() != null) {
             request.setPassword(passwordEncoder.encode(request.getPassword()));
         }
@@ -55,7 +56,7 @@ public class MemberService {
     }
 
     public void deleteMember(Long id){
-        Member member = memberRepository.findById(id).orElseThrow(() -> new RuntimeException("does not exists"));
+        Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
         memberRepository.delete(member);
     }
 
