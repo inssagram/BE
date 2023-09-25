@@ -2,10 +2,7 @@ package com.be.inssagram.exception.handler;
 
 
 import com.be.inssagram.common.ApiResponse;
-import com.be.inssagram.exception.member.DuplicatedUserException;
-import com.be.inssagram.exception.member.UserDoesNotExistException;
-import com.be.inssagram.exception.member.WrongEmailException;
-import com.be.inssagram.exception.member.WrongPasswordException;
+import com.be.inssagram.exception.member.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +32,12 @@ public class MemberExceptionHandler {
     //로그인시 비밀번호가 틀렸을때
     @ExceptionHandler(WrongPasswordException.class)
     public ResponseEntity<ApiResponse<?>> handleWrongPasswordException(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.createError(exception.getMessage()));
+    }
+
+    //회원정보의 비밀번호를 수정할때 비밀번호가 같을시
+    @ExceptionHandler(SamePasswordException.class)
+    public ResponseEntity<ApiResponse<?>> handleSamePasswordException(RuntimeException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.createError(exception.getMessage()));
     }
 }
