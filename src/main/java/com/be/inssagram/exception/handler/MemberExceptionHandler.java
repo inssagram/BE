@@ -5,6 +5,8 @@ import com.be.inssagram.common.ApiResponse;
 import com.be.inssagram.exception.member.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -39,5 +41,17 @@ public class MemberExceptionHandler {
     @ExceptionHandler(SamePasswordException.class)
     public ResponseEntity<ApiResponse<?>> handleSamePasswordException(RuntimeException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.createError(exception.getMessage()));
+    }
+
+    //인증번호가 불일치 할때
+    @ExceptionHandler(WrongAuthInfoException.class)
+    public ResponseEntity<ApiResponse<?>> handleWrongAuthCodeException(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.createError(exception.getMessage()));
+    }
+
+    //특정 값이 불일치 또는 잘못된 입력값이 감지되었을때
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleValidationExceptions(BindingResult bindingResult) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.createFail(bindingResult));
     }
 }
