@@ -37,8 +37,16 @@ public class MemberService {
     }
 
     //사용할수 있는 이메일인지 확인
-    public void checkAvailability (AuthenticationRequest request){
+    public void checkEmailAvailability(AuthenticationRequest request){
         boolean exists = memberRepository.existsByEmail(request.getEmail());
+        if(exists){
+            throw new DuplicatedUserException();
+        }
+    }
+
+    //사용할수 있는 닉네임인지 확인
+    public void checkNicknameAvailability(AuthenticationRequest request){
+        boolean exists = memberRepository.existsByNickname(request.getNickName());
         if(exists){
             throw new DuplicatedUserException();
         }
