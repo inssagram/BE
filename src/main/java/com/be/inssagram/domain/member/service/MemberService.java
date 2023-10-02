@@ -25,11 +25,15 @@ public class MemberService {
 
     //회원가입
     public void signup (SignupRequest request) {
-        Auth tempData = authRepository.findByEmailAndCode(request.getEmail(), request.getAuthNumber())
-                .orElseThrow(WrongAuthInfoException::new);
-        authRepository.delete(tempData);
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(setAccount(request));
+    }
+
+    //인증코드 확인 및 삭제
+    public void authCodeCheck (AuthenticationRequest request) {
+        Auth tempData = authRepository.findByEmailAndCode(request.getEmail(), request.getCode())
+                .orElseThrow(WrongAuthInfoException::new);
+        authRepository.delete(tempData);
     }
 
     //사용할수 있는 이메일인지 확인
@@ -82,7 +86,7 @@ public class MemberService {
                 .password(request.getPassword())
                 .nickname(request.getNickname())
                 .gender(request.getGender())
-                .jobField(request.getJobField())
+                .companyName(request.getCompanyName())
                 .build();
     }
 }

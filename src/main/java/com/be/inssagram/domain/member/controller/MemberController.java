@@ -32,7 +32,7 @@ public class MemberController {
 
     //이메일 인증번호 발급
     @PostMapping("/signup/auth")
-    public ApiResponse<?> MailSend(@RequestBody AuthenticationRequest request){
+    public ApiResponse<?> mailSend(@RequestBody AuthenticationRequest request){
         int authCode = mailService.sendMail(request);
         String code = authCode + "";
         Auth temp = Auth.builder()
@@ -41,6 +41,13 @@ public class MemberController {
                 .build();
         authRepository.save(temp);
         return ApiResponse.createMessage("인증번호가 발급되었습니다");
+    }
+
+    //인증번호 확인
+    @PostMapping("/signup/auth/check")
+    public ApiResponse<?> authCodeCheck(@RequestBody AuthenticationRequest request){
+
+        return ApiResponse.createMessage("인증번호가 일치합니다");
     }
 
     //회원가입

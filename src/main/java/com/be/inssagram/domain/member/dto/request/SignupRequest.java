@@ -15,11 +15,9 @@ public class SignupRequest {
     @NotBlank
     private String password;
     @NotBlank
-    private String authNumber;
-    @NotBlank
     private String gender;
     @NotBlank
     private String nickname;
     @NotBlank
-    private String jobField;
+    private String companyName;
 }
