@@ -16,7 +16,7 @@ public record InfoResponse (
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .gender(member.getGender())
-                .jobField(member.getJobField())
+                .jobField(member.getCompanyName())
                 .build();
     }
 }
