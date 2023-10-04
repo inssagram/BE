@@ -51,7 +51,7 @@ public class MemberController {
     }
 
     //인증번호 확인
-    @PostMapping("/signup/auth/check")
+    @PostMapping("/signup/check/code")
     public ApiResponse<?> authCodeCheck(@RequestBody AuthenticationRequest request){
         memberService.authCodeCheck(request);
         return ApiResponse.createMessage("인증번호가 일치합니다");

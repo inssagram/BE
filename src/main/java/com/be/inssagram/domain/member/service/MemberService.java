@@ -25,6 +25,10 @@ public class MemberService {
 
     //회원가입
     public void signup (SignupRequest request) {
+        boolean exists = memberRepository.existsByEmail(request.getEmail());
+        if(exists){
+            throw new DuplicatedUserException();
+        }
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(setAccount(request));
     }
@@ -93,7 +97,6 @@ public class MemberService {
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .nickname(request.getNickname())
-                .gender(request.getGender())
                 .companyName(request.getCompanyName())
                 .build();
     }

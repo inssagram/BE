@@ -11,7 +11,6 @@ import lombok.*;
 public class UpdateRequest {
     private String email;
     private String nickname;
-    private String gender;
     private String jobField;
     private String password;
 }

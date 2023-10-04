@@ -7,7 +7,6 @@ import lombok.Builder;
 public record InfoResponse (
         String email,
         String nickname,
-        String gender,
         String jobField
 ) {
 
@@ -15,7 +14,6 @@ public record InfoResponse (
         return InfoResponse.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .gender(member.getGender())
                 .jobField(member.getCompanyName())
                 .build();
     }
