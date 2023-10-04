@@ -24,7 +24,6 @@ public class Member {
     private String nickname;
     private String password;
     private String companyName;
-    private String gender;
 
     public void updateFields(UpdateRequest updateRequest) {
         if (updateRequest.getEmail() != null) {
@@ -38,9 +37,6 @@ public class Member {
         }
         if (updateRequest.getJobField() != null) {
             this.companyName = updateRequest.getJobField();
-        }
-        if (updateRequest.getGender() != null) {
-            this.gender = updateRequest.getGender();
         }
     }
 }
