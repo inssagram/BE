@@ -2,15 +2,18 @@ package com.be.inssagram.domain.member.controller;
 
 
 import com.be.inssagram.common.ApiResponse;
+import com.be.inssagram.config.Jwt.TokenProvider;
 import com.be.inssagram.domain.member.dto.request.AuthenticationRequest;
 import com.be.inssagram.domain.member.dto.request.SigninRequest;
 import com.be.inssagram.domain.member.dto.request.SignupRequest;
 import com.be.inssagram.domain.member.dto.request.UpdateRequest;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Auth;
+import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.AuthRepository;
 import com.be.inssagram.domain.member.service.MailService;
 import com.be.inssagram.domain.member.service.MemberService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MailService mailService;
+    private final TokenProvider tokenProvider;
     private final AuthRepository authRepository;
 
     //사용할수 있는 이메일인지 확인
@@ -64,12 +68,12 @@ public class MemberController {
         return ApiResponse.createMessage("가입이 완료되었습니다!");
     }
 
-
-
     //로그인
     @PostMapping("/signin")
-    public ApiResponse<?> signin(@Valid @RequestBody SigninRequest request){
-        memberService.signin(request);
+    public ApiResponse<?> signin(@Valid @RequestBody SigninRequest request, HttpServletResponse response){
+        Member member = memberService.signin(request);
+        String token = tokenProvider.generateToken(member.getEmail());
+        response.addHeader("Authorization", "Bearer" + " " + token);
         return ApiResponse.createMessage("로그인 되셧습니다");
     }
 

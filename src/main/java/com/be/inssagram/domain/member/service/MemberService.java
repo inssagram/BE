@@ -96,8 +96,10 @@ public class MemberService {
         return Member.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
+                .role("ROLE_MEMBER")
                 .nickname(request.getNickname())
                 .companyName(request.getCompanyName())
                 .build();
     }
+
 }

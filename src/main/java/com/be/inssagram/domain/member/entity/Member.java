@@ -6,7 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Getter
 @Builder
@@ -23,6 +28,7 @@ public class Member {
     private String email;
     private String nickname;
     private String password;
+    private String role;
     private String companyName;
 
     public void updateFields(UpdateRequest updateRequest) {
@@ -38,5 +44,14 @@ public class Member {
         if (updateRequest.getJobField() != null) {
             this.companyName = updateRequest.getJobField();
         }
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String authority = this.getRole();
+        SimpleGrantedAuthority simpleAuthority = new SimpleGrantedAuthority(authority);
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(simpleAuthority);
+
+        return authorities;
     }
 }

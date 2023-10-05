@@ -1,4 +1,6 @@
 spring:
+  jwt:
+    secret-key: ${key}
   jpa:
     hibernate:
       ddl-auto: create-drop
