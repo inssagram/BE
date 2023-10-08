@@ -18,4 +18,7 @@ public class TaggedMember {
     private Long id;
     private String name;
 
+    public void setName(String newNickname) {
+        name = newNickname;
+    }
 }
