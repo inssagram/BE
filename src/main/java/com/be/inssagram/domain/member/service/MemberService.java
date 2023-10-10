@@ -1,10 +1,9 @@
 package com.be.inssagram.domain.member.service;
 
 
-import com.be.inssagram.domain.member.dto.request.AuthenticationRequest;
-import com.be.inssagram.domain.member.dto.request.SigninRequest;
-import com.be.inssagram.domain.member.dto.request.SignupRequest;
-import com.be.inssagram.domain.member.dto.request.UpdateRequest;
+import com.be.inssagram.domain.member.documents.MemberSearchRepository;
+import com.be.inssagram.domain.member.documents.SearchMember;
+import com.be.inssagram.domain.member.dto.request.*;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Auth;
 import com.be.inssagram.domain.member.entity.Member;
@@ -14,6 +13,10 @@ import com.be.inssagram.exception.member.*;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +25,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MemberSearchRepository memberSearchRepository;
 
     //회원가입
     public void signup (SignupRequest request) {
@@ -54,6 +58,14 @@ public class MemberService {
         if(exists){
             throw new DuplicatedUserException();
         }
+    }
+
+    //MySQL DB에 있는 모든 정보를 ES 에 저장
+    @Transactional
+    public void saveAllMemberDocuments(){
+        List<SearchMember> memberDocumentList = memberRepository.findAll().stream()
+                .map(SearchMember::from).collect(Collectors.toList());
+        memberSearchRepository.saveAll(memberDocumentList);
     }
 
     //로그인

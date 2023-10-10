@@ -1,0 +1,16 @@
+{
+  "properties": {
+    "memberId": {
+      "type": "keyword"
+    },
+    "memberEmail": {
+      "type": "text"
+    },
+    "memberNickname": {
+      "type": "text"
+    },
+    "memberCompanyName": {
+      "type": "text"
+    }
+  }
+}

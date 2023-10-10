@@ -68,6 +68,13 @@ public class MemberController {
         return ApiResponse.createMessage("가입이 완료되었습니다!");
     }
 
+    //ES 저장
+    @PostMapping("/memberDocuments")
+    public ApiResponse<?> saveMemberDocuments(){
+        memberService.saveAllMemberDocuments();
+        return ApiResponse.createMessage("ES 에 저장완료");
+    }
+
     //로그인
     @PostMapping("/signin")
     public ApiResponse<?> signin(@Valid @RequestBody SigninRequest request, HttpServletResponse response){
