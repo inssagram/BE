@@ -17,7 +17,7 @@ public class ElasticSearchController {
 
     private final ElasticSearchService elasticsearchService;
 
-    @GetMapping("/member/search/{wildcardValue}")
+    @GetMapping("/search/member/{wildcardValue}")
     public List<SearchMemberResult> searchMember(
             @PathVariable String wildcardValue) {
 

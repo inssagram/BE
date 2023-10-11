@@ -27,7 +27,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> {
             try {
                 authorize
-                        .requestMatchers("/*","/member/update/*", "/signup/*","/member/search/*", "member/detail/*", "/follow/*") // 해당 경로는 인증 없이 접근 가능
+                        .requestMatchers("/*","/member/update/*", "/signup/*","/search/member/*", "member/detail/*", "/follow/*") // 해당 경로는 인증 없이 접근 가능
                         .permitAll()
                         .and()
                         .sessionManagement()
