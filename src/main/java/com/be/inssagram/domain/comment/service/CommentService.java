@@ -5,6 +5,8 @@ import com.be.inssagram.domain.comment.dto.response.CommentInfoResponse;
 import com.be.inssagram.domain.comment.dto.response.ReplyInfoResponse;
 import com.be.inssagram.domain.comment.entity.Comment;
 import com.be.inssagram.domain.comment.repository.CommentRepository;
+import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
+import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.post.entity.Post;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +31,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final LikeRepository likeRepository;
 
     public CommentInfoResponse createComment(
             Long postId, CommentRequest request) {
@@ -111,8 +116,23 @@ public class CommentService {
     public List<CommentInfoResponse> searchComments(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostDoesNotExistException::new);
-        return commentRepository.findByPostAndReplyFlagIsFalse(post).stream()
+
+        List<Comment> comments = commentRepository.findByPostAndReplyFlagIsFalse(post);
+        List<CommentInfoResponse> responseList = comments.stream()
                 .map(CommentInfoResponse::from).toList();
+
+        for (int i = 0; i < comments.size(); i++) {
+            Comment comment = comments.get(i);
+            CommentInfoResponse response = responseList.get(i);
+            Set<LikeInfoResponse> likeSet = likeRepository.findByComment(comment)
+                    .stream().map(LikeInfoResponse::from)
+                    .collect(Collectors.toSet());
+            response.setLikedByPerson(likeSet);
+            response.setLikeCount(likeSet.size());
+            response.setChildComments(getReplyInfoResponses(comment));
+        }
+
+        return responseList;
     }
 
     public List<CommentInfoResponse> searchReplyByParentComment(Long parentCommentId) {
@@ -125,7 +145,24 @@ public class CommentService {
         Comment comment = commentRepository.findById(parentCommentId)
                 .orElseThrow(CommentDoesNotExistException::new);
 
-        return commentRepository.findByParentComment(comment).stream().map(CommentInfoResponse::from).toList();
+        return getReplyInfoResponses(comment);
+    }
+
+    private List<ReplyInfoResponse> getReplyInfoResponses(Comment comment) {
+        List<Comment> replies = commentRepository.findByParentComment(comment);
+        List<ReplyInfoResponse> responseList = replies.stream()
+                .map(ReplyInfoResponse::from).toList();
+
+        for (int i = 0; i < replies.size(); i++) {
+            Comment reply = replies.get(i);
+            ReplyInfoResponse response = responseList.get(i);
+            Set<LikeInfoResponse> likeSet = likeRepository.findByComment(reply)
+                    .stream().map(LikeInfoResponse::from)
+                    .collect(Collectors.toSet());
+            response.setLikedByPerson(likeSet);
+            response.setLikeCount(likeSet.size());
+        }
+        return responseList;
     }
 
 }

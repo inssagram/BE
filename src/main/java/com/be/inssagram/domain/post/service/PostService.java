@@ -1,5 +1,8 @@
 package com.be.inssagram.domain.post.service;
 
+import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
+import com.be.inssagram.domain.like.entity.Like;
+import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.post.dto.request.CreatePostRequest;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
@@ -12,15 +15,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
 
     public PostInfoResponse createPost(CreatePostRequest request) {
 
@@ -57,18 +60,37 @@ public class PostService {
     }
 
     public PostInfoResponse searchPostDetail(Long postId) {
-        return postRepository.findById(postId)
-                .map(PostInfoResponse::from)
-                .orElseThrow(PostDoesNotExistException::new);
+        Post post = postRepository.findById(postId).orElseThrow(
+                PostDoesNotExistException::new);
+        PostInfoResponse response = PostInfoResponse.from(post);
+        insertLikeInfo(post, response);
+        return response;
     }
 
     public List<PostInfoResponse> searchPostAll() {
         try {
-            return postRepository.findAll(pageable).map(PostInfoResponse::from);
+            List<Post> posts = postRepository.findAll();
+            List<PostInfoResponse> responseList = posts.stream()
+                    .map(PostInfoResponse::from).toList();
+            for (int i = 0; i < posts.size(); i++) {
+                Post post = posts.get(i);
+                PostInfoResponse response = responseList.get(i);
+                insertLikeInfo(post, response);
+            }
+            return responseList;
         } catch (Exception e) {
             // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
             return Collections.emptyList();
         }
+    }
+
+    private void insertLikeInfo(Post post, PostInfoResponse response) {
+        Set<LikeInfoResponse> likeSet = likeRepository
+                .findByPostAndCommentId(post, null)
+                .stream().map(LikeInfoResponse::from)
+                .collect(Collectors.toSet());
+        response.setLikedByPerson(likeSet);
+        response.setLikeCount(likeSet.size());
     }
 
 }
