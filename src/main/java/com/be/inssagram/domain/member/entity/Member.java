@@ -27,6 +27,8 @@ public class Member {
 
     private String email;
     private String nickname;
+    private String description;
+    private String profilePic;
     private String password;
     private String role;
     private String companyName;
@@ -38,11 +40,17 @@ public class Member {
         if (updateRequest.getNickname() != null) {
             this.nickname = updateRequest.getNickname();
         }
+        if (updateRequest.getProfilePic() != null) {
+            this.profilePic = updateRequest.getProfilePic();
+        }
+        if (updateRequest.getDescription() != null) {
+            this.description = updateRequest.getDescription();
+        }
         if (updateRequest.getPassword() != null) {
             this.password = updateRequest.getPassword();
         }
-        if (updateRequest.getJobField() != null) {
-            this.companyName = updateRequest.getJobField();
+        if (updateRequest.getCompanyName() != null) {
+            this.companyName = updateRequest.getCompanyName();
         }
     }
 
