@@ -104,6 +104,12 @@ public class MemberService {
         memberRepository.delete(member);
     }
 
+    //회원 상세조회
+    public InfoResponse getMemberDetail(String nickname){
+        Member member = memberRepository.findByNickname(nickname);
+        return InfoResponse.fromEntity(member);
+    }
+
     private Member setAccount (SignupRequest request) {
         return Member.builder()
                 .email(request.getEmail())

@@ -8,7 +8,10 @@ import lombok.Builder;
 public record InfoResponse (
         String email,
         String nickname,
-        String companyName
+        String companyName,
+        String profilePic,
+        String description
+
 
 ) {
 
@@ -17,14 +20,8 @@ public record InfoResponse (
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .companyName(member.getCompanyName())
-                .build();
-    }
-
-    public static InfoResponse from(SearchMember searchMember) {
-        return InfoResponse.builder()
-                .email(searchMember.getEmail())
-                .nickname(searchMember.getNickname())
-                .companyName(searchMember.getCompanyName())
+                .profilePic(member.getProfilePic())
+                .description(member.getDescription())
                 .build();
     }
 }

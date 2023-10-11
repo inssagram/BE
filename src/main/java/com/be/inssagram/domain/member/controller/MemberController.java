@@ -98,4 +98,11 @@ public class MemberController {
         memberService.deleteMember(id);
         return ApiResponse.createMessage("정상적으로 삭제되었습니다");
     }
+
+    //회원 상세조회
+    @GetMapping("/member/detail/{nickname}")
+    public ApiResponse<InfoResponse> getMemberDetail(@PathVariable String nickname){
+        InfoResponse result = memberService.getMemberDetail(nickname);
+        return ApiResponse.createSuccessWithMessage(result, "정보를 불러왔습니다");
+    }
 }
