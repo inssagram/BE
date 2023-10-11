@@ -42,7 +42,7 @@ public class Comment extends BaseEntity {
     private Comment parentComment; // 부모 댓글
 
     // 대댓글을 작성할 수 있는 필드
-    @OneToMany(mappedBy = "parentComment", orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parentComment", orphanRemoval = true)
     private List<Comment> childComments = new ArrayList<>();
 
     // 댓글과 대댓글을 구분하기 위한 필드

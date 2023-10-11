@@ -45,8 +45,6 @@ class PostServiceTest {
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
-                .likedByPerson(new ArrayList<>())
-                .likeCount(34)
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
                 .hashTags(new HashSet<>())
@@ -75,8 +73,6 @@ class PostServiceTest {
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
-                .likedByPerson(new ArrayList<>())
-                .likeCount(34)
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
                 .hashTags(new HashSet<>())
@@ -104,8 +100,6 @@ class PostServiceTest {
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
-                .likedByPerson(new ArrayList<>())
-                .likeCount(34)
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
                 .hashTags(new HashSet<>())
@@ -128,8 +122,6 @@ class PostServiceTest {
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
-                .likedByPerson(new ArrayList<>())
-                .likeCount(34)
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
                 .hashTags(new HashSet<>())
@@ -150,8 +142,6 @@ class PostServiceTest {
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
-                .likedByPerson(new ArrayList<>())
-                .likeCount(34)
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
                 .hashTags(new HashSet<>())
@@ -161,9 +151,9 @@ class PostServiceTest {
         given(postRepository.findAll((Pageable) any())).willReturn(page);
         //when
         Pageable pageable = PageRequest.of(0, 3);
-        Page<PostInfoResponse> responses = postService.searchPostAll(pageable);
+        List<PostInfoResponse> responses = postService.searchPostAll();
         //then
-        assertEquals(1L, responses.getContent().get(0).getPostId());
+        assertEquals(1L, responses.get(0).getPostId());
     }
 
     @Test

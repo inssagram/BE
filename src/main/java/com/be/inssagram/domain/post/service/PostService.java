@@ -62,12 +62,12 @@ public class PostService {
                 .orElseThrow(PostDoesNotExistException::new);
     }
 
-    public Page<PostInfoResponse> searchPostAll(Pageable pageable) {
+    public List<PostInfoResponse> searchPostAll() {
         try {
             return postRepository.findAll(pageable).map(PostInfoResponse::from);
         } catch (Exception e) {
             // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
-            return new PageImpl<>(Collections.emptyList());
+            return Collections.emptyList();
         }
     }
 

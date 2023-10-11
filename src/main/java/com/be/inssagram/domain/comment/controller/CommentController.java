@@ -3,6 +3,7 @@ package com.be.inssagram.domain.comment.controller;
 import com.be.inssagram.common.ApiResponse;
 import com.be.inssagram.domain.comment.dto.request.CommentRequest;
 import com.be.inssagram.domain.comment.dto.response.CommentInfoResponse;
+import com.be.inssagram.domain.comment.dto.response.ReplyInfoResponse;
 import com.be.inssagram.domain.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ public class CommentController {
     }
 
     @PostMapping("/create/reply")
-    public ApiResponse<CommentInfoResponse> createReply(
+    public ApiResponse<ReplyInfoResponse> createReply(
             @RequestParam(value = "parent-comment-id") Long parentCommentId,
             @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
@@ -55,6 +56,14 @@ public class CommentController {
                 commentService.searchParentComments(postId));
     }
 
+    @GetMapping("/search2")
+    public ApiResponse<List<CommentInfoResponse>> searchParentComments2(
+            @RequestParam(value = "post-id") Long postId
+    ) {
+        return ApiResponse.createSuccess(
+                commentService.searchComments(postId));
+    }
+
     @GetMapping("/search/reply")
     public ApiResponse<List<CommentInfoResponse>> searchReplyByParentComment(
             @RequestParam(value = "parent-comment-id") Long parentCommentId
@@ -63,4 +72,11 @@ public class CommentController {
                 commentService.searchReplyByParentComment(parentCommentId));
     }
 
+    @GetMapping("/search/reply2")
+    public ApiResponse<List<ReplyInfoResponse>> searchReplyByParentComment2(
+            @RequestParam(value = "parent-comment-id") Long parentCommentId
+    ) {
+        return ApiResponse.createSuccess(
+                commentService.searchReply(parentCommentId));
+    }
 }

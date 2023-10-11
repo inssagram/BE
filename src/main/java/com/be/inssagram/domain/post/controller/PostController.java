@@ -9,11 +9,9 @@ import com.be.inssagram.domain.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -49,10 +47,8 @@ public class PostController {
     }
 
     @GetMapping("/all")
-    public ApiResponse<Page<PostInfoResponse>> searchPostAll(
-            @PageableDefault(size = 10, sort = "createdAt"
-                    , direction = Sort.Direction.DESC) Pageable pageable) {
-        return ApiResponse.createSuccess(postService.searchPostAll(pageable));
+    public ApiResponse<List<PostInfoResponse>> searchPostAll() {
+        return ApiResponse.createSuccess(postService.searchPostAll());
     }
 
 }

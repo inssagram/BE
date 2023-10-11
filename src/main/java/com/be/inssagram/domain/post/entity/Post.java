@@ -33,9 +33,6 @@ public class Post extends BaseEntity {
     private List<String> image;
     private String contents;
     private String location;
-    @ElementCollection
-    private List<String> likedByPerson;
-    private Integer likeCount;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post",
             cascade = CascadeType.ALL, orphanRemoval = true)
 //    @JsonManagedReference

@@ -2,6 +2,7 @@ package com.be.inssagram.domain.comment.service;
 
 import com.be.inssagram.domain.comment.dto.request.CommentRequest;
 import com.be.inssagram.domain.comment.dto.response.CommentInfoResponse;
+import com.be.inssagram.domain.comment.dto.response.ReplyInfoResponse;
 import com.be.inssagram.domain.comment.entity.Comment;
 import com.be.inssagram.domain.comment.repository.CommentRepository;
 import com.be.inssagram.domain.member.entity.Member;
@@ -48,7 +49,7 @@ public class CommentService {
         return CommentInfoResponse.from(commentRepository.save(comment));
     }
 
-    public CommentInfoResponse createReply(
+    public ReplyInfoResponse createReply(
             Long parentCommentId, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
         Member member = memberRepository.findById(request.getMemberId())
@@ -75,7 +76,7 @@ public class CommentService {
         parentComment.getChildComments().add(reply);
         commentRepository.save(parentComment);
         // 대댓글을 저장합니다.
-        return CommentInfoResponse.from(savedReply);
+        return ReplyInfoResponse.from(savedReply);
     }
 
     public CommentInfoResponse updateComment(
@@ -120,7 +121,7 @@ public class CommentService {
         return commentRepository.findRepliesByParentComment(comment);
     }
 
-    public List<CommentInfoResponse> searchReply (Long parentCommentId) {
+    public List<ReplyInfoResponse> searchReply (Long parentCommentId) {
         Comment comment = commentRepository.findById(parentCommentId)
                 .orElseThrow(CommentDoesNotExistException::new);
 

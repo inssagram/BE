@@ -1,6 +1,7 @@
 package com.be.inssagram.domain.post.dto.response;
 
 import com.be.inssagram.domain.comment.entity.Comment;
+import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.post.entity.Post;
 import lombok.*;
 
@@ -20,8 +21,8 @@ public class PostInfoResponse {
     private List<String> image;
     private String contents;
     private String location;
+    private Set<LikeInfoResponse> likedByPerson;
     private Integer likeCount;
-//    private List<Comment> comments;
     private Integer commentsCounts;
     private Set<String> taggedMembers;
     private Set<String> hashTags;
@@ -37,7 +38,6 @@ public class PostInfoResponse {
                 .image(post.getImage())
                 .contents(post.getContents())
                 .location(post.getLocation())
-                .likeCount(post.getLikeCount())
 //                .comments(post.getComments())
                 .commentsCounts(commentCounts)
                 .taggedMembers(post.getTaggedMembers())
