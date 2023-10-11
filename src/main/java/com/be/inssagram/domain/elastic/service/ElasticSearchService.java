@@ -30,9 +30,9 @@ public class ElasticSearchService {
     @Value("${spring.elastic.port}")
     private int elasticsearchPort;
 
-    public List<SearchMemberResult> executeWildcardQuery( String wildcardValue) {
+    public List<SearchMemberResult> executeWildcardQuery(String wildcardValue) {
         String endpoint = "/members/_search";
-        String requestBody = "{ \"size\": 5, \"query\": { \"wildcard\": { \"member_nickname\": { \"value\": \"*" + wildcardValue + "*\" } } } }";
+        String requestBody = "{ \"query\": { \"wildcard\": { \"member_nickname\": { \"value\": \"*" + wildcardValue + "*\" } } } }";
         String elasticsearchUrl = "http://" + elasticsearchHost + ":" + elasticsearchPort + endpoint;
 
         HttpHeaders headers = new HttpHeaders();
