@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FollowRequest {
-    private String followId;
-    private String hashtagId;
-    private String myId;
+    private Long followId;
+    private Long hashtagId;
+    private Long myId;
 }

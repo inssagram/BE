@@ -36,14 +36,14 @@ public class FollowService {
         }
     }
 
-    private Follow setFollowMember(String myId, String followerId){
+    private Follow setFollowMember(Long myId, Long followId){
         return Follow.builder()
                 .myId(myId)
-                .followId(followerId)
+                .followId(followId)
                 .build();
     }
 
-    private Follow setFollowHashtag(String myId, String hashtagId){
+    private Follow setFollowHashtag(Long myId, Long hashtagId){
         return Follow.builder()
                 .myId(myId)
                 .hashtagId(hashtagId)

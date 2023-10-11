@@ -2,7 +2,6 @@ package com.be.inssagram.domain.follow.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 
 @Getter
@@ -16,9 +15,9 @@ public class Follow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String myId;
+    private Long myId;
 
-    private String followId;
+    private Long followId;
 
-    private String hashtagId;
+    private Long hashtagId;
 }
