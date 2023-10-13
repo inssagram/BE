@@ -1,5 +1,6 @@
 package com.be.inssagram.domain.post.service;
 
+import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.like.entity.Like;
 import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.post.dto.request.CreatePostRequest;
@@ -37,6 +38,8 @@ class PostServiceTest {
 
     @Mock
     private LikeRepository likeRepository;
+    @Mock
+    private HashTagRepository hashTagRepository;
 
     @InjectMocks
     private PostService postService;
@@ -89,6 +92,7 @@ class PostServiceTest {
                 .taggedMembers(new HashSet<>())
                 .hashTags(new ArrayList<>())
                 .build());
+        updateResponse.setHashTags(new ArrayList<>());
         //then
         assertEquals(1L, updateResponse.getMemberId());
         assertEquals("AAA", updateResponse.getContents());
@@ -128,9 +132,12 @@ class PostServiceTest {
                 .taggedMembers(new HashSet<>())
                 .build();
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+
         //when
         PostInfoResponse searchResponse = postService.searchPostDetail(1L);
+
         searchResponse.setLikeCount(0);
+        searchResponse.setHashTags(new ArrayList<>());
         //then
         assertEquals(1L, searchResponse.getMemberId());
     }
