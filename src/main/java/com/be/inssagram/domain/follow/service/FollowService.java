@@ -12,29 +12,21 @@ public class FollowService {
 
     private final FollowRepository followRepository;
 
-    //계정 팔로잉 및 해제
-    public String followMember(FollowRequest request){
+    //팔로잉 및 해제
+    public String follow(FollowRequest request){
         Follow exists = followRepository.findByMyIdAndFollowId(request.getMyId(), request.getFollowId());
         if(exists != null){
             followRepository.delete(exists);
             return "팔로잉을 해지하셧습니다";
         } else {
-            followRepository.save(setFollowMember(request.getMyId(), request.getFollowId()));
-            return "팔로잉 하셧습니다";
-        }
-    }
-
-    //해시태그 팔로잉 및 해제
-    public String followHashtag(FollowRequest request){
-        Follow exists = followRepository.findByMyIdAndHashtagId(request.getMyId(), request.getHashtagId());
-        if(exists != null){
-            followRepository.delete(exists);
-            return "팔로잉을 해지하셧습니다";
-        } else {
+            if(request.getHashtagId() == null) {
+                followRepository.save(setFollowMember(request.getMyId(), request.getFollowId()));
+            }
             followRepository.save(setFollowHashtag(request.getMyId(), request.getHashtagId()));
             return "팔로잉 하셧습니다";
         }
     }
+
 
     private Follow setFollowMember(Long myId, Long followId){
         return Follow.builder()

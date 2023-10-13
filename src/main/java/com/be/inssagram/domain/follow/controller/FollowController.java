@@ -15,14 +15,9 @@ public class FollowController {
 
     private final FollowService followService;
 
-    @PostMapping("/follow/member")
+    @PostMapping("/member/follow")
     public ApiResponse<?> followMember(@RequestBody FollowRequest request){
-        String result = followService.followMember(request);
-        return ApiResponse.createMessage(result);
-    }
-    @PostMapping("/follow/hashtag")
-    public ApiResponse<?> followHashtag(@RequestBody FollowRequest request){
-        String result = followService.followHashtag(request);
+        String result = followService.follow(request);
         return ApiResponse.createMessage(result);
     }
 }
