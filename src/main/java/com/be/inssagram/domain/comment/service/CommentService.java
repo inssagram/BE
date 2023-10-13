@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -70,18 +71,30 @@ public class CommentService {
         }
 
         // 대댓글을 생성합니다.
-        Comment reply = Comment.builder()
-                .post(parentComment.getPost())
-                .member(member)
-                .content(request.getContents())
-                .parentComment(parentComment)
-                .replyFlag(true)
-                .build();
-        Comment savedReply = commentRepository.save(reply);
-        parentComment.getChildComments().add(reply);
-        commentRepository.save(parentComment);
+        Comment savedReply = getSavedReply(request, member, parentComment);
+
+        ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
+        response.setTargetMemberId(parentComment.getMember().getId());
+
         // 대댓글을 저장합니다.
-        return ReplyInfoResponse.from(savedReply);
+        return response;
+    }
+
+    public ReplyInfoResponse createReplyToReply(
+            Long parentCommentId, Long replyId, CommentRequest request
+    ) {
+        Member member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(UserDoesNotExistException::new);
+
+        Comment parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(CommentDoesNotExistException::new);
+
+        Comment savedReply = getSavedReply(request, member, parentComment);
+
+        ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
+        response.setTargetMemberId(commentRepository.findById(replyId)
+                        .get().getMember().getId());
+        return response;
     }
 
     public CommentInfoResponse updateComment(
@@ -127,9 +140,7 @@ public class CommentService {
             Set<LikeInfoResponse> likeSet = likeRepository.findByComment(comment)
                     .stream().map(LikeInfoResponse::from)
                     .collect(Collectors.toSet());
-            response.setLikedByPerson(likeSet);
             response.setLikeCount(likeSet.size());
-            response.setChildComments(getReplyInfoResponses(comment));
         }
 
         return responseList;
@@ -165,5 +176,18 @@ public class CommentService {
         return responseList;
     }
 
-}
+    private Comment getSavedReply(CommentRequest request, Member member, Comment parentComment) {
+        Comment reply = Comment.builder()
+                .post(parentComment.getPost())
+                .member(member)
+                .content(request.getContents())
+                .parentComment(parentComment)
+                .replyFlag(true)
+                .build();
+        Comment savedReply = commentRepository.save(reply);
+        parentComment.getChildComments().add(reply);
+        commentRepository.save(parentComment);
+        return savedReply;
+    }
 
+}
