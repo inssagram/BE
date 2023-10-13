@@ -1,5 +1,8 @@
 package com.be.inssagram.domain.post.service;
 
+import com.be.inssagram.domain.hashTag.entity.HashTag;
+import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
+import com.be.inssagram.domain.hashTag.service.HashTagService;
 import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.like.entity.Like;
 import com.be.inssagram.domain.like.repository.LikeRepository;
@@ -16,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,6 +32,10 @@ public class PostService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final MemberRepository memberRepository;
+    private final HashTagRepository hashTagRepository;
+
+    private final HashTagService hashTagService;
+
 
     public PostInfoResponse createPost(CreatePostRequest request) {
 
@@ -39,21 +47,41 @@ public class PostService {
                 .build();
 
         Set<String> taggedMembers = new HashSet<>();
-        Set<String> hashTags = new HashSet<>();
+        List<String> hashTags = new ArrayList<>();
 
+
+        PostInfoResponse response = PostInfoResponse.from(
+                postRepository.save(post));
+
+        for (String hashTag : request.getHashTags()) {
+            hashTagService.saveHashTag(post, hashTag);
+            hashTags.add(hashTag);
+        }
 
         post.setTaggedMembers(taggedMembers);
-        post.setHashTags(hashTags);
-
-        return PostInfoResponse.from(postRepository.save(post));
+        response.setHashTags(hashTags);
+        return response;
     }
 
     public PostInfoResponse updatePost(Long postId, UpdatePostRequest request) {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
         post.updateFields(request);
+
+        Set<String> curHashTags = hashTagRepository.findByPost(post)
+                .stream().map(HashTag::getName).collect(Collectors.toSet());
+        Set<String> newHashTags = new HashSet<>();
+
+        if (request.getHashTags() != null) {
+            newHashTags = new HashSet<>(request.getHashTags());
+        }
+
+        updateHashTags(post, curHashTags, newHashTags);
+
         postRepository.save(post);
-        return PostInfoResponse.from(post);
+        PostInfoResponse response = PostInfoResponse.from(post);
+        response.setHashTags(newHashTags.stream().toList());
+        return response;
     }
 
     public void deletePost(Long postId) {
@@ -67,6 +95,7 @@ public class PostService {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
         PostInfoResponse response = PostInfoResponse.from(post);
+        insertHashTags(post, response);
         insertLikeInfo(post, response);
         return response;
     }
@@ -91,6 +120,9 @@ public class PostService {
         return getPostInfoResponsesWithLikeInfo(posts);
     }
 
+
+
+    // 내부 메서드
     private List<PostInfoResponse> getPostInfoResponsesWithLikeInfo(List<Post> posts) {
         List<PostInfoResponse> responseList = posts.stream()
                 .map(PostInfoResponse::from).toList();
@@ -98,6 +130,7 @@ public class PostService {
             Post post = posts.get(i);
             PostInfoResponse response = responseList.get(i);
             insertLikeInfo(post, response);
+            insertHashTags(post, response);
         }
         return responseList;
     }
@@ -107,4 +140,23 @@ public class PostService {
                 .findByPostAndCommentId(post, null).size());
     }
 
+    private void updateHashTags(Post post, Set<String> curHashTags, Set<String> newHashTags) {
+        if (!curHashTags.equals(newHashTags)) {
+            curHashTags.removeAll(newHashTags);
+            for (String curHashTag : curHashTags) {
+                HashTag hashTag = hashTagRepository.findByPostAndName(post, curHashTag);
+                hashTagRepository.delete(hashTag);
+            }
+
+            for(String newHashTag : newHashTags) {
+                hashTagService.saveHashTag(post, newHashTag);
+            }
+        }
+    }
+
+    private void insertHashTags(Post post, PostInfoResponse response) {
+        List<String> hashTags = hashTagRepository.findByPost(post).stream()
+                .map(HashTag::getName).toList();
+        response.setHashTags(hashTags);
+    }
 }

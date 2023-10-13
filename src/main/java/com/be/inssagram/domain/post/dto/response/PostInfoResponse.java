@@ -25,7 +25,7 @@ public class PostInfoResponse {
     private Integer likeCount;
     private Integer commentsCounts;
     private Set<String> taggedMembers;
-    private Set<String> hashTags;
+    private List<String> hashTags;
 
     public static PostInfoResponse from(Post post) {
         int commentCounts = 0;
@@ -41,7 +41,6 @@ public class PostInfoResponse {
 //                .comments(post.getComments())
                 .commentsCounts(commentCounts)
                 .taggedMembers(post.getTaggedMembers())
-                .hashTags(post.getHashTags())
                 .build();
     }
 

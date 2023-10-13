@@ -2,6 +2,7 @@ package com.be.inssagram.domain.post.entity;
 
 import com.be.inssagram.common.BaseEntity;
 import com.be.inssagram.domain.comment.entity.Comment;
+import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -39,16 +40,9 @@ public class Post extends BaseEntity {
     private List<Comment> comments = new ArrayList<>();
     @ElementCollection
     private Set<String> taggedMembers;
-    @ElementCollection
-    private Set<String> hashTags;
-
 
     public void setTaggedMembers(Set taggedMembers) {
         this.taggedMembers = taggedMembers;
-    }
-
-    public void setHashTags(Set hashTags) {
-        this.hashTags = hashTags;
     }
 
     public void updateFields(UpdatePostRequest request) {
@@ -61,9 +55,7 @@ public class Post extends BaseEntity {
         if (request.getTaggedMembers() != null) {
             taggedMembers = request.getTaggedMembers();
         }
-        if (request.getHashTags() != null) {
-            hashTags = request.getHashTags();
-        }
+
     }
 
 }

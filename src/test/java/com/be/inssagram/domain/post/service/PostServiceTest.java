@@ -1,5 +1,8 @@
 package com.be.inssagram.domain.post.service;
 
+import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
+import com.be.inssagram.domain.like.entity.Like;
+import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.post.dto.request.CreatePostRequest;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
@@ -33,6 +36,11 @@ class PostServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private LikeRepository likeRepository;
+    @Mock
+    private HashTagRepository hashTagRepository;
+
     @InjectMocks
     private PostService postService;
 
@@ -47,7 +55,6 @@ class PostServiceTest {
                 .location("home")
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
-                .hashTags(new HashSet<>())
                 .build();
         given(postRepository.save(any())).willReturn(post);
         //when
@@ -58,7 +65,7 @@ class PostServiceTest {
                 .contents("AAA")
                 .location("sweet")
                 .taggedMembers(new HashSet<>())
-                .hashTags(new HashSet<>())
+                .hashTags(new ArrayList<>())
                 .build());
         //then
         assertEquals(1L, createResponse.getMemberId());
@@ -75,7 +82,6 @@ class PostServiceTest {
                 .location("home")
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
-                .hashTags(new HashSet<>())
                 .build();
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
         //when
@@ -84,8 +90,9 @@ class PostServiceTest {
                 .contents("AAA")
                 .location("sweet")
                 .taggedMembers(new HashSet<>())
-                .hashTags(new HashSet<>())
+                .hashTags(new ArrayList<>())
                 .build());
+        updateResponse.setHashTags(new ArrayList<>());
         //then
         assertEquals(1L, updateResponse.getMemberId());
         assertEquals("AAA", updateResponse.getContents());
@@ -102,7 +109,6 @@ class PostServiceTest {
                 .location("home")
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
-                .hashTags(new HashSet<>())
                 .build();
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
         ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
@@ -124,11 +130,14 @@ class PostServiceTest {
                 .location("home")
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
-                .hashTags(new HashSet<>())
                 .build();
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+
         //when
         PostInfoResponse searchResponse = postService.searchPostDetail(1L);
+
+        searchResponse.setLikeCount(0);
+        searchResponse.setHashTags(new ArrayList<>());
         //then
         assertEquals(1L, searchResponse.getMemberId());
     }
@@ -144,13 +153,10 @@ class PostServiceTest {
                 .location("home")
                 .comments(new ArrayList<>())
                 .taggedMembers(new HashSet<>())
-                .hashTags(new HashSet<>())
                 .build();
         List<Post> list = Collections.singletonList(post);
-        Page<Post> page = new PageImpl<>(list);
-        given(postRepository.findAll((Pageable) any())).willReturn(page);
+        given(postRepository.findAll()).willReturn(list);
         //when
-        Pageable pageable = PageRequest.of(0, 3);
         List<PostInfoResponse> responses = postService.searchPostAll();
         //then
         assertEquals(1L, responses.get(0).getPostId());
@@ -168,7 +174,7 @@ class PostServiceTest {
                         .contents("AAA")
                         .location("sweet")
                         .taggedMembers(new HashSet<>())
-                        .hashTags(new HashSet<>())
+                        .hashTags(new ArrayList<>())
                         .build()));
         //then
         assertEquals("존재하지 않는 게시글 입니다.", exception.getMessage());
