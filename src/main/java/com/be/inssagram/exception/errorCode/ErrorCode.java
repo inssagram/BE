@@ -14,9 +14,6 @@ public enum ErrorCode {
 
     // Comment Error Code
     COMMENT_NOT_FOUND("존재하지 않는 댓글입니다."),
-    IMPOSSIBLE_CREATE_COMMENT("더이상 댓글을 달 수 없습니다.")
-
-
-    ;
+    IMPOSSIBLE_CREATE_COMMENT("더이상 댓글을 달 수 없습니다.");
     private final String description;
 }

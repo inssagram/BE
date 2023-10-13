@@ -4,7 +4,7 @@ import com.be.inssagram.domain.member.entity.Member;
 import lombok.Builder;
 
 @Builder
-public record InfoResponse (
+public record InfoResponse(
         String email,
         String nickname,
         String gender,

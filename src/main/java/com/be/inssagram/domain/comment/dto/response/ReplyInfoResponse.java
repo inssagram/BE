@@ -1,11 +1,7 @@
 package com.be.inssagram.domain.comment.dto.response;
 
 import com.be.inssagram.domain.comment.entity.Comment;
-import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import lombok.*;
-
-import java.util.List;
-import java.util.Set;
 
 @Setter
 @Getter
@@ -21,7 +17,6 @@ public class ReplyInfoResponse {
     private String content;
     private boolean replyFlag;
     private Long targetMemberId;
-//    private Set<LikeInfoResponse> likedByPerson;
     private Integer likeCount;
 
     public static ReplyInfoResponse from(Comment comment) {

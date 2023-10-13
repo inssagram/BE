@@ -38,7 +38,7 @@ public class LikeService {
         Optional<Like> existingLike = likeRepository
                 .findByPostIdAndMemberId(postId, memberId);
 
-        if (existingLike.isPresent()){
+        if (existingLike.isPresent()) {
             likeRepository.delete(existingLike.orElse(null));
             return;
         }
@@ -63,7 +63,7 @@ public class LikeService {
         Optional<Like> existingLike = likeRepository
                 .findByPostIdAndMemberIdAndCommentId(
                         post.getId(), memberId, commentId);
-        if (existingLike.isPresent()){
+        if (existingLike.isPresent()) {
             likeRepository.delete(existingLike.orElse(null));
             return;
         }
