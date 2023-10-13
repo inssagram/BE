@@ -20,6 +20,7 @@ public class ReplyInfoResponse {
     private Long memberId;
     private String content;
     private boolean replyFlag;
+    private Long targetMemberId;
     private Set<LikeInfoResponse> likedByPerson;
     private Integer likeCount;
 

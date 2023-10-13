@@ -34,6 +34,14 @@ public class CommentController {
                 commentService.createReply(parentCommentId, request));
     }
 
+    @PostMapping("/create/reply/{replyId}")
+    public ApiResponse<ReplyInfoResponse> createReplyToReply(
+            @RequestParam(value = "parent-comment-id") Long parentCommentId,
+            @RequestBody CommentRequest request, @PathVariable Long replyId) {
+        return ApiResponse.createSuccess(
+                commentService.createReplyToReply(parentCommentId, replyId, request));
+    }
+
     @PutMapping("/update/{id}")
     public ApiResponse<CommentInfoResponse> updateComment(
             @PathVariable Long id, @RequestBody CommentRequest request) {

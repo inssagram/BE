@@ -20,9 +20,9 @@ public class CommentInfoResponse {
     private Long postId;
     private Long memberId;
     private String content;
-//    private List<Comment> childComments;
-    private List<ReplyInfoResponse> childComments;
-    private Set<LikeInfoResponse> likedByPerson;
+//    private List<ReplyInfoResponse> childComments;
+    private Integer CommentCount;
+//    private Set<LikeInfoResponse> likedByPerson;
     private Integer likeCount;
     private boolean replyFlag;
 
@@ -46,7 +46,8 @@ public class CommentInfoResponse {
                 .postId(comment.getPost().getId())
                 .memberId(comment.getMember().getId())
                 .content(comment.getContent())
-                .childComments(list)
+//                .childComments(list)
+                .CommentCount(list.size())
                 .replyFlag(comment.isReplyFlag())
                 .build();
     }
