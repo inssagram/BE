@@ -63,16 +63,9 @@ public class MemberController {
 
     //회원가입
     @PostMapping("/signup")
-    public ApiResponse<?> signup(@Valid @RequestBody SignupRequest request){
+    public ApiResponse<?> signup(@RequestBody SignupRequest request){
         memberService.signup(request);
         return ApiResponse.createMessage("가입이 완료되었습니다!");
-    }
-
-    //ES 저장
-    @PostMapping("/memberDocuments")
-    public ApiResponse<?> saveMemberDocuments(){
-        memberService.saveAllMemberDocuments();
-        return ApiResponse.createMessage("ES 에 저장완료");
     }
 
     //로그인
@@ -87,15 +80,17 @@ public class MemberController {
     //회원수정
     @PutMapping("/member/update/{id}")
     public ApiResponse<InfoResponse> update(@PathVariable Long id,
-                                            @RequestBody UpdateRequest request){
-        InfoResponse result = memberService.updateMember(id, request);
+                                            @RequestBody UpdateRequest request,
+                                            @RequestHeader("Authorization") String token){
+        InfoResponse result = memberService.updateMember(id, request, token);
         return ApiResponse.createSuccessWithMessage(result, "정상적으로 수정되었습니다");
     }
 
     //회원탈퇴
     @DeleteMapping("/member/delete/{id}")
-    public ApiResponse<?> delete(@PathVariable Long id){
-        memberService.deleteMember(id);
+    public ApiResponse<?> delete(@PathVariable Long id,
+                                 @RequestHeader("Authorization") String token){
+        memberService.deleteMember(id, token);
         return ApiResponse.createMessage("정상적으로 삭제되었습니다");
     }
 

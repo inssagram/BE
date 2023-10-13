@@ -1,6 +1,8 @@
 package com.be.inssagram.domain.member.service;
 
 
+import com.be.inssagram.common.ApiResponse;
+import com.be.inssagram.config.Jwt.TokenProvider;
 import com.be.inssagram.domain.member.documents.MemberSearchRepository;
 import com.be.inssagram.domain.member.documents.SearchMember;
 import com.be.inssagram.domain.member.dto.request.*;
@@ -11,14 +13,17 @@ import com.be.inssagram.domain.member.repository.AuthRepository;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.exception.member.*;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MissingRequestHeaderException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class MemberService {
 
@@ -26,6 +31,7 @@ public class MemberService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
     private final MemberSearchRepository memberSearchRepository;
+    private final TokenProvider tokenProvider;
 
     //회원가입
     public void signup (SignupRequest request) {
@@ -34,7 +40,9 @@ public class MemberService {
             throw new DuplicatedUserException();
         }
         request.setPassword(passwordEncoder.encode(request.getPassword()));
-        memberRepository.save(setAccount(request));
+        Member member = memberRepository.save(setAccount(request));
+        //Elastic Search 에 반영
+        memberSearchRepository.save(SearchMember.from(member));
     }
 
     //인증코드 확인 및 삭제
@@ -60,14 +68,6 @@ public class MemberService {
         }
     }
 
-    //MySQL DB에 있는 모든 정보를 ES 에 저장
-    @Transactional
-    public void saveAllMemberDocuments(){
-        List<SearchMember> memberDocumentList = memberRepository.findAll().stream()
-                .map(SearchMember::from).collect(Collectors.toList());
-        memberSearchRepository.saveAll(memberDocumentList);
-    }
-
     //로그인
     public Member signin(SigninRequest request) {
         boolean checkMember = memberRepository.existsByEmail(request.getEmail());
@@ -85,8 +85,12 @@ public class MemberService {
     }
 
     //회원정보 수정
-    public InfoResponse updateMember(Long id, UpdateRequest request) {
+    public InfoResponse updateMember(Long id, UpdateRequest request, String token) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
+        String requestEmail = tokenProvider.getEmailFromToken(token);
+        if(member.getEmail().equals(requestEmail) == false){
+            throw new UnauthorizedRequestException();
+        }
         if(request.getPassword() != null) {
             if(!passwordEncoder.matches(request.getPassword(), member.getPassword())){
                 throw new SamePasswordException();
@@ -94,14 +98,21 @@ public class MemberService {
             request.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         member.updateFields(request);
-        memberRepository.save(member);
+        Member updatedMember = memberRepository.save(member);
+        //ES에 수정된 정보 반영
+        memberSearchRepository.save(SearchMember.from(updatedMember));
         return InfoResponse.fromEntity(member);
     }
 
     //회원탈퇴
-    public void deleteMember(Long id){
+    public void deleteMember(Long id, String token){
         Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
+        String requestEmail = tokenProvider.getEmailFromToken(token);
+        if(member.getEmail().equals(requestEmail) == false){
+            throw new UnauthorizedRequestException();
+        }
         memberRepository.delete(member);
+        memberSearchRepository.delete(SearchMember.from(member));
     }
 
     //회원 상세조회
@@ -119,5 +130,4 @@ public class MemberService {
                 .companyName(request.getCompanyName())
                 .build();
     }
-
 }
