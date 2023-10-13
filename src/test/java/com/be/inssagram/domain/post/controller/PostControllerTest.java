@@ -53,7 +53,7 @@ class PostControllerTest {
                 .likeCount(1)
                 .location("home")
                 .taggedMembers(new HashSet<>())
-                .hashTags(new HashSet<>())
+                .hashTags(new ArrayList<>())
                 .build());
         //when
         //then
@@ -66,7 +66,7 @@ class PostControllerTest {
                                         .contents("AAA")
                                         .location("sweet")
                                         .taggedMembers(new HashSet<>())
-                                        .hashTags(new HashSet<>())
+                                        .hashTags(new ArrayList<>())
                                         .build()))
                 ).andDo(print())
                 .andExpect(status().isOk())
@@ -87,7 +87,7 @@ class PostControllerTest {
                         .likeCount(1)
                         .location("home")
                         .taggedMembers(new HashSet<>())
-                        .hashTags(new HashSet<>())
+                        .hashTags(new ArrayList<>())
                         .build());
         //when
         //then
@@ -98,7 +98,7 @@ class PostControllerTest {
                                 .contents("AAA")
                                 .location("sweet")
                                 .taggedMembers(new HashSet<>())
-                                .hashTags(new HashSet<>())
+                                .hashTags(new ArrayList<>())
                                 .build()))
                 ).andDo(print())
                 .andExpect(status().isOk())
@@ -136,7 +136,7 @@ class PostControllerTest {
                         .likeCount(1)
                         .location("home")
                         .taggedMembers(new HashSet<>())
-                        .hashTags(new HashSet<>())
+                        .hashTags(new ArrayList<>())
                         .build());
         //when
         //then
@@ -165,7 +165,7 @@ class PostControllerTest {
                         .likeCount(1)
                         .location("home")
                         .taggedMembers(new HashSet<>())
-                        .hashTags(new HashSet<>())
+                        .hashTags(new ArrayList<>())
                         .build());
         given(postService.searchPostAll())
                 .willReturn(postInfoResponseList);
@@ -178,7 +178,7 @@ class PostControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.status")
                         .value("success"))
-                .andExpect(jsonPath("$.data.content[0].memberId")
+                .andExpect(jsonPath("$.data[0].memberId")
                         .value(1L))
         ;
     }
