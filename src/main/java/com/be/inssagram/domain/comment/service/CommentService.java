@@ -170,7 +170,7 @@ public class CommentService {
             Set<LikeInfoResponse> likeSet = likeRepository.findByComment(reply)
                     .stream().map(LikeInfoResponse::from)
                     .collect(Collectors.toSet());
-            response.setLikedByPerson(likeSet);
+//            response.setLikedByPerson(likeSet);
             response.setLikeCount(likeSet.size());
         }
         return responseList;

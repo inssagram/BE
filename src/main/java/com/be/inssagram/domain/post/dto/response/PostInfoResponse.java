@@ -21,7 +21,7 @@ public class PostInfoResponse {
     private List<String> image;
     private String contents;
     private String location;
-    private Set<LikeInfoResponse> likedByPerson;
+//    private Set<LikeInfoResponse> likedByPerson;
     private Integer likeCount;
     private Integer commentsCounts;
     private Set<String> taggedMembers;

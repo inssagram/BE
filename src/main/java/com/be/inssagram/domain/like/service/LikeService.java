@@ -4,6 +4,7 @@ import com.be.inssagram.domain.comment.entity.Comment;
 import com.be.inssagram.domain.comment.repository.CommentRepository;
 import com.be.inssagram.domain.like.entity.Like;
 import com.be.inssagram.domain.like.repository.LikeRepository;
+import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.post.entity.Post;
@@ -14,6 +15,7 @@ import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -46,7 +48,6 @@ public class LikeService {
 
     public void onLikeComment(Long commentId, Long memberId) {
 
-
         // 댓글(Comment)를 찾아옵니다.
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentDoesNotExistException::new);
@@ -70,4 +71,27 @@ public class LikeService {
                 .build();
         likeRepository.save(like);
     }
+
+    public List<InfoResponse> searchMemberLikePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostDoesNotExistException::new);
+        List<Like> likeList = likeRepository.findByPostAndCommentId(
+                post, null);
+
+        return likeList.stream().map(Like::getMember)
+                .map(InfoResponse::fromEntity)
+                .toList();
+    }
+
+    public List<InfoResponse> searchMemberLikeComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(CommentDoesNotExistException::new);
+
+        List<Like> likeList = likeRepository.findByComment(comment);
+
+        return likeList.stream().map(Like::getMember)
+                .map(InfoResponse::fromEntity)
+                .toList();
+    }
+
 }

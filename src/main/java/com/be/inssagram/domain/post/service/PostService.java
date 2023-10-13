@@ -103,12 +103,8 @@ public class PostService {
     }
 
     private void insertLikeInfo(Post post, PostInfoResponse response) {
-        Set<LikeInfoResponse> likeSet = likeRepository
-                .findByPostAndCommentId(post, null)
-                .stream().map(LikeInfoResponse::from)
-                .collect(Collectors.toSet());
-        response.setLikedByPerson(likeSet);
-        response.setLikeCount(likeSet.size());
+        response.setLikeCount(likeRepository
+                .findByPostAndCommentId(post, null).size());
     }
 
 }
