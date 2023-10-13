@@ -3,11 +3,14 @@ package com.be.inssagram.domain.post.service;
 import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.like.entity.Like;
 import com.be.inssagram.domain.like.repository.LikeRepository;
+import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.post.dto.request.CreatePostRequest;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
+import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
+    private final MemberRepository memberRepository;
 
     public PostInfoResponse createPost(CreatePostRequest request) {
 
@@ -70,18 +74,33 @@ public class PostService {
     public List<PostInfoResponse> searchPostAll() {
         try {
             List<Post> posts = postRepository.findAll();
-            List<PostInfoResponse> responseList = posts.stream()
-                    .map(PostInfoResponse::from).toList();
-            for (int i = 0; i < posts.size(); i++) {
-                Post post = posts.get(i);
-                PostInfoResponse response = responseList.get(i);
-                insertLikeInfo(post, response);
-            }
-            return responseList;
+            return getPostInfoResponsesWithLikeInfo(posts);
         } catch (Exception e) {
             // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
             return Collections.emptyList();
         }
+    }
+
+    public List<PostInfoResponse> searchPostWithMember(Long memberId) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new UserDoesNotExistException();
+        }
+
+        List<Post> posts = postRepository.findByMemberId(memberId);
+
+        return posts.stream()
+                .map(PostInfoResponse::from).toList();
+    }
+
+    private List<PostInfoResponse> getPostInfoResponsesWithLikeInfo(List<Post> posts) {
+        List<PostInfoResponse> responseList = posts.stream()
+                .map(PostInfoResponse::from).toList();
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
+            PostInfoResponse response = responseList.get(i);
+            insertLikeInfo(post, response);
+        }
+        return responseList;
     }
 
     private void insertLikeInfo(Post post, PostInfoResponse response) {
