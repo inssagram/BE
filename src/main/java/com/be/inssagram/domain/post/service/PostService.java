@@ -88,8 +88,7 @@ public class PostService {
 
         List<Post> posts = postRepository.findByMemberId(memberId);
 
-        return posts.stream()
-                .map(PostInfoResponse::from).toList();
+        return getPostInfoResponsesWithLikeInfo(posts);
     }
 
     private List<PostInfoResponse> getPostInfoResponsesWithLikeInfo(List<Post> posts) {
