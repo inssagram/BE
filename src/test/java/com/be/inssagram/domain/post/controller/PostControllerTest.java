@@ -167,9 +167,8 @@ class PostControllerTest {
                         .taggedMembers(new HashSet<>())
                         .hashTags(new HashSet<>())
                         .build());
-        Page<PostInfoResponse> page = new PageImpl<>(postInfoResponseList);
-        given(postService.searchPostAll(any()))
-                .willReturn(page);
+        given(postService.searchPostAll())
+                .willReturn(postInfoResponseList);
         //when
         //then
         mockMvc.perform(get("/post/all")
