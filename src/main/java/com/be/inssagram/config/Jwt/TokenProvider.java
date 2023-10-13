@@ -1,7 +1,6 @@
 package com.be.inssagram.config.Jwt;
 
 import org.springframework.security.core.userdetails.User;
-import com.be.inssagram.domain.member.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -21,8 +20,7 @@ import java.util.Date;
 @Slf4j
 @RequiredArgsConstructor
 public class TokenProvider {
-    private static final long TOKEN_EXPIRE_TIME = 1000 * 60 * 60;
-    private final MemberRepository memberRepository;
+    private static final long TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
     @Value("${spring.jwt.secret-key}")
     private String secretKey;
 
