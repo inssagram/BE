@@ -1,6 +1,6 @@
 package com.be.inssagram.config.security;
 
-import com.be.inssagram.config.Jwt.filter.JwtFilter;
+import com.be.inssagram.config.Jwt.filter.JwtAuthenticateFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+    private final JwtAuthenticateFilter jwtAuthenticateFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -27,13 +27,13 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> {
             try {
                 authorize
-                        .requestMatchers("/*","/member/update/*", "/signup/*","/search/member/*", "member/detail/*", "/follow/*") // 해당 경로는 인증 없이 접근 가능
+                        .requestMatchers("/*","/member/*/*","/search/member/*", "/follow/*") // 해당 경로는 인증 없이 접근 가능
                         .permitAll()
                         .and()
                         .sessionManagement()
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .and()
-                        .addFilterBefore(this.jwtFilter,
+                        .addFilterBefore(jwtAuthenticateFilter,
                                 UsernamePasswordAuthenticationFilter.class);
             } catch (Exception e) {
                 throw new RuntimeException(e);
