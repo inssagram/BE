@@ -1,16 +1,34 @@
 {
   "properties": {
-    "memberId": {
-      "type": "keyword"
+    "member_company_name" : {
+      "type" : "text",
+      "fields" : {
+        "keyword" : {
+          "type" : "keyword",
+          "ignore_above" : 256
+        }
+      }
     },
-    "memberEmail": {
-      "type": "text"
+    "member_email" : {
+      "type" : "text",
+      "fields" : {
+        "keyword" : {
+          "type" : "keyword",
+          "ignore_above" : 256
+        }
+      }
     },
-    "memberNickname": {
-      "type": "text"
+    "member_id" : {
+      "type" : "long"
     },
-    "memberCompanyName": {
-      "type": "text"
+    "member_nickname" : {
+      "type" : "text",
+      "fields" : {
+        "keyword" : {
+          "type" : "keyword",
+          "ignore_above" : 256
+        }
+      }
     }
   }
 }
