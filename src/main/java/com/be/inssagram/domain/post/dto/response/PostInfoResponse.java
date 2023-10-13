@@ -1,8 +1,10 @@
 package com.be.inssagram.domain.post.dto.response;
 
+import com.be.inssagram.domain.comment.entity.Comment;
 import com.be.inssagram.domain.post.entity.Post;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,10 +21,16 @@ public class PostInfoResponse {
     private String contents;
     private String location;
     private Integer likeCount;
+//    private List<Comment> comments;
+    private Integer commentsCounts;
     private Set<String> taggedMembers;
     private Set<String> hashTags;
 
     public static PostInfoResponse from(Post post) {
+        int commentCounts = 0;
+        if (post.getComments() != null) {
+            commentCounts = post.getComments().size();
+        }
         return PostInfoResponse.builder()
                 .postId(post.getId())
                 .memberId(post.getMemberId())
@@ -30,6 +38,8 @@ public class PostInfoResponse {
                 .contents(post.getContents())
                 .location(post.getLocation())
                 .likeCount(post.getLikeCount())
+//                .comments(post.getComments())
+                .commentsCounts(commentCounts)
                 .taggedMembers(post.getTaggedMembers())
                 .hashTags(post.getHashTags())
                 .build();
