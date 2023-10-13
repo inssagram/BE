@@ -28,12 +28,10 @@ public class Comment extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) // 댓글은 하나의 Post에 속합니다.
-//    @JsonBackReference
     private Post post;
-//    private Long postId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
-//    private Long memberId;
 
     private String content;
 

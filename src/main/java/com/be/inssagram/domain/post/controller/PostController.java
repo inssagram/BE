@@ -24,7 +24,7 @@ public class PostController {
     public ApiResponse<PostInfoResponse> createPost(
             @Valid @RequestBody CreatePostRequest request) {
         PostInfoResponse response = postService.createPost(request);
-        return ApiResponse.createSuccessWithMessage(response ,"완료");
+        return ApiResponse.createSuccessWithMessage(response, "완료");
     }
 
     @PutMapping("/update/{id}")

@@ -8,7 +8,10 @@ import com.be.inssagram.domain.member.dto.request.UpdateRequest;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
-import com.be.inssagram.exception.member.*;
+import com.be.inssagram.exception.member.SamePasswordException;
+import com.be.inssagram.exception.member.UserDoesNotExistException;
+import com.be.inssagram.exception.member.WrongEmailException;
+import com.be.inssagram.exception.member.WrongPasswordException;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void signup (SignupRequest request) {
+    public void signup(SignupRequest request) {
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         memberRepository.save(setAccount(request));
     }
@@ -28,7 +31,7 @@ public class MemberService {
     public Member signin(SigninRequest request) {
         boolean checkMember = memberRepository.existsByEmail(request.getEmail());
 
-        if(checkMember == false){
+        if (checkMember == false) {
             throw new WrongEmailException();
         }
         Member member = memberRepository.findByEmail(request.getEmail());
@@ -42,8 +45,8 @@ public class MemberService {
 
     public InfoResponse updateMember(Long id, UpdateRequest request) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
-        if(request.getPassword() != null) {
-            if(!passwordEncoder.matches(request.getPassword(), member.getPassword())){
+        if (request.getPassword() != null) {
+            if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
                 throw new SamePasswordException();
             }
             request.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -53,12 +56,12 @@ public class MemberService {
         return InfoResponse.fromEntity(member);
     }
 
-    public void deleteMember(Long id){
+    public void deleteMember(Long id) {
         Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
         memberRepository.delete(member);
     }
 
-    private Member setAccount (SignupRequest request) {
+    private Member setAccount(SignupRequest request) {
         return Member.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())

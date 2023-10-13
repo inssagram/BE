@@ -17,7 +17,7 @@ public class LikeController {
     public ApiResponse<?> onLikePost(
             @RequestParam(value = "post-id") Long postId,
             @RequestParam(value = "member-id") Long memberId
-            ) {
+    ) {
         likeService.onLikePost(postId, memberId);
         return ApiResponse.createSuccessWithNoContent();
     }

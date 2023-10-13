@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -93,7 +92,7 @@ public class CommentService {
 
         ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
         response.setTargetMemberId(commentRepository.findById(replyId)
-                        .get().getMember().getId());
+                .get().getMember().getId());
         return response;
     }
 
@@ -121,8 +120,6 @@ public class CommentService {
     public List<CommentInfoResponse> searchParentComments(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostDoesNotExistException::new);
-//        return commentRepository.findParentCommentsByPost(post).stream()
-//                .map(CommentInfoResponse::from).toList();
         return commentRepository.findParentCommentsByPostAndIsReply(post);
     }
 
@@ -152,7 +149,7 @@ public class CommentService {
         return commentRepository.findRepliesByParentComment(comment);
     }
 
-    public List<ReplyInfoResponse> searchReply (Long parentCommentId) {
+    public List<ReplyInfoResponse> searchReply(Long parentCommentId) {
         Comment comment = commentRepository.findById(parentCommentId)
                 .orElseThrow(CommentDoesNotExistException::new);
 
@@ -170,7 +167,6 @@ public class CommentService {
             Set<LikeInfoResponse> likeSet = likeRepository.findByComment(reply)
                     .stream().map(LikeInfoResponse::from)
                     .collect(Collectors.toSet());
-//            response.setLikedByPerson(likeSet);
             response.setLikeCount(likeSet.size());
         }
         return responseList;

@@ -3,10 +3,7 @@ package com.be.inssagram.domain.post.service;
 import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.hashTag.service.HashTagService;
-import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
-import com.be.inssagram.domain.like.entity.Like;
 import com.be.inssagram.domain.like.repository.LikeRepository;
-import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.post.dto.request.CreatePostRequest;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
@@ -16,10 +13,6 @@ import com.be.inssagram.domain.post.repository.PostRepository;
 import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -121,7 +114,6 @@ public class PostService {
     }
 
 
-
     // 내부 메서드
     private List<PostInfoResponse> getPostInfoResponsesWithLikeInfo(List<Post> posts) {
         List<PostInfoResponse> responseList = posts.stream()
@@ -148,7 +140,7 @@ public class PostService {
                 hashTagRepository.delete(hashTag);
             }
 
-            for(String newHashTag : newHashTags) {
+            for (String newHashTag : newHashTags) {
                 hashTagService.saveHashTag(post, newHashTag);
             }
         }
