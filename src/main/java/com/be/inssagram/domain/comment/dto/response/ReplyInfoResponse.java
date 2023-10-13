@@ -21,7 +21,7 @@ public class ReplyInfoResponse {
     private String content;
     private boolean replyFlag;
     private Long targetMemberId;
-    private Set<LikeInfoResponse> likedByPerson;
+//    private Set<LikeInfoResponse> likedByPerson;
     private Integer likeCount;
 
     public static ReplyInfoResponse from(Comment comment) {
