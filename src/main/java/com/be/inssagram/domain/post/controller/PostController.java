@@ -51,4 +51,12 @@ public class PostController {
         return ApiResponse.createSuccess(postService.searchPostAll());
     }
 
+    @GetMapping("")
+    public ApiResponse<List<PostInfoResponse>> searchPostWithMemberId(
+            @RequestParam(value = "member-id") Long memberId
+    ) {
+        return ApiResponse.createSuccess(
+                postService.searchPostWithMember(memberId));
+    }
+
 }
