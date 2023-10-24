@@ -1,7 +1,6 @@
 package com.be.inssagram.domain.member.service;
 
 
-import com.be.inssagram.domain.member.dto.request.AuthenticationRequest;
 import com.be.inssagram.domain.member.dto.request.SigninRequest;
 import com.be.inssagram.domain.member.dto.request.SignupRequest;
 import com.be.inssagram.domain.member.dto.request.UpdateRequest;
