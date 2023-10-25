@@ -2,9 +2,7 @@ package com.be.inssagram.domain.elastic.dto.response;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
@@ -17,6 +15,7 @@ public class SearchResult {
     private String memberEmail;
     private String memberNickname;
     private String memberCompanyName;
+    private String searched;
 
     public static SearchResult createHashtagResult(Long hashtagId, String hashtagName) {
         SearchResult result = new SearchResult();
@@ -31,6 +30,12 @@ public class SearchResult {
         result.setMemberEmail(memberEmail);
         result.setMemberNickname(memberNickname);
         result.setMemberCompanyName(memberCompanyName);
+        return result;
+    }
+
+    public static SearchResult createSearchHistoryResult(String searched) {
+        SearchResult result = new SearchResult();
+        result.setSearched(searched);
         return result;
     }
 }

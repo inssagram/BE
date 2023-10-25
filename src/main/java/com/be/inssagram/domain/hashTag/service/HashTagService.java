@@ -1,7 +1,7 @@
 package com.be.inssagram.domain.hashTag.service;
 
-import com.be.inssagram.domain.hashTag.documents.index.SearchHashtag;
-import com.be.inssagram.domain.hashTag.documents.repository.HashtagSearchRepository;
+import com.be.inssagram.domain.elastic.documents.index.Hashtag;
+import com.be.inssagram.domain.elastic.documents.repository.HashtagSearchRepository;
 import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
@@ -26,7 +26,7 @@ public class HashTagService {
                     .post(post)
                     .build();
             hashTagRepository.save(hashTag);
-            SearchHashtag searchHashtag = SearchHashtag.builder()
+            Hashtag searchHashtag = Hashtag.builder()
                     .name(name)
                     .build();
             hashtagSearchRepository.save(searchHashtag);

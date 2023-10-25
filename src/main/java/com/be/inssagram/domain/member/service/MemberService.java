@@ -2,8 +2,8 @@ package com.be.inssagram.domain.member.service;
 
 
 import com.be.inssagram.config.Jwt.TokenProvider;
-import com.be.inssagram.domain.member.documents.repository.MemberSearchRepository;
-import com.be.inssagram.domain.member.documents.index.SearchMember;
+import com.be.inssagram.domain.elastic.documents.repository.MemberSearchRepository;
+import com.be.inssagram.domain.elastic.documents.index.MemberIndex;
 import com.be.inssagram.domain.member.dto.request.*;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Auth;
@@ -36,7 +36,7 @@ public class MemberService {
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         Member member = memberRepository.save(setAccount(request));
         //Elastic Search 에 반영
-        memberSearchRepository.save(SearchMember.from(member));
+        memberSearchRepository.save(MemberIndex.from(member));
     }
 
     //인증코드 확인 및 삭제
@@ -63,13 +63,13 @@ public class MemberService {
     }
 
     //로그인
-    public Member signin(SigninRequest request) {
+    public com.be.inssagram.domain.member.entity.Member signin(SigninRequest request) {
         boolean checkMember = memberRepository.existsByEmail(request.getEmail());
 
         if(checkMember == false){
             throw new WrongEmailException();
         }
-        Member member = memberRepository.findByEmail(request.getEmail());
+        com.be.inssagram.domain.member.entity.Member member = memberRepository.findByEmail(request.getEmail());
 
         if (!this.passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new WrongPasswordException();
@@ -80,7 +80,7 @@ public class MemberService {
 
     //회원정보 수정
     public InfoResponse updateMember(Long id, UpdateRequest request, String token) {
-        Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
+        com.be.inssagram.domain.member.entity.Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
         String requestEmail = tokenProvider.getEmailFromToken(token);
         if(member.getEmail().equals(requestEmail) == false){
             throw new UnauthorizedRequestException();
@@ -92,31 +92,31 @@ public class MemberService {
             request.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         member.updateFields(request);
-        Member updatedMember = memberRepository.save(member);
+        com.be.inssagram.domain.member.entity.Member updatedMember = memberRepository.save(member);
         //ES에 수정된 정보 반영
-        memberSearchRepository.save(SearchMember.from(updatedMember));
+        memberSearchRepository.save(MemberIndex.from(updatedMember));
         return InfoResponse.fromEntity(member);
     }
 
     //회원탈퇴
     public void deleteMember(Long id, String token){
-        Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
+        com.be.inssagram.domain.member.entity.Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
         String requestEmail = tokenProvider.getEmailFromToken(token);
         if(member.getEmail().equals(requestEmail) == false){
             throw new UnauthorizedRequestException();
         }
         memberRepository.delete(member);
-        memberSearchRepository.delete(SearchMember.from(member));
+        memberSearchRepository.delete(MemberIndex.from(member));
     }
 
     //회원 상세조회
     public InfoResponse getMemberDetail(String nickname){
-        Member member = memberRepository.findByNickname(nickname);
+        com.be.inssagram.domain.member.entity.Member member = memberRepository.findByNickname(nickname);
         return InfoResponse.fromEntity(member);
     }
 
-    private Member setAccount (SignupRequest request) {
-        return Member.builder()
+    private com.be.inssagram.domain.member.entity.Member setAccount (SignupRequest request) {
+        return com.be.inssagram.domain.member.entity.Member.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .role("ROLE_MEMBER")
