@@ -1,10 +1,9 @@
 package com.be.inssagram.domain.member.service;
 
 
-import com.be.inssagram.common.ApiResponse;
 import com.be.inssagram.config.Jwt.TokenProvider;
-import com.be.inssagram.domain.member.documents.MemberSearchRepository;
-import com.be.inssagram.domain.member.documents.SearchMember;
+import com.be.inssagram.domain.member.documents.repository.MemberSearchRepository;
+import com.be.inssagram.domain.member.documents.index.SearchMember;
 import com.be.inssagram.domain.member.dto.request.*;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Auth;
@@ -16,11 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MissingRequestHeaderException;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j

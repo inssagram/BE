@@ -59,7 +59,7 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
 
     private boolean isPublicPath(String requestURI) {
         // Define the public URL patterns that do not require a token
-        List<String> publicPaths = Arrays.asList("/signup", "/signin"); // Add your public URL patterns
+        List<String> publicPaths = Arrays.asList("/signup", "/signin", "/search"); // Add your public URL patterns
 
         // Check if the request URI matches a public path
         return publicPaths.stream().anyMatch(requestURI::startsWith);

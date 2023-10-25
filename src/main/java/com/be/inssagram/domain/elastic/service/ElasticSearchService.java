@@ -1,7 +1,7 @@
 package com.be.inssagram.domain.elastic.service;
 
 
-import com.be.inssagram.domain.elastic.dto.response.SearchMemberResult;
+import com.be.inssagram.domain.elastic.dto.response.SearchResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +30,9 @@ public class ElasticSearchService {
     @Value("${spring.elastic.port}")
     private int elasticsearchPort;
 
-    public List<SearchMemberResult> executeWildcardQuery(String wildcardValue) {
-        String endpoint = "/members/_search";
-        String requestBody = "{ \"query\": { \"wildcard\": { \"member_nickname\": { \"value\": \"*" + wildcardValue + "*\" } } } }";
+    public List<SearchResult> executeWildcardQuery(String wildcardValue) {
+        String endpoint = "/members,hashtags/_search";
+        String requestBody = "{ \"query\": { \"wildcard\": { \"name\": { \"value\": \"*" + wildcardValue + "*\" } } } }";
         String elasticsearchUrl = "http://" + elasticsearchHost + ":" + elasticsearchPort + endpoint;
 
         HttpHeaders headers = new HttpHeaders();
@@ -53,18 +53,27 @@ public class ElasticSearchService {
             return new ArrayList<>();
         }
 
-        List<SearchMemberResult> results = new ArrayList<>();
+        List<SearchResult> results = new ArrayList<>();
         JsonNode hitsArray = root.path("hits").path("hits");
         for (JsonNode hit : hitsArray) {
             JsonNode source = hit.path("_source");
-            SearchMemberResult result = new SearchMemberResult();
-            result.setMemberId(source.path("member_id").asLong());
-            result.setMemberEmail(source.path("member_email").asText());
-            result.setMemberNickname(source.path("member_nickname").asText());
-            result.setMemberCompanyName(source.path("member_company_name").asText());
-            results.add(result);
-        }
 
+            if (hit.path("_index").asText().equals("members")) {
+                SearchResult memberResult = SearchResult.createMemberResult(
+                        source.path("id").asLong(),
+                        source.path("email").asText(),
+                        source.path("name").asText(),
+                        source.path("company_name").asText()
+                );
+                results.add(memberResult);
+            } else {
+                SearchResult hashtagResult = SearchResult.createHashtagResult(
+                        source.path("id").asLong(),
+                        "#" + source.path("name").asText()
+                );
+                results.add(hashtagResult);
+            }
+        }
         return results;
     }
 }

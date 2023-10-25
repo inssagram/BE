@@ -1,6 +1,5 @@
 package com.be.inssagram.domain.member.dto.response;
 
-import com.be.inssagram.domain.member.documents.SearchMember;
 import com.be.inssagram.domain.member.entity.Member;
 import lombok.Builder;
 

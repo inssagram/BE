@@ -1,7 +1,7 @@
 package com.be.inssagram.domain.elastic.controller;
 
 
-import com.be.inssagram.domain.elastic.dto.response.SearchMemberResult;
+import com.be.inssagram.domain.elastic.dto.response.SearchResult;
 import com.be.inssagram.domain.elastic.service.ElasticSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +17,8 @@ public class ElasticSearchController {
 
     private final ElasticSearchService elasticsearchService;
 
-    @GetMapping("/search/member/{wildcardValue}")
-    public List<SearchMemberResult> searchMember(
+    @GetMapping("/search/{wildcardValue}")
+    public List<SearchResult> searchMember(
             @PathVariable String wildcardValue) {
 
         return elasticsearchService.executeWildcardQuery(wildcardValue);
