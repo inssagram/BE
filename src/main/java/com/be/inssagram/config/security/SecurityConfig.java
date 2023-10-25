@@ -27,7 +27,15 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> {
             try {
                 authorize
-                        .requestMatchers("/*","/member/*/*","/search/member/*", "/follow/*") // 해당 경로는 인증 없이 접근 가능
+
+                        .requestMatchers("/**", "member/update/*"
+                                , "/ws/*", "/stomp/*", "/topic-view/*"
+                                ,"/inssagram/*") // 해당 경로는 인증 없이 접근 가능
+                        .permitAll();
+
+                        .requestMatchers("/**","/member/*/*","/search/member/*", "/follow/*"
+                                        ,"/ws/*", "/stomp/*", "/topic-view/*"
+                                , "/inssagram/*" ) // 해당 경로는 인증 없이 접근 가능
                         .permitAll()
                         .and()
                         .sessionManagement()
@@ -35,6 +43,7 @@ public class SecurityConfig {
                         .and()
                         .addFilterBefore(jwtAuthenticateFilter,
                                 UsernamePasswordAuthenticationFilter.class);
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
