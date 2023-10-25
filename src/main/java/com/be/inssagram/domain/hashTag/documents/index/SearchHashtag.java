@@ -21,5 +21,5 @@ public class SearchHashtag {
     private Long id;
 
     @Field(name = "name", type = FieldType.Text)
-    private String nickname;
+    private String name;
 }
