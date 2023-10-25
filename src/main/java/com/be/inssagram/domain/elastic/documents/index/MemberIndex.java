@@ -1,7 +1,6 @@
-package com.be.inssagram.domain.member.documents.index;
+package com.be.inssagram.domain.elastic.documents.index;
 
 import com.be.inssagram.common.Indices;
-import com.be.inssagram.domain.member.entity.Member;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
@@ -13,7 +12,7 @@ import org.springframework.data.elasticsearch.annotations.*;
 @ToString
 @Mapping(mappingPath = "elastic/member-mapping.json")
 @Document(indexName = Indices.MEMBER_INDEX)
-public class SearchMember {
+public class MemberIndex {
     @Id
     @Field(name = "id", type = FieldType.Long)
     private Long id;
@@ -27,8 +26,8 @@ public class SearchMember {
     @Field(name = "company_name", type = FieldType.Text)
     private String companyName;
 
-    public static SearchMember from(Member member) {
-        return SearchMember.builder()
+    public static MemberIndex from(com.be.inssagram.domain.member.entity.Member member) {
+        return MemberIndex.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())

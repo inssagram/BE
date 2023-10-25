@@ -1,4 +1,4 @@
-package com.be.inssagram.domain.hashTag.documents.index;
+package com.be.inssagram.domain.elastic.documents.index;
 
 import com.be.inssagram.common.Indices;
 import lombok.*;
@@ -15,7 +15,7 @@ import org.springframework.data.elasticsearch.annotations.Mapping;
 @ToString
 @Mapping(mappingPath = "elastic/hashtag-mapping.json")
 @Document(indexName = Indices.HASHTAG_INDEX)
-public class SearchHashtag {
+public class Hashtag {
     @Id
     @Field(name = "id", type = FieldType.Long)
     private Long id;
