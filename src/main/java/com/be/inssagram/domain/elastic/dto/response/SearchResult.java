@@ -17,9 +17,8 @@ public class SearchResult {
     private String memberCompanyName;
     private String searched;
 
-    public static SearchResult createHashtagResult(Long hashtagId, String hashtagName) {
+    public static SearchResult createHashtagResult(String hashtagName) {
         SearchResult result = new SearchResult();
-        result.setHashtagId(hashtagId);
         result.setHashtagName(hashtagName);
         return result;
     }

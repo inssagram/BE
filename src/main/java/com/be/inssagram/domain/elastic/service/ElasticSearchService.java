@@ -74,7 +74,6 @@ public class ElasticSearchService {
                 results.add(memberResult);
             } else {
                 SearchResult hashtagResult = SearchResult.createHashtagResult(
-                        source.path("id").asLong(),
                         "#" + source.path("name").asText()
                 );
                 results.add(hashtagResult);
