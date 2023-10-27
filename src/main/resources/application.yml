@@ -1,4 +1,6 @@
 spring:
+  jwt:
+    secret-key: ${key}
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -11,3 +13,17 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: ${password}
+  elastic:
+    url: "${elastic_url}"
+  mail:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "inssagramAuthentication@gmail.com"
+    password: ${smtp}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true

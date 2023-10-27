@@ -6,7 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Getter
 @Builder
@@ -22,9 +27,11 @@ public class Member {
 
     private String email;
     private String nickname;
+    private String description;
+    private String profilePic;
     private String password;
-    private String jobField;
-    private String gender;
+    private String role;
+    private String companyName;
 
     public void updateFields(UpdateRequest updateRequest) {
         if (updateRequest.getEmail() != null) {
@@ -33,14 +40,26 @@ public class Member {
         if (updateRequest.getNickname() != null) {
             this.nickname = updateRequest.getNickname();
         }
+        if (updateRequest.getProfilePic() != null) {
+            this.profilePic = updateRequest.getProfilePic();
+        }
+        if (updateRequest.getDescription() != null) {
+            this.description = updateRequest.getDescription();
+        }
         if (updateRequest.getPassword() != null) {
             this.password = updateRequest.getPassword();
         }
-        if (updateRequest.getJobField() != null) {
-            this.jobField = updateRequest.getJobField();
+        if (updateRequest.getCompanyName() != null) {
+            this.companyName = updateRequest.getCompanyName();
         }
-        if (updateRequest.getGender() != null) {
-            this.gender = updateRequest.getGender();
-        }
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String authority = this.getRole();
+        SimpleGrantedAuthority simpleAuthority = new SimpleGrantedAuthority(authority);
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(simpleAuthority);
+
+        return authorities;
     }
 }
