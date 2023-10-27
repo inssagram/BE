@@ -30,17 +30,15 @@ public class ElasticSearchService {
     private final RestTemplate restTemplate;
     private final HistorySearchRepository historySearchRepository;
 
-    @Value("${spring.elastic.host}")
-    private String elasticsearchHost;
+    @Value("${spring.elastic.url}")
+    private String elasticUrl;
 
-    @Value("${spring.elastic.port}")
-    private int elasticsearchPort;
 
     //검색 기능
     public List<SearchResult> search (String value, SearchRequest request) {
         String endpoint = "/members,hashtags/_search";
         String requestBody = "{ \"query\": { \"wildcard\": { \"name\": { \"value\": \"*" + value + "*\" } } } }";
-        String elasticsearchUrl = "http://" + elasticsearchHost + ":" + elasticsearchPort + endpoint;
+        String elasticsearchUrl = "http://" + elasticUrl + endpoint;
 
         //검색한 기록을 저장
         if(request != null) {
@@ -92,7 +90,7 @@ public class ElasticSearchService {
         String requestBody = "{\"query\": {\"term\": {\"member_id\":" + request.getMemberId() + "}}, " +
                 "\"sort\": [{\"_id\": {\"order\": \"desc\"}}], " +
                 "\"size\": 5}";
-        String elasticsearchUrl = "http://" + elasticsearchHost + ":" + elasticsearchPort + endpoint;
+        String elasticsearchUrl = "http://" + elasticUrl + endpoint;
 
         JsonNode root;
         try {
@@ -118,7 +116,7 @@ public class ElasticSearchService {
         String endpoint = "/histories/_doc/_delete_by_query";
         String requestBody = "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"searched\":\"" + value + "\"}}," +
                 " {\"term\":{\"member_id\":" + request.getMemberId() + "}}]}}}";
-        String elasticsearchUrl = "http://" + elasticsearchHost + ":" + elasticsearchPort + endpoint;
+        String elasticsearchUrl = "http://" + elasticUrl + endpoint;
 
         sendHttpRequest(requestBody, elasticsearchUrl);
     }
