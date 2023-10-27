@@ -40,7 +40,7 @@ public class MailService {
 
     public int sendMail(AuthenticationRequest request){
         MimeMessage message = createMail(request);
-//        javaMailSender.send(message);
+        javaMailSender.send(message);
 
         return number;
     }
