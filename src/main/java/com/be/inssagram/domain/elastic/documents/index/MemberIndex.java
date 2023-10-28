@@ -1,6 +1,7 @@
 package com.be.inssagram.domain.elastic.documents.index;
 
 import com.be.inssagram.common.Indices;
+import com.be.inssagram.domain.member.entity.Member;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
@@ -26,7 +27,7 @@ public class MemberIndex {
     @Field(name = "company_name", type = FieldType.Text)
     private String companyName;
 
-    public static MemberIndex from(com.be.inssagram.domain.member.entity.Member member) {
+    public static MemberIndex from(Member member) {
         return MemberIndex.builder()
                 .id(member.getId())
                 .email(member.getEmail())
