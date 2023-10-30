@@ -28,14 +28,14 @@ public class MemberController {
     private final AuthRepository authRepository;
 
     //사용할수 있는 이메일인지 확인
-    @GetMapping("/signup/check/email")
+    @PostMapping("/signup/check/email")
     public ApiResponse<?> checkEmail(@RequestBody AuthenticationRequest request){
         memberService.checkEmailAvailability(request);
         return ApiResponse.createMessage("사용하실 수 있는 이메일 입니다");
     }
 
     //사용할수 있는 닉네임인지 확인
-    @GetMapping("/signup/check/nickname")
+    @PostMapping("/signup/check/nickname")
     public ApiResponse<?> checkNickname(@RequestBody AuthenticationRequest request){
         memberService.checkNicknameAvailability(request);
         return ApiResponse.createMessage("사용하실 수 있는 닉네임 입니다");
