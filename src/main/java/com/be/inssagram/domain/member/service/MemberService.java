@@ -4,7 +4,12 @@ package com.be.inssagram.domain.member.service;
 import com.be.inssagram.config.Jwt.TokenProvider;
 import com.be.inssagram.domain.elastic.documents.repository.MemberSearchRepository;
 import com.be.inssagram.domain.elastic.documents.index.MemberIndex;
+import com.be.inssagram.domain.follow.dto.response.FollowerList;
+import com.be.inssagram.domain.follow.dto.response.FollowingList;
+import com.be.inssagram.domain.follow.entity.Follow;
+import com.be.inssagram.domain.follow.repository.FollowRepository;
 import com.be.inssagram.domain.member.dto.request.*;
+import com.be.inssagram.domain.member.dto.response.DetailedInfoResponse;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Auth;
 import com.be.inssagram.domain.member.entity.Member;
@@ -16,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Slf4j
 @AllArgsConstructor
@@ -25,6 +33,7 @@ public class MemberService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
     private final MemberSearchRepository memberSearchRepository;
+    private final FollowRepository followRepository;
     private final TokenProvider tokenProvider;
 
     //회원가입
@@ -63,13 +72,13 @@ public class MemberService {
     }
 
     //로그인
-    public com.be.inssagram.domain.member.entity.Member signin(SigninRequest request) {
+    public Member signin(SigninRequest request) {
         boolean checkMember = memberRepository.existsByEmail(request.getEmail());
 
         if(checkMember == false){
             throw new WrongEmailException();
         }
-        com.be.inssagram.domain.member.entity.Member member = memberRepository.findByEmail(request.getEmail());
+        Member member = memberRepository.findByEmail(request.getEmail());
 
         if (!this.passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new WrongPasswordException();
@@ -80,7 +89,7 @@ public class MemberService {
 
     //회원정보 수정
     public InfoResponse updateMember(Long id, UpdateRequest request, String token) {
-        com.be.inssagram.domain.member.entity.Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
+        Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
         String requestEmail = tokenProvider.getEmailFromToken(token);
         if(member.getEmail().equals(requestEmail) == false){
             throw new UnauthorizedRequestException();
@@ -92,7 +101,7 @@ public class MemberService {
             request.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         member.updateFields(request);
-        com.be.inssagram.domain.member.entity.Member updatedMember = memberRepository.save(member);
+        Member updatedMember = memberRepository.save(member);
         //ES에 수정된 정보 반영
         memberSearchRepository.save(MemberIndex.from(updatedMember));
         return InfoResponse.fromEntity(member);
@@ -100,7 +109,7 @@ public class MemberService {
 
     //회원탈퇴
     public void deleteMember(Long id, String token){
-        com.be.inssagram.domain.member.entity.Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
+        Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
         String requestEmail = tokenProvider.getEmailFromToken(token);
         if(member.getEmail().equals(requestEmail) == false){
             throw new UnauthorizedRequestException();
@@ -110,13 +119,24 @@ public class MemberService {
     }
 
     //회원 상세조회
-    public InfoResponse getMemberDetail(String nickname){
-        com.be.inssagram.domain.member.entity.Member member = memberRepository.findByNickname(nickname);
-        return InfoResponse.fromEntity(member);
+    public DetailedInfoResponse getMemberDetail(String nickname){
+        Member member = memberRepository.findByNickname(nickname);
+        List<Follow> followers = followRepository.findAllByMemberId(member.getId());
+        List<Follow> following = followRepository.findAllByMyId(member.getId());
+
+        List<FollowingList> followingLists = following.stream()
+                .map(follow -> new FollowingList(follow.getMemberId(), follow.getMemberName()))
+                .collect(Collectors.toList());
+
+        List<FollowerList> followerLists = followers.stream()
+                .map(follow -> new FollowerList(follow.getMyId(), follow.getMyName()))
+                .collect(Collectors.toList());
+
+        return DetailedInfoResponse.fromEntity(member, followingLists, followerLists);
     }
 
-    private com.be.inssagram.domain.member.entity.Member setAccount (SignupRequest request) {
-        return com.be.inssagram.domain.member.entity.Member.builder()
+    private Member setAccount (SignupRequest request) {
+        return Member.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .role("ROLE_MEMBER")

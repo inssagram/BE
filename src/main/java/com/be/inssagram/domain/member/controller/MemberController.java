@@ -7,6 +7,7 @@ import com.be.inssagram.domain.member.dto.request.AuthenticationRequest;
 import com.be.inssagram.domain.member.dto.request.SigninRequest;
 import com.be.inssagram.domain.member.dto.request.SignupRequest;
 import com.be.inssagram.domain.member.dto.request.UpdateRequest;
+import com.be.inssagram.domain.member.dto.response.DetailedInfoResponse;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Auth;
 import com.be.inssagram.domain.member.entity.Member;
@@ -70,11 +71,11 @@ public class MemberController {
 
     //로그인
     @PostMapping("/signin")
-    public ApiResponse<?> signin(@Valid @RequestBody SigninRequest request, HttpServletResponse response){
+    public ApiResponse<InfoResponse> signin(@Valid @RequestBody SigninRequest request, HttpServletResponse response){
         Member member = memberService.signin(request);
         String token = tokenProvider.generateToken(member.getEmail());
         response.addHeader("Authorization", "Bearer" + " " + token);
-        return ApiResponse.createMessage("로그인 되셧습니다");
+        return ApiResponse.createSuccessWithMessage(InfoResponse.fromEntity(member),"로그인 되셧습니다");
     }
 
     //회원수정
@@ -96,8 +97,8 @@ public class MemberController {
 
     //회원 상세조회
     @GetMapping("/member/detail/{nickname}")
-    public ApiResponse<InfoResponse> getMemberDetail(@PathVariable String nickname){
-        InfoResponse result = memberService.getMemberDetail(nickname);
+    public ApiResponse<DetailedInfoResponse> getMemberDetail(@PathVariable String nickname){
+        DetailedInfoResponse result = memberService.getMemberDetail(nickname);
         return ApiResponse.createSuccessWithMessage(result, "정보를 불러왔습니다");
     }
 }

@@ -1,5 +1,7 @@
 package com.be.inssagram.config.Jwt;
 
+import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.member.repository.MemberRepository;
 import org.springframework.security.core.userdetails.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -21,6 +23,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class TokenProvider {
     private static final long TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
+
+    private final MemberRepository memberRepository;
+
     @Value("${spring.jwt.secret-key}")
     private String secretKey;
 
@@ -65,6 +70,10 @@ public class TokenProvider {
     public String getEmailFromToken(String token) {
         String jwtToken = token.replace("Bearer", "").trim();
         return parsedClaims(jwtToken).getSubject();
+    }
+
+    public Member getMemberFromToken(String token){
+        return memberRepository.findByEmail(getEmailFromToken(token));
     }
 
     private Claims parsedClaims(String token) {
