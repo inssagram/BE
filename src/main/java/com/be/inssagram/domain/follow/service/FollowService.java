@@ -5,6 +5,7 @@ import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.exception.member.UserDoesNotExistException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     //팔로잉 및 해제
     public String follow(FollowRequest request){
@@ -27,6 +29,7 @@ public class FollowService {
         } else {
             if(request.getHashtagId() == null) {
                 followRepository.save(setFollowMember(request, memberInfo));
+                notificationService.notify(request.getFollowId(), request.getMyName()+"님이 팔로우 하셧습니다");
                 return "팔로잉 하셧습니다";
             }
             followRepository.save(setFollowHashtag(request.getMyId(), request.getHashtagId()));
