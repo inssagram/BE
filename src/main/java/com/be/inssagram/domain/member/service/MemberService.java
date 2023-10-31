@@ -9,6 +9,7 @@ import com.be.inssagram.domain.follow.dto.response.FollowingList;
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
 import com.be.inssagram.domain.member.dto.request.*;
+import com.be.inssagram.domain.member.dto.response.DetailedInfoResponse;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Auth;
 import com.be.inssagram.domain.member.entity.Member;
@@ -20,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,7 +78,7 @@ public class MemberService {
         if(checkMember == false){
             throw new WrongEmailException();
         }
-        com.be.inssagram.domain.member.entity.Member member = memberRepository.findByEmail(request.getEmail());
+        Member member = memberRepository.findByEmail(request.getEmail());
 
         if (!this.passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new WrongPasswordException();
@@ -119,7 +119,7 @@ public class MemberService {
     }
 
     //회원 상세조회
-    public InfoResponse getMemberDetail(String nickname){
+    public DetailedInfoResponse getMemberDetail(String nickname){
         Member member = memberRepository.findByNickname(nickname);
         List<Follow> followers = followRepository.findAllByMemberId(member.getId());
         List<Follow> following = followRepository.findAllByMyId(member.getId());
@@ -132,7 +132,7 @@ public class MemberService {
                 .map(follow -> new FollowerList(follow.getMyId(), follow.getMyName()))
                 .collect(Collectors.toList());
 
-        return InfoResponse.fromEntity(member, followingLists, followerLists);
+        return DetailedInfoResponse.fromEntity(member, followingLists, followerLists);
     }
 
     private Member setAccount (SignupRequest request) {
