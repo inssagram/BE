@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticateFilter jwtAuthenticateFilter;
+    private final CorsConfig corsConfig;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -33,6 +34,7 @@ public class SecurityConfig {
                         .sessionManagement()
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .and()
+                        .addFilter(corsConfig.corsFilter())
                         .addFilterBefore(jwtAuthenticateFilter,
                                 UsernamePasswordAuthenticationFilter.class);
             } catch (Exception e) {
