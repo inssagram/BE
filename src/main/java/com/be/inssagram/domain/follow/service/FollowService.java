@@ -54,6 +54,7 @@ public class FollowService {
                 .myId(myInfo.member_id())
                 .myName(myInfo.nickname())
                 .memberId(memberInfo.getId())
+                .memberImage(memberInfo.getProfilePic())
                 .memberName(memberInfo.getNickname())
                 .build();
     }
