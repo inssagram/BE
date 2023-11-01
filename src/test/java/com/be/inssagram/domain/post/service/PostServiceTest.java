@@ -7,6 +7,7 @@ import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
+import com.be.inssagram.domain.tag.repository.TagRepository;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,8 @@ class PostServiceTest {
     private LikeRepository likeRepository;
     @Mock
     private HashTagRepository hashTagRepository;
+    @Mock
+    private TagRepository tagRepository;
 
     @InjectMocks
     private PostService postService;
@@ -49,7 +52,7 @@ class PostServiceTest {
                 .contents("contents")
                 .location("home")
                 .comments(new ArrayList<>())
-                .taggedMembers(new HashSet<>())
+//                .taggedMembers(new HashSet<>())
                 .build();
         given(postRepository.save(any())).willReturn(post);
         //when
@@ -59,7 +62,7 @@ class PostServiceTest {
                 .image(new ArrayList<>())
                 .contents("AAA")
                 .location("sweet")
-                .taggedMembers(new HashSet<>())
+                .taggedMemberIds(new HashSet<>())
                 .hashTags(new ArrayList<>())
                 .build());
         //then
@@ -76,7 +79,7 @@ class PostServiceTest {
                 .contents("contents")
                 .location("home")
                 .comments(new ArrayList<>())
-                .taggedMembers(new HashSet<>())
+//                .taggedMembers(new HashSet<>())
                 .build();
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
         //when
@@ -84,7 +87,7 @@ class PostServiceTest {
                 .builder()
                 .contents("AAA")
                 .location("sweet")
-                .taggedMembers(new HashSet<>())
+//                .taggedMembers(new HashSet<>())
                 .hashTags(new ArrayList<>())
                 .build());
         updateResponse.setHashTags(new ArrayList<>());
@@ -103,7 +106,7 @@ class PostServiceTest {
                 .contents("contents")
                 .location("home")
                 .comments(new ArrayList<>())
-                .taggedMembers(new HashSet<>())
+//                .taggedMembers(new HashSet<>())
                 .build();
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
         ArgumentCaptor<Post> captor = ArgumentCaptor.forClass(Post.class);
@@ -124,7 +127,7 @@ class PostServiceTest {
                 .contents("contents")
                 .location("home")
                 .comments(new ArrayList<>())
-                .taggedMembers(new HashSet<>())
+//                .taggedMembers(new HashSet<>())
                 .build();
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
 
@@ -147,7 +150,7 @@ class PostServiceTest {
                 .contents("contents")
                 .location("home")
                 .comments(new ArrayList<>())
-                .taggedMembers(new HashSet<>())
+//                .taggedMembers(new HashSet<>())
                 .build();
         List<Post> list = Collections.singletonList(post);
         given(postRepository.findAll()).willReturn(list);
@@ -168,7 +171,7 @@ class PostServiceTest {
                         .builder()
                         .contents("AAA")
                         .location("sweet")
-                        .taggedMembers(new HashSet<>())
+//                        .taggedMembers(new HashSet<>())
                         .hashTags(new ArrayList<>())
                         .build()));
         //then
