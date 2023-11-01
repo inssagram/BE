@@ -54,7 +54,16 @@ public class CommentService {
 
         //게시물 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
         if(!post.getMemberId().equals(member.getId())) {
-            notificationService.notify(post.getMemberId(), member.getNickname() + "님이 당신의 게시물에 댓글을 다셧습니다");
+            notificationService.notify(notificationService
+                    .createNotifyDto(
+                            post.getMemberId(),
+                            "post",
+                            post.getId(),
+                            member.getId(),
+                            member.getNickname(),
+                            member.getProfilePic(),
+                            member.getNickname()+"님이 회원님의 게시물에 댓글을 다셧습니다"
+                    ));
         }
         // 댓글을 저장합니다.
         return CommentInfoResponse.from(commentRepository.save(comment));
@@ -82,7 +91,16 @@ public class CommentService {
         response.setTargetMemberId(parentComment.getMember().getId());
         //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
         if(!parentComment.getMember().getId().equals(member.getId()))
-        notificationService.notify(parentComment.getMember().getId(), member.getNickname()+"님이 당신의 댓글에 답장을 하엿습니다");
+        notificationService.notify(notificationService
+                .createNotifyDto(
+                        parentComment.getMember().getId(),
+                        "post",
+                        parentComment.getPost().getId(),
+                        member.getId(),
+                        member.getNickname(),
+                        member.getProfilePic(),
+                        member.getNickname()+"님이 회원님의 댓글에 답장하였습니다"
+                ));
         // 대댓글을 저장합니다.
         return response;
     }
@@ -103,7 +121,16 @@ public class CommentService {
                 .get().getMember().getId());
         //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
         if(!parentComment.getMember().getId().equals(member.getId())) {
-            notificationService.notify(parentComment.getMember().getId(), member.getNickname() + "님이 당신의 댓글에 답장을 하엿습니다");
+            notificationService.notify(notificationService
+                    .createNotifyDto(
+                            parentComment.getMember().getId(),
+                            "post",
+                            parentComment.getPost().getId(),
+                            member.getId(),
+                            member.getNickname(),
+                            member.getProfilePic(),
+                            member.getNickname()+"님이 회원님의 댓글에 답장하였습니다"
+                    ));
         }
         return response;
     }
