@@ -20,6 +20,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long receiver_id;
     private String senderName;
     private String senderImage;
     private String message;
