@@ -141,7 +141,7 @@ public class MemberService {
                 .password(request.getPassword())
                 .role("ROLE_MEMBER")
                 .nickname(request.getNickname())
-                .companyName(request.getCompanyName())
+                .job(request.getJob())
                 .build();
     }
 }
