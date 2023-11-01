@@ -43,6 +43,8 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("text/plain; charset=UTF-8");
             response.getWriter().write("토큰 정보가 없거나 만료되었습니다");
             return;
         }
