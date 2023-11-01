@@ -2,6 +2,7 @@ package com.be.inssagram.domain.post.entity;
 
 import com.be.inssagram.common.BaseEntity;
 import com.be.inssagram.domain.comment.entity.Comment;
+import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +28,9 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "POST_ID")
     private Long id;
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_ID", nullable = false)
+    private Member member;
     @ElementCollection
     private List<String> image;
     private String contents;

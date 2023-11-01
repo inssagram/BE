@@ -39,8 +39,11 @@ public class PostService {
 
     public PostInfoResponse createPost(CreatePostRequest request) {
 
+        Member member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(UserDoesNotExistException::new);
+
         Post post = Post.builder()
-                .memberId(request.getMemberId())
+                .member(member)
                 .image(request.getImage())
                 .contents(request.getContents())
                 .location(request.getLocation())
@@ -51,7 +54,6 @@ public class PostService {
 
         PostInfoResponse response = PostInfoResponse.from(
                 postRepository.save(post));
-
 
         // 해쉬 태그 저장
         if (request.getHashTags() != null) {

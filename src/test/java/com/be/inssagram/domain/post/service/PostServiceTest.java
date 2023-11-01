@@ -2,6 +2,7 @@ package com.be.inssagram.domain.post.service;
 
 import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.like.repository.LikeRepository;
+import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.post.dto.request.CreatePostRequest;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
@@ -31,6 +32,8 @@ class PostServiceTest {
 
     @Mock
     private PostRepository postRepository;
+    @Mock
+    MemberRepository memberRepository;
 
     @Mock
     private LikeRepository likeRepository;
@@ -47,7 +50,7 @@ class PostServiceTest {
         //given
         Post post = Post.builder()
                 .id(1L)
-                .memberId(1L)
+//                .memberId(1L)
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
@@ -74,7 +77,7 @@ class PostServiceTest {
         //given
         Post post = Post.builder()
                 .id(1L)
-                .memberId(1L)
+//                .memberId(1L)
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
@@ -101,7 +104,7 @@ class PostServiceTest {
         //given
         Post post = Post.builder()
                 .id(1L)
-                .memberId(1L)
+//                .memberId(1L)
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
@@ -122,7 +125,7 @@ class PostServiceTest {
         //given
         Post post = Post.builder()
                 .id(1L)
-                .memberId(1L)
+//                .memberId(1L)
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
@@ -145,7 +148,7 @@ class PostServiceTest {
         //given
         Post post = Post.builder()
                 .id(1L)
-                .memberId(1L)
+//                .memberId(1L)
                 .image(new ArrayList<>())
                 .contents("contents")
                 .location("home")
