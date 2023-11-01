@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,7 @@ public class MemberService {
     private final MemberSearchRepository memberSearchRepository;
     private final FollowRepository followRepository;
     private final TokenProvider tokenProvider;
+    private final MailService mailService;
 
     //회원가입
     public void signup (SignupRequest request) {
@@ -46,6 +50,27 @@ public class MemberService {
         Member member = memberRepository.save(setAccount(request));
         //Elastic Search 에 반영
         memberSearchRepository.save(MemberIndex.from(member));
+    }
+
+    //인증코드 발급
+    public void sendCode (AuthenticationRequest request) {
+        Instant currentTime = Instant.now();
+        Auth existingAuth = authRepository.findByEmail(request.getEmail()).orElse(null);
+
+        if (existingAuth == null || Duration.between(existingAuth.getCreatedAt(),
+            currentTime).toMillis() >= 2 * 60 * 1000) {
+            int authCode = mailService.sendMail(request);
+            String code = String.valueOf(authCode);
+            if (existingAuth == null) {
+                existingAuth = new Auth();
+                existingAuth.setEmail(request.getEmail());
+            }
+            existingAuth.setCode(code);
+            existingAuth.setCreatedAt(currentTime);
+            authRepository.save(existingAuth);
+        } else {
+            throw new AuthCodeAlreadySentException();
+        }
     }
 
     //인증코드 확인 및 삭제

@@ -19,14 +19,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
-    private final MailService mailService;
     private final TokenProvider tokenProvider;
-    private final AuthRepository authRepository;
 
     //사용할수 있는 이메일인지 확인
     @PostMapping("/signup/check/email")
@@ -45,13 +45,7 @@ public class MemberController {
     //이메일 인증번호 발급
     @PostMapping("/signup/auth")
     public ApiResponse<?> mailSend(@RequestBody AuthenticationRequest request){
-        int authCode = mailService.sendMail(request);
-        String code = authCode + "";
-        Auth temp = Auth.builder()
-                .email(request.getEmail())
-                .code(code)
-                .build();
-        authRepository.save(temp);
+        memberService.sendCode(request);
         return ApiResponse.createMessage("인증번호가 발급되었습니다");
     }
 
