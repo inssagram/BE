@@ -5,18 +5,19 @@ import lombok.Builder;
 
 @Builder
 public record InfoResponse(
+        Long member_id,
         String email,
         String nickname,
-        String gender,
-        String jobField
+        String job,
+        String profilePic
 ) {
-
     public static InfoResponse fromEntity(Member member) {
         return InfoResponse.builder()
+                .member_id(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .gender(member.getGender())
-                .jobField(member.getJobField())
+                .job(member.getJob())
+                .profilePic(member.getProfilePic())
                 .build();
     }
 }

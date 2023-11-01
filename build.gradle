@@ -26,8 +26,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
 
     //
     // https://mvnrepository.com/artifact/org.webjars/stomp-websocket
@@ -40,9 +38,20 @@ dependencies {
     implementation 'org.webjars:sockjs-client:1.5.1'
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-amqp
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
     //
+
+    //ElasticSearch
+    implementation 'co.elastic.clients:elasticsearch-java:8.5.3'
+    implementation 'org.springframework.data:spring-data-elasticsearch:5.0.10'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
+
+
+    //email authentication
+    implementation 'org.springframework.boot:spring-boot-starter-mail:3.0.10'
+
+    //JWT
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -51,6 +60,10 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+//tasks.named('test') {
+//    useJUnitPlatform()
+//}
+
+jar {
+    enabled = false
 }

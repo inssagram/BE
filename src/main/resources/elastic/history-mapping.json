@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "id": {
+      "type" : "long"
+    },
+    "member_id": {
+      "type" : "long"
+    },
+    "search" : {
+      "type" : "text"
+    }
+  }
+}

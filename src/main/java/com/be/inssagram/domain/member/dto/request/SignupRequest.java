@@ -1,17 +1,21 @@
 package com.be.inssagram.domain.member.dto.request;
 
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class SignupRequest {
+
+    @NotBlank
     private String email;
+    @NotBlank
     private String password;
-    private String gender;
+    @NotBlank
     private String nickname;
-    private String jobField;
+    @NotBlank
+    private String job;
 }
