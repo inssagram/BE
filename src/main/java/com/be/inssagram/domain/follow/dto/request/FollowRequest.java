@@ -11,6 +11,4 @@ import lombok.NoArgsConstructor;
 public class FollowRequest {
     private Long followId;
     private Long hashtagId;
-    private Long myId;
-    private String myName;
 }
