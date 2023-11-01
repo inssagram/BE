@@ -14,10 +14,13 @@ public class ReplyInfoResponse {
     private Long commentId;
     private Long postId;
     private Long memberId;
+    private String nickName;
     private String content;
     private boolean replyFlag;
     private Long targetMemberId;
     private Integer likeCount;
+    private String createdAt;
+
 
     public static ReplyInfoResponse from(Comment comment) {
 
@@ -25,8 +28,10 @@ public class ReplyInfoResponse {
                 .commentId(comment.getId())
                 .postId(comment.getPost().getId())
                 .memberId(comment.getMember().getId())
+                .nickName(comment.getMember().getNickname())
                 .content(comment.getContent())
                 .replyFlag(comment.isReplyFlag())
+                .createdAt(comment.getCreatedAt())
                 .build();
     }
 

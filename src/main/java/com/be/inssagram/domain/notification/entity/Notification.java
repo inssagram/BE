@@ -20,8 +20,13 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long receiverId;
+    private String location;
+    private Long location_id;
     private String senderName;
     private String senderImage;
     private String message;
+    private boolean is_friend;
+    private boolean read_status;
     private LocalDateTime createdAt;
 }

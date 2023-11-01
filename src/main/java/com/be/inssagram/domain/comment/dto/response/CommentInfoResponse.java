@@ -17,10 +17,12 @@ public class CommentInfoResponse {
     private Long commentId;
     private Long postId;
     private Long memberId;
+    private String nickname;
     private String content;
     private Integer CommentCount;
     private Integer likeCount;
     private boolean replyFlag;
+    private String createdAt;
 
     public CommentInfoResponse(Long commentId, Long postId, Long memberId,
                                String content, boolean replyFlag) {
@@ -41,9 +43,11 @@ public class CommentInfoResponse {
                 .commentId(comment.getId())
                 .postId(comment.getPost().getId())
                 .memberId(comment.getMember().getId())
+                .nickname(comment.getMember().getNickname())
                 .content(comment.getContent())
                 .CommentCount(list.size())
                 .replyFlag(comment.isReplyFlag())
+                .createdAt(comment.getCreatedAt())
                 .build();
     }
 

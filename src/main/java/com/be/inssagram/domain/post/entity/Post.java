@@ -2,6 +2,7 @@ package com.be.inssagram.domain.post.entity;
 
 import com.be.inssagram.common.BaseEntity;
 import com.be.inssagram.domain.comment.entity.Comment;
+import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +28,9 @@ public class Post extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "POST_ID")
     private Long id;
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MEMBER_ID", nullable = false)
+    private Member member;
     @ElementCollection
     private List<String> image;
     private String contents;
@@ -35,12 +38,6 @@ public class Post extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post",
             cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
-    @ElementCollection
-    private Set<String> taggedMembers;
-
-    public void setTaggedMembers(Set taggedMembers) {
-        this.taggedMembers = taggedMembers;
-    }
 
     public void updateFields(UpdatePostRequest request) {
         if (request.getLocation() != null) {
@@ -49,10 +46,6 @@ public class Post extends BaseEntity {
         if (request.getContents() != null) {
             contents = request.getContents();
         }
-        if (request.getTaggedMembers() != null) {
-            taggedMembers = request.getTaggedMembers();
-        }
-
     }
 
 }
