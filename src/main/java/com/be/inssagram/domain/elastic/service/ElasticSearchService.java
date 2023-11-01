@@ -69,7 +69,7 @@ public class ElasticSearchService {
                         source.path("id").asLong(),
                         source.path("email").asText(),
                         source.path("name").asText(),
-                        source.path("company_name").asText()
+                        source.path("job").asText()
                 );
                 results.add(memberResult);
             } else {

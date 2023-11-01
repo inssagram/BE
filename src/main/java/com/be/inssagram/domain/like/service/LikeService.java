@@ -7,6 +7,7 @@ import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
 import com.be.inssagram.exception.comment.CommentDoesNotExistException;
@@ -25,6 +26,7 @@ public class LikeService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     public void onLikePost(Long postId, Long memberId) {
         // 유저(Member)를 찾아옵니다.
@@ -43,6 +45,10 @@ public class LikeService {
             return;
         }
         Like like = Like.builder().post(post).member(member).build();
+        //자신이 이외의 사람이 좋아요를 눌렀을때 작성자에게 알림을 전송합니다
+        if(!post.getMemberId().equals(member.getId())) {
+            notificationService.notify(post.getMemberId(), member.getNickname() + "님이 당신의 게시물을 좋아합니다");
+        }
         likeRepository.save(like);
     }
 
@@ -69,6 +75,10 @@ public class LikeService {
         }
         Like like = Like.builder().post(post).member(member).comment(comment)
                 .build();
+        //자신 이외의 유저가 좋아요를 눌렀을시 작성자에게 알림을 전송합니다.
+        if(!comment.getMember().getId().equals(memberId)) {
+            notificationService.notify(comment.getMember().getId(), member.getNickname() + "님이 당신의 댓글을 좋아합니다");
+        }
         likeRepository.save(like);
     }
 

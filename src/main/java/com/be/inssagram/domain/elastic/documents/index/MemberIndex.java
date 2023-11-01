@@ -24,15 +24,15 @@ public class MemberIndex {
     @Field(name = "name", type = FieldType.Text)
     private String nickname;
 
-    @Field(name = "company_name", type = FieldType.Text)
-    private String companyName;
+    @Field(name = "job", type = FieldType.Text)
+    private String job;
 
     public static MemberIndex from(Member member) {
         return MemberIndex.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .companyName(member.getCompanyName())
+                .job(member.getJob())
                 .build();
     }
 }

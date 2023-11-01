@@ -22,7 +22,7 @@ public record DetailedInfoResponse(
         return DetailedInfoResponse.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .companyName(member.getCompanyName())
+                .companyName(member.getJob())
                 .profilePic(member.getProfilePic())
                 .description(member.getDescription())
                 .followers(followers)
