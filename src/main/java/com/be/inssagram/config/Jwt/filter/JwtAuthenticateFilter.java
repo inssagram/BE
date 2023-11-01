@@ -43,7 +43,7 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
         } else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid or expired token");
+            response.getWriter().write("토큰 정보가 없거나 만료되었습니다");
             return;
         }
         filterChain.doFilter(request, response);
@@ -51,7 +51,7 @@ public class JwtAuthenticateFilter extends OncePerRequestFilter {
 
     public String resolveToken(HttpServletRequest request) {
         String token = request.getHeader(TOKEN_HEADER);
-        if (!token.isEmpty() && token.startsWith(TOKEN_PREFIX)) {
+        if (token != null && token.startsWith(TOKEN_PREFIX)) {
             return token.replace(TOKEN_PREFIX, "").trim();
         }
         return null;
