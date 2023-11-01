@@ -1,11 +1,15 @@
 package com.be.inssagram.domain.member.service;
 
 
-import com.be.inssagram.common.ApiResponse;
 import com.be.inssagram.config.Jwt.TokenProvider;
-import com.be.inssagram.domain.member.documents.MemberSearchRepository;
-import com.be.inssagram.domain.member.documents.SearchMember;
+import com.be.inssagram.domain.elastic.documents.repository.MemberSearchRepository;
+import com.be.inssagram.domain.elastic.documents.index.MemberIndex;
+import com.be.inssagram.domain.follow.dto.response.FollowerList;
+import com.be.inssagram.domain.follow.dto.response.FollowingList;
+import com.be.inssagram.domain.follow.entity.Follow;
+import com.be.inssagram.domain.follow.repository.FollowRepository;
 import com.be.inssagram.domain.member.dto.request.*;
+import com.be.inssagram.domain.member.dto.response.DetailedInfoResponse;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Auth;
 import com.be.inssagram.domain.member.entity.Member;
@@ -16,8 +20,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MissingRequestHeaderException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +33,7 @@ public class MemberService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
     private final MemberSearchRepository memberSearchRepository;
+    private final FollowRepository followRepository;
     private final TokenProvider tokenProvider;
 
     //회원가입
@@ -42,7 +45,7 @@ public class MemberService {
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         Member member = memberRepository.save(setAccount(request));
         //Elastic Search 에 반영
-        memberSearchRepository.save(SearchMember.from(member));
+        memberSearchRepository.save(MemberIndex.from(member));
     }
 
     //인증코드 확인 및 삭제
@@ -100,7 +103,7 @@ public class MemberService {
         member.updateFields(request);
         Member updatedMember = memberRepository.save(member);
         //ES에 수정된 정보 반영
-        memberSearchRepository.save(SearchMember.from(updatedMember));
+        memberSearchRepository.save(MemberIndex.from(updatedMember));
         return InfoResponse.fromEntity(member);
     }
 
@@ -112,13 +115,24 @@ public class MemberService {
             throw new UnauthorizedRequestException();
         }
         memberRepository.delete(member);
-        memberSearchRepository.delete(SearchMember.from(member));
+        memberSearchRepository.delete(MemberIndex.from(member));
     }
 
     //회원 상세조회
-    public InfoResponse getMemberDetail(String nickname){
+    public DetailedInfoResponse getMemberDetail(String nickname){
         Member member = memberRepository.findByNickname(nickname);
-        return InfoResponse.fromEntity(member);
+        List<Follow> followers = followRepository.findAllByMemberId(member.getId());
+        List<Follow> following = followRepository.findAllByMyId(member.getId());
+
+        List<FollowingList> followingLists = following.stream()
+                .map(follow -> new FollowingList(follow.getMemberId(), follow.getMemberName()))
+                .collect(Collectors.toList());
+
+        List<FollowerList> followerLists = followers.stream()
+                .map(follow -> new FollowerList(follow.getMyId(), follow.getMyName()))
+                .collect(Collectors.toList());
+
+        return DetailedInfoResponse.fromEntity(member, followingLists, followerLists);
     }
 
     private Member setAccount (SignupRequest request) {

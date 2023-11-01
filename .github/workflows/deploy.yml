@@ -30,6 +30,7 @@ jobs:
         with:
           files: ${{ env.RESOURCE_PATH }}
         env:
+          spring.elastic.url: ${{ secrets.SPRING_ELASTIC_URL }}
           spring.jwt.secret-key: ${{ secrets.SPRING_JWT_SECRET_KEY }}
           spring.datasource.url: ${{ secrets.SPRING_DATASOURCE_URL }}
           spring.datasource.username: ${{ secrets.SPRING_DATASOURCE_USERNAME }}

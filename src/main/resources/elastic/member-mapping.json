@@ -1,6 +1,6 @@
 {
   "properties": {
-    "member_company_name" : {
+    "company_name" : {
       "type" : "text",
       "fields" : {
         "keyword" : {
@@ -9,7 +9,7 @@
         }
       }
     },
-    "member_email" : {
+    "email" : {
       "type" : "text",
       "fields" : {
         "keyword" : {
@@ -18,10 +18,10 @@
         }
       }
     },
-    "member_id" : {
+    "id" : {
       "type" : "long"
     },
-    "member_nickname" : {
+    "name" : {
       "type" : "text",
       "fields" : {
         "keyword" : {

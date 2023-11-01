@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticateFilter jwtAuthenticateFilter;
+    private final CorsConfig corsConfig;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -27,12 +28,13 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> {
             try {
                 authorize
-                        .requestMatchers("/*","/member/*/*","/search/member/*", "/follow/*") // 해당 경로는 인증 없이 접근 가능
+                        .requestMatchers("/**","/member/*/*","/search/*", "/follow/*") // 해당 경로는 인증 없이 접근 가능
                         .permitAll()
                         .and()
                         .sessionManagement()
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .and()
+                        .addFilter(corsConfig.corsFilter())
                         .addFilterBefore(jwtAuthenticateFilter,
                                 UsernamePasswordAuthenticationFilter.class);
             } catch (Exception e) {

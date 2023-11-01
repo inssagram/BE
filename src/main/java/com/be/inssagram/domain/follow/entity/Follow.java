@@ -1,5 +1,6 @@
 package com.be.inssagram.domain.follow.entity;
 
+import com.be.inssagram.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,11 @@ public class Follow {
 
     private Long myId;
 
-    private Long followId;
+    private String myName;
+
+    private Long memberId;
+
+    private String memberName;
 
     private Long hashtagId;
 }
