@@ -15,14 +15,10 @@ public class Follow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long myId;
-
     private String myName;
-
     private Long memberId;
-
+    private String memberImage;
     private String memberName;
-
     private Long hashtagId;
 }
