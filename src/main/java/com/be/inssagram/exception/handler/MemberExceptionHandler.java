@@ -26,6 +26,12 @@ public class MemberExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.createError(exception.getMessage()));
     }
 
+    //인증번호가 이미 발급되었을때
+    @ExceptionHandler(AuthCodeAlreadySentException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthCodeAlreadySendException(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_EARLY).body(ApiResponse.createError(exception.getMessage()));
+    }
+
     //유저 조회시 없는 유저일때
     @ExceptionHandler(UserDoesNotExistException.class)
     public ResponseEntity<ApiResponse<?>> handleUserDoesNotExistException(RuntimeException exception) {
