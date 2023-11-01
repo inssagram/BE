@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -43,23 +44,25 @@ public class NotificationService {
         notificationRepository.save(saveNotification(request));
     }
 
+    //알림 삭제
     public void deleteNotification(Long member_id, Long notification_id) {
         Notification notification = notificationRepository.findByIdAndReceiverId(notification_id, member_id);
         notificationRepository.delete(notification);
     }
 
+    //알림 조회후 안읽은 알림은 읽음 상태로 변환
+    public List<Notification> getMyNotifications(Long member_id) {
+        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(member_id, false);
+        for (Notification notification : list) {
+            notification.setReadStatus(true);
+            notificationRepository.save(notification);
+        }
+        return notificationRepository.findByReceiverId(member_id);
+    }
+
+    //알림 생성
     public NotificationRequest createNotifyDto(Long receiver_id, String location, Long location_id, Long sender_id,
                                                String senderName, String senderImage, String message){
-        if(location_id.equals(null)){
-            return NotificationRequest.builder()
-                    .receiver_id(receiver_id)
-                    .location(location)
-                    .sender_id(sender_id)
-                    .senderName(senderName)
-                    .senderImage(senderImage)
-                    .message(message)
-                    .build();
-        }
         return NotificationRequest.builder()
                 .receiver_id(receiver_id)
                 .location(location)
@@ -109,19 +112,25 @@ public class NotificationService {
 
     private Notification saveNotification(NotificationRequest request) {
         Follow exists = followRepository.findByMyIdAndMemberId(request.getSender_id(), request.getReceiver_id());
-        System.out.println(exists);
         boolean isFriend = false;
         if(exists != null){
+            List<Notification> list = notificationRepository
+                    .findAllByReceiverIdAndSenderId(request.getReceiver_id(), request.getSender_id());
+            for (Notification notification : list) {
+                notification.setFriendStatus(true);
+                notificationRepository.save(notification);
+            }
             isFriend = true;
         }
         return Notification.builder()
                 .message(request.getMessage())
+                .senderId(request.getSender_id())
                 .senderImage(request.getSenderImage())
                 .senderName(request.getSenderName())
                 .location(request.getLocation())
                 .location_id(request.getLocation_id())
-                .is_friend(isFriend)
-                .read_status(false)
+                .friendStatus(isFriend)
+                .readStatus(false)
                 .createdAt(LocalDateTime.now())
                 .receiverId(request.getReceiver_id())
                 .build();
