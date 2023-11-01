@@ -31,7 +31,7 @@ public class Member {
     private String profilePic;
     private String password;
     private String role;
-    private String companyName;
+    private String job;
 
     public void updateFields(UpdateRequest updateRequest) {
         if (updateRequest.getEmail() != null) {
@@ -50,7 +50,7 @@ public class Member {
             this.password = updateRequest.getPassword();
         }
         if (updateRequest.getCompanyName() != null) {
-            this.companyName = updateRequest.getCompanyName();
+            this.job = updateRequest.getCompanyName();
         }
     }
 

@@ -9,6 +9,7 @@ import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
 import com.be.inssagram.exception.comment.CannotCreateCommentException;
@@ -32,6 +33,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
+    private final NotificationService notificationService;
 
     public CommentInfoResponse createComment(
             Long postId, CommentRequest request) {
@@ -50,6 +52,10 @@ public class CommentService {
                 .content(request.getContents())
                 .build();
 
+        //게시물 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
+        if(!post.getMemberId().equals(member.getId())) {
+            notificationService.notify(post.getMemberId(), member.getNickname() + "님이 당신의 게시물에 댓글을 다셧습니다");
+        }
         // 댓글을 저장합니다.
         return CommentInfoResponse.from(commentRepository.save(comment));
     }
@@ -74,7 +80,9 @@ public class CommentService {
 
         ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
         response.setTargetMemberId(parentComment.getMember().getId());
-
+        //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
+        if(!parentComment.getMember().getId().equals(member.getId()))
+        notificationService.notify(parentComment.getMember().getId(), member.getNickname()+"님이 당신의 댓글에 답장을 하엿습니다");
         // 대댓글을 저장합니다.
         return response;
     }
@@ -93,6 +101,10 @@ public class CommentService {
         ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
         response.setTargetMemberId(commentRepository.findById(replyId)
                 .get().getMember().getId());
+        //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
+        if(!parentComment.getMember().getId().equals(member.getId())) {
+            notificationService.notify(parentComment.getMember().getId(), member.getNickname() + "님이 당신의 댓글에 답장을 하엿습니다");
+        }
         return response;
     }
 
