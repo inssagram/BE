@@ -53,10 +53,10 @@ public class CommentService {
                 .build();
 
         //게시물 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
-        if(!post.getMemberId().equals(member.getId())) {
+        if(!post.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            post.getMemberId(),
+                            post.getMember().getId(),
                             "post",
                             post.getId(),
                             member.getId(),

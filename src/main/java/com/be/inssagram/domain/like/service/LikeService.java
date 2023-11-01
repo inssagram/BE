@@ -46,10 +46,10 @@ public class LikeService {
         }
         Like like = Like.builder().post(post).member(member).build();
         //자신이 이외의 사람이 좋아요를 눌렀을때 작성자에게 알림을 전송합니다
-        if(!post.getMemberId().equals(member.getId())) {
+        if(!post.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            post.getMemberId(),
+                            post.getMember().getId(),
                             "post",
                             post.getId(),
                             member.getId(),
