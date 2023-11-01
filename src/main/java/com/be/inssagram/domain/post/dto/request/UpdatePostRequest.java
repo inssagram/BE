@@ -15,7 +15,7 @@ import java.util.Set;
 public class UpdatePostRequest {
     private String contents;
     private String location;
-    private Set<String> taggedMembers;
+    private Set<Long> taggedMemberIds;
     private List<String> hashTags;
 
 }

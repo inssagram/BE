@@ -50,7 +50,7 @@ class PostControllerTest {
                 .contents("contents")
                 .likeCount(1)
                 .location("home")
-                .taggedMembers(new HashSet<>())
+//                .taggedMembers(new HashSet<>())
                 .hashTags(new ArrayList<>())
                 .build());
         //when
@@ -63,7 +63,7 @@ class PostControllerTest {
                                         .image(new ArrayList<>())
                                         .contents("AAA")
                                         .location("sweet")
-                                        .taggedMembers(new HashSet<>())
+                                        .taggedMemberIds(new HashSet<>())
                                         .hashTags(new ArrayList<>())
                                         .build()))
                 ).andDo(print())
@@ -84,7 +84,7 @@ class PostControllerTest {
                         .contents("contents")
                         .likeCount(1)
                         .location("home")
-                        .taggedMembers(new HashSet<>())
+//                        .taggedMembers(new HashSet<>())
                         .hashTags(new ArrayList<>())
                         .build());
         //when
@@ -95,7 +95,7 @@ class PostControllerTest {
                                 .builder()
                                 .contents("AAA")
                                 .location("sweet")
-                                .taggedMembers(new HashSet<>())
+//                                .taggedMembers(new HashSet<>())
                                 .hashTags(new ArrayList<>())
                                 .build()))
                 ).andDo(print())
@@ -133,7 +133,7 @@ class PostControllerTest {
                         .contents("contents")
                         .likeCount(1)
                         .location("home")
-                        .taggedMembers(new HashSet<>())
+//                        .taggedMembers(new HashSet<>())
                         .hashTags(new ArrayList<>())
                         .build());
         //when
@@ -162,7 +162,7 @@ class PostControllerTest {
                         .contents("contents")
                         .likeCount(1)
                         .location("home")
-                        .taggedMembers(new HashSet<>())
+//                        .taggedMembers(new HashSet<>())
                         .hashTags(new ArrayList<>())
                         .build());
         given(postService.searchPostAll())
