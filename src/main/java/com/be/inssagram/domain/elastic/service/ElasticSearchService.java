@@ -5,6 +5,7 @@ import com.be.inssagram.domain.elastic.documents.index.History;
 import com.be.inssagram.domain.elastic.documents.repository.HistorySearchRepository;
 import com.be.inssagram.domain.elastic.dto.request.SearchRequest;
 import com.be.inssagram.domain.elastic.dto.response.SearchResult;
+import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,7 +36,7 @@ public class ElasticSearchService {
 
 
     //검색 기능
-    public List<SearchResult> search (String value, Long memberId) {
+    public List<SearchResult> search (String value, InfoResponse memberId) {
         String endpoint = "/members,hashtags/_search";
         String requestBody = "{ \"query\": { \"wildcard\": { \"name\": { \"value\": \"*" + value + "*\" } } } }";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;
@@ -44,7 +45,7 @@ public class ElasticSearchService {
         if(memberId != null) {
             History newHistory = History.builder()
                     .createdAt(LocalDateTime.now())
-                    .memberId(memberId)
+                    .memberId(memberId.member_id())
                     .searched(value)
                     .build();
             historySearchRepository.save(newHistory);

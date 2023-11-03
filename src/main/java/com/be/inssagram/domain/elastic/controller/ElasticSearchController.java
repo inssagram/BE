@@ -24,8 +24,13 @@ public class ElasticSearchController {
     public List<SearchResult> searchMemberAndHashtag(
             @PathVariable String keyword,
             @RequestHeader(value = "Authorization", required = false) String token) {
-        InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
-        return elasticsearchService.search(keyword, member.member_id());
+        InfoResponse member;
+        if(token != null) {
+             member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
+        } else{
+             member = null;
+        }
+        return elasticsearchService.search(keyword, member);
     }
 
     @GetMapping("/search")
