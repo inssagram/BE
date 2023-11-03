@@ -83,10 +83,10 @@ public class ElasticSearchService {
     }
 
     //최근 검색기록 조회
-    public List<SearchResult> getSearchHistoryList(SearchRequest request) {
+    public List<SearchResult> getSearchHistoryList(Long memberId) {
         //아무것도 적지 않았을때 마지막으로 검색했던 기록을 보여줌
         String endpoint = "/histories/_search";
-        String requestBody = "{\"query\": {\"term\": {\"member_id\":" + request.getMemberId() + "}}, " +
+        String requestBody = "{\"query\": {\"term\": {\"member_id\":" + memberId + "}}, " +
                 "\"sort\": [{\"_id\": {\"order\": \"desc\"}}], " +
                 "\"size\": 5}";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;

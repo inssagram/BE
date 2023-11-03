@@ -2,9 +2,11 @@ package com.be.inssagram.domain.elastic.controller;
 
 
 import com.be.inssagram.common.ApiResponse;
+import com.be.inssagram.config.Jwt.TokenProvider;
 import com.be.inssagram.domain.elastic.dto.request.SearchRequest;
 import com.be.inssagram.domain.elastic.dto.response.SearchResult;
 import com.be.inssagram.domain.elastic.service.ElasticSearchService;
+import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,7 @@ import java.util.List;
 public class ElasticSearchController {
 
     private final ElasticSearchService elasticsearchService;
+    private final TokenProvider tokenProvider;
 
     @GetMapping("/search/{keyword}")
     public List<SearchResult> searchMemberAndHashtag(
@@ -27,9 +30,9 @@ public class ElasticSearchController {
 
     @GetMapping("/search")
     public List<SearchResult> searchMemberAndHashtag(
-            @RequestBody(required = false) SearchRequest memberId) {
-
-        return elasticsearchService.getSearchHistoryList(memberId);
+            @RequestHeader(value = "Authorization") String token) {
+        InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
+        return elasticsearchService.getSearchHistoryList(member.member_id());
     }
 
     @DeleteMapping("/search/{keyword}")
