@@ -23,13 +23,13 @@ public class ElasticSearchController {
     @GetMapping("/search/{keyword}")
     public List<SearchResult> searchMemberAndHashtag(
             @PathVariable String keyword,
-            @RequestBody(required = false) SearchRequest memberId) {
-
-        return elasticsearchService.search(keyword, memberId);
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
+        return elasticsearchService.search(keyword, member.member_id());
     }
 
     @GetMapping("/search")
-    public List<SearchResult> searchMemberAndHashtag(
+    public List<SearchResult> getMySearchHistory(
             @RequestHeader(value = "Authorization") String token) {
         InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
         return elasticsearchService.getSearchHistoryList(member.member_id());
@@ -38,9 +38,9 @@ public class ElasticSearchController {
     @DeleteMapping("/search/{keyword}")
     public ApiResponse<?> deleteHistory(
             @PathVariable String keyword,
-            @RequestBody(required = false) SearchRequest memberId) {
-
-        elasticsearchService.deleteSearchHistory(keyword, memberId);
+            @RequestHeader(value = "Authorization") String token) {
+        InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
+        elasticsearchService.deleteSearchHistory(keyword, member.member_id());
         return ApiResponse.createMessage("검색 기록이 삭제되었습니다");
     }
 }

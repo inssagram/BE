@@ -35,16 +35,16 @@ public class ElasticSearchService {
 
 
     //검색 기능
-    public List<SearchResult> search (String value, SearchRequest request) {
+    public List<SearchResult> search (String value, Long memberId) {
         String endpoint = "/members,hashtags/_search";
         String requestBody = "{ \"query\": { \"wildcard\": { \"name\": { \"value\": \"*" + value + "*\" } } } }";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;
 
         //검색한 기록을 저장
-        if(request != null) {
+        if(memberId != null) {
             History newHistory = History.builder()
                     .createdAt(LocalDateTime.now())
-                    .memberId(request.getMemberId())
+                    .memberId(memberId)
                     .searched(value)
                     .build();
             historySearchRepository.save(newHistory);
@@ -111,10 +111,10 @@ public class ElasticSearchService {
         return results;
     }
 
-    public void deleteSearchHistory(String value, SearchRequest request){
+    public void deleteSearchHistory(String value, Long memberId){
         String endpoint = "/histories/_doc/_delete_by_query";
         String requestBody = "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"searched\":\"" + value + "\"}}," +
-                " {\"term\":{\"member_id\":" + request.getMemberId() + "}}]}}}";
+                " {\"term\":{\"member_id\":" + memberId + "}}]}}}";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;
 
         sendHttpRequest(requestBody, elasticsearchUrl);
