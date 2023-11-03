@@ -1,5 +1,6 @@
-package com.be.inssagram.domain.chat;
+package com.be.inssagram.config.chat;
 
+import com.be.inssagram.domain.chat.StompHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

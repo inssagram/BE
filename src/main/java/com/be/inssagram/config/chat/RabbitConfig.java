@@ -1,4 +1,4 @@
-package com.be.inssagram.domain.chat;
+package com.be.inssagram.config.chat;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

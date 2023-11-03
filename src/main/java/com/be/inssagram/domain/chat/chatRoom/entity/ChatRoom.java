@@ -1,4 +1,4 @@
-package com.be.inssagram.domain.chat;
+package com.be.inssagram.domain.chat.chatRoom.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -31,7 +31,6 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID", nullable = false)
     private Member member;
-    @ElementCollection
     private List<String> image;
     private String contents;
     private String location;

@@ -1,5 +1,7 @@
-package com.be.inssagram.domain.chat;
+package com.be.inssagram.domain.chat.chatRoom.service;
 
+import com.be.inssagram.domain.chat.chatRoom.entity.ChatRoom;
+import com.be.inssagram.domain.chat.chatRoom.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

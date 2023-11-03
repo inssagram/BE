@@ -1,7 +1,7 @@
-package com.be.inssagram.domain.chat;
+package com.be.inssagram.domain.chat.chatRoom.controller;
 
-// import 생략...
-
+import com.be.inssagram.domain.chat.chatRoom.service.ChatRoomService;
+import com.be.inssagram.domain.chat.chatRoom.entity.ChatRoom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,28 +21,24 @@ public class ChatRoomController {
     public String rooms(Model model) {
         return "/chat/room";
     }
-
     // 모든 채팅방 목록 반환
     @GetMapping("/rooms")
     @ResponseBody
     public List<ChatRoom> room() {
         return chatRoomService.searchRooms();
     }
-
     // 채팅방 생성
     @PostMapping("/room")
     @ResponseBody
     public ChatRoom createRoom(@RequestParam String name) {
         return chatRoomService.createChatRoom(name);
     }
-
     // 채팅방 입장 화면
     @GetMapping("/room/enter/{roomId}")
     public String roomDetail(Model model, @PathVariable String roomId) {
         model.addAttribute("roomId", roomId);
         return "/chat/roomdetail";
     }
-
     // 특정 채팅방 조회
     @GetMapping("/room/{roomId}")
     @ResponseBody
