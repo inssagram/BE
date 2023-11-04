@@ -1,5 +1,6 @@
 package com.be.inssagram.domain.post.service;
 
+import com.be.inssagram.config.Jwt.TokenProvider;
 import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.repository.MemberRepository;
@@ -34,13 +35,14 @@ class PostServiceTest {
     private PostRepository postRepository;
     @Mock
     MemberRepository memberRepository;
-
     @Mock
     private LikeRepository likeRepository;
     @Mock
     private HashTagRepository hashTagRepository;
     @Mock
     private TagRepository tagRepository;
+    @Mock
+    private TokenProvider tokenProvider;
 
     @InjectMocks
     private PostService postService;
@@ -59,9 +61,8 @@ class PostServiceTest {
                 .build();
         given(postRepository.save(any())).willReturn(post);
         //when
-        PostInfoResponse createResponse = postService.createPost(CreatePostRequest
+        PostInfoResponse createResponse = postService.createPost("token",CreatePostRequest
                 .builder()
-                .memberId(2L)
                 .image(new ArrayList<>())
                 .contents("AAA")
                 .location("sweet")

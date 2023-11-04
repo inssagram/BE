@@ -1,5 +1,6 @@
 package com.be.inssagram.domain.post.service;
 
+import com.be.inssagram.config.Jwt.TokenProvider;
 import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.hashTag.service.HashTagService;
@@ -36,11 +37,12 @@ public class PostService {
     private final HashTagService hashTagService;
     private final TagService tagService;
 
+    private final TokenProvider tokenProvider;
 
-    public PostInfoResponse createPost(CreatePostRequest request) {
 
-        Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(UserDoesNotExistException::new);
+    public PostInfoResponse createPost(String token, CreatePostRequest request) {
+
+        Member member = tokenProvider.getMemberFromToken(token);
 
         Post post = Post.builder()
                 .member(member)
@@ -68,7 +70,7 @@ public class PostService {
         // 태그한 사람 저장
         if (request.getTaggedMemberIds() != null) {
             for (Long memberId : request.getTaggedMemberIds()) {
-                if(memberRepository.existsById(memberId)){
+                if (memberRepository.existsById(memberId)) {
                     tagService.createTag(TagCreateRequest.builder()
                             .postId(post.getId())
                             .memberId(memberId)
@@ -102,11 +104,11 @@ public class PostService {
 
         // 태그한 사람 수정
         Set<Long> curTaggedMember = tagRepository.findByPostIdAndImageId(
-                post.getId(), null)
+                        post.getId(), null)
                 .stream().map(Tag::getMember).map(Member::getId)
                 .collect(Collectors.toSet());
         Set<Long> newTaggedMemberIds = curTaggedMember;
-        if(request.getTaggedMemberIds() != null) {
+        if (request.getTaggedMemberIds() != null) {
             newTaggedMemberIds = new HashSet<>(request.getTaggedMemberIds());
         }
         updateTaggedMembers(post, curTaggedMember, newTaggedMemberIds);
@@ -205,7 +207,7 @@ public class PostService {
 
             for (Long newTaggedMemberId : newTaggedMemberIds) {
                 if (tagRepository.findByPostIdAndMemberIdAndImageId(
-                        post.getId(), newTaggedMemberId,null) != null) {
+                        post.getId(), newTaggedMemberId, null) != null) {
                     continue;
                 }
                 tagService.createTag(TagCreateRequest.builder()

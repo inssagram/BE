@@ -11,7 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CommentRequest {
-    private Long memberId;
     private String contents;
     private List<String> mentionList;
 

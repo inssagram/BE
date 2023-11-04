@@ -22,8 +22,10 @@ public class PostController {
 
     @PostMapping("/create")
     public ApiResponse<PostInfoResponse> createPost(
-            @Valid @RequestBody CreatePostRequest request) {
-        PostInfoResponse response = postService.createPost(request);
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody CreatePostRequest request
+    ) {
+        PostInfoResponse response = postService.createPost(token, request);
         return ApiResponse.createSuccessWithMessage(response, "완료");
     }
 
@@ -40,7 +42,7 @@ public class PostController {
         return ApiResponse.createMessage("삭제 완료");
     }
 
-    @GetMapping("/{id}/detail")
+    @GetMapping("/search-detail/{id}")
     public ApiResponse<PostInfoResponse> searchPostDetail(
             @PathVariable Long id) {
         return ApiResponse.createSuccess(postService.searchPostDetail(id));
@@ -51,7 +53,7 @@ public class PostController {
         return ApiResponse.createSuccess(postService.searchPostAll());
     }
 
-    @GetMapping("")
+    @GetMapping("/member")
     public ApiResponse<List<PostInfoResponse>> searchPostWithMemberId(
             @RequestParam(value = "member-id") Long memberId
     ) {
