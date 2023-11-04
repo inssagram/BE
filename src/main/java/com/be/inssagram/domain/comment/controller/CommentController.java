@@ -20,26 +20,29 @@ public class CommentController {
 
     @PostMapping("/create")
     public ApiResponse<CommentInfoResponse> createComment(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "post-id") Long postId,
             @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
-                commentService.createComment(postId, request));
+                commentService.createComment(token, postId, request));
     }
 
     @PostMapping("/create/reply")
     public ApiResponse<ReplyInfoResponse> createReply(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "parent-comment-id") Long parentCommentId,
             @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
-                commentService.createReply(parentCommentId, request));
+                commentService.createReply(token, parentCommentId, request));
     }
 
     @PostMapping("/create/reply/{replyId}")
     public ApiResponse<ReplyInfoResponse> createReplyToReply(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "parent-comment-id") Long parentCommentId,
             @RequestBody CommentRequest request, @PathVariable Long replyId) {
         return ApiResponse.createSuccess(
-                commentService.createReplyToReply(parentCommentId, replyId, request));
+                commentService.createReplyToReply(token, parentCommentId, replyId, request));
     }
 
     @PutMapping("/update/{id}")
@@ -57,14 +60,6 @@ public class CommentController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<CommentInfoResponse>> searchParentComments(
-            @RequestParam(value = "post-id") Long postId
-    ) {
-        return ApiResponse.createSuccess(
-                commentService.searchParentComments(postId));
-    }
-
-    @GetMapping("/search2")
     public ApiResponse<List<CommentInfoResponse>> searchParentComments2(
             @RequestParam(value = "post-id") Long postId
     ) {
@@ -73,14 +68,6 @@ public class CommentController {
     }
 
     @GetMapping("/search/reply")
-    public ApiResponse<List<CommentInfoResponse>> searchReplyByParentComment(
-            @RequestParam(value = "parent-comment-id") Long parentCommentId
-    ) {
-        return ApiResponse.createSuccess(
-                commentService.searchReplyByParentComment(parentCommentId));
-    }
-
-    @GetMapping("/search/reply2")
     public ApiResponse<List<ReplyInfoResponse>> searchReplyByParentComment2(
             @RequestParam(value = "parent-comment-id") Long parentCommentId
     ) {

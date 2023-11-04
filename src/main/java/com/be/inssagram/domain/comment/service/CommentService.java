@@ -1,5 +1,6 @@
 package com.be.inssagram.domain.comment.service;
 
+import com.be.inssagram.config.Jwt.TokenProvider;
 import com.be.inssagram.domain.comment.dto.request.CommentRequest;
 import com.be.inssagram.domain.comment.dto.response.CommentInfoResponse;
 import com.be.inssagram.domain.comment.dto.response.ReplyInfoResponse;
@@ -14,15 +15,12 @@ import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
 import com.be.inssagram.exception.comment.CannotCreateCommentException;
 import com.be.inssagram.exception.comment.CommentDoesNotExistException;
-import com.be.inssagram.exception.member.UserDoesNotExistException;
-import com.be.inssagram.exception.member.UserNotMatchException;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,11 +34,12 @@ public class CommentService {
     private final LikeRepository likeRepository;
     private final NotificationService notificationService;
 
+    private final TokenProvider tokenProvider;
+
     public CommentInfoResponse createComment(
-            Long postId, CommentRequest request) {
+            String token, Long postId, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
-        Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(UserDoesNotExistException::new);
+        Member member = tokenProvider.getMemberFromToken(token);
 
         // 게시물(Post)을 찾아옵니다.
         Post post = postRepository.findById(postId)
@@ -63,7 +62,7 @@ public class CommentService {
                 commentRepository.save(comment));
 
         //게시물 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
-        if(!post.getMember().getId().equals(member.getId())) {
+        if (!post.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
                             post.getMember().getId(),
@@ -72,7 +71,7 @@ public class CommentService {
                             member.getId(),
                             member.getNickname(),
                             member.getProfilePic(),
-                            member.getNickname()+"님이 회원님의 게시물에 댓글을 다셧습니다"
+                            member.getNickname() + "님이 회원님의 게시물에 댓글을 다셧습니다"
                     ));
         }
         // 댓글을 저장합니다.
@@ -80,10 +79,9 @@ public class CommentService {
     }
 
     public ReplyInfoResponse createReply(
-            Long parentCommentId, CommentRequest request) {
+            String token, Long parentCommentId, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
-        Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(UserDoesNotExistException::new);
+        Member member = tokenProvider.getMemberFromToken(token);
 
         // 부모 댓글을 찾아옵니다.
         Comment parentComment = commentRepository.findById(parentCommentId)
@@ -99,35 +97,7 @@ public class CommentService {
         ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
 
         //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
-        if(!parentComment.getMember().getId().equals(member.getId()))
-        notificationService.notify(notificationService
-                .createNotifyDto(
-                        parentComment.getMember().getId(),
-                        "post",
-                        parentComment.getPost().getId(),
-                        member.getId(),
-                        member.getNickname(),
-                        member.getProfilePic(),
-                        member.getNickname()+"님이 회원님의 댓글에 답장하였습니다"
-                ));
-        // 대댓글을 저장합니다.
-        return response;
-    }
-
-    public ReplyInfoResponse createReplyToReply(
-            Long parentCommentId, Long replyId, CommentRequest request
-    ) {
-        Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(UserDoesNotExistException::new);
-
-        Comment parentComment = commentRepository.findById(parentCommentId)
-                .orElseThrow(CommentDoesNotExistException::new);
-
-        Comment savedReply = getSavedReply(request, member, parentComment);
-        ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
-
-        //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
-        if(!parentComment.getMember().getId().equals(member.getId())) {
+        if (!parentComment.getMember().getId().equals(member.getId()))
             notificationService.notify(notificationService
                     .createNotifyDto(
                             parentComment.getMember().getId(),
@@ -136,7 +106,34 @@ public class CommentService {
                             member.getId(),
                             member.getNickname(),
                             member.getProfilePic(),
-                            member.getNickname()+"님이 회원님의 댓글에 답장하였습니다"
+                            member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
+                    ));
+        // 대댓글을 저장합니다.
+        return response;
+    }
+
+    public ReplyInfoResponse createReplyToReply(
+            String token, Long parentCommentId, Long replyId, CommentRequest request
+    ) {
+        Member member = tokenProvider.getMemberFromToken(token);
+
+        Comment parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(CommentDoesNotExistException::new);
+
+        Comment savedReply = getSavedReply(request, member, parentComment);
+        ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
+
+        //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
+        if (!parentComment.getMember().getId().equals(member.getId())) {
+            notificationService.notify(notificationService
+                    .createNotifyDto(
+                            parentComment.getMember().getId(),
+                            "post",
+                            parentComment.getPost().getId(),
+                            member.getId(),
+                            member.getNickname(),
+                            member.getProfilePic(),
+                            member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
                     ));
         }
         return response;
@@ -146,10 +143,6 @@ public class CommentService {
             Long commentId, CommentRequest request) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentDoesNotExistException::new);
-
-        if (!Objects.equals(comment.getMember().getId(), request.getMemberId())) {
-            throw new UserNotMatchException();
-        }
 
         comment.updateFields(request);
         commentRepository.save(comment);
@@ -161,12 +154,6 @@ public class CommentService {
                 .orElseThrow(CommentDoesNotExistException::new);
         commentRepository.save(comment);
         commentRepository.delete(comment);
-    }
-
-    public List<CommentInfoResponse> searchParentComments(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(PostDoesNotExistException::new);
-        return commentRepository.findParentCommentsByPostAndIsReply(post);
     }
 
     public List<CommentInfoResponse> searchComments(Long postId) {
@@ -187,12 +174,6 @@ public class CommentService {
         }
 
         return responseList;
-    }
-
-    public List<CommentInfoResponse> searchReplyByParentComment(Long parentCommentId) {
-        Comment comment = commentRepository.findById(parentCommentId)
-                .orElseThrow(CommentDoesNotExistException::new);
-        return commentRepository.findRepliesByParentComment(comment);
     }
 
     public List<ReplyInfoResponse> searchReply(Long parentCommentId) {
