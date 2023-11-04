@@ -23,6 +23,7 @@ public class CommentInfoResponse {
     private Integer likeCount;
     private boolean replyFlag;
     private String createdAt;
+    private List<String> mentionList;
 
     public CommentInfoResponse(Long commentId, Long postId, Long memberId,
                                String content, boolean replyFlag) {
@@ -48,6 +49,7 @@ public class CommentInfoResponse {
                 .CommentCount(list.size())
                 .replyFlag(comment.isReplyFlag())
                 .createdAt(comment.getCreatedAt())
+                .mentionList(comment.getMentionList())
                 .build();
     }
 

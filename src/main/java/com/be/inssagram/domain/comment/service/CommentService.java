@@ -20,6 +20,7 @@ import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -45,12 +46,21 @@ public class CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostDoesNotExistException::new);
 
+        //멘션 리스트가 비어있을 때를 처리합니다.
+        List<String> mentionList = new ArrayList<>();
+        if (request.getMentionList() != null) {
+            mentionList = request.getMentionList();
+        }
         // 댓글(Comment) 객체를 생성합니다.
         Comment comment = Comment.builder()
                 .post(post)
                 .member(member)
                 .content(request.getContents())
+                .mentionList(mentionList)
                 .build();
+
+        CommentInfoResponse response = CommentInfoResponse.from(
+                commentRepository.save(comment));
 
         //게시물 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
         if(!post.getMember().getId().equals(member.getId())) {
@@ -66,7 +76,7 @@ public class CommentService {
                     ));
         }
         // 댓글을 저장합니다.
-        return CommentInfoResponse.from(commentRepository.save(comment));
+        return response;
     }
 
     public ReplyInfoResponse createReply(
@@ -86,9 +96,8 @@ public class CommentService {
 
         // 대댓글을 생성합니다.
         Comment savedReply = getSavedReply(request, member, parentComment);
-
         ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
-        response.setTargetMemberId(parentComment.getMember().getId());
+
         //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
         if(!parentComment.getMember().getId().equals(member.getId()))
         notificationService.notify(notificationService
@@ -115,10 +124,8 @@ public class CommentService {
                 .orElseThrow(CommentDoesNotExistException::new);
 
         Comment savedReply = getSavedReply(request, member, parentComment);
-
         ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
-        response.setTargetMemberId(commentRepository.findById(replyId)
-                .get().getMember().getId());
+
         //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
         if(!parentComment.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
@@ -212,12 +219,17 @@ public class CommentService {
     }
 
     private Comment getSavedReply(CommentRequest request, Member member, Comment parentComment) {
+        List<String> mentionList = new ArrayList<>();
+        if (request.getMentionList() != null) {
+            mentionList = request.getMentionList();
+        }
         Comment reply = Comment.builder()
                 .post(parentComment.getPost())
                 .member(member)
                 .content(request.getContents())
                 .parentComment(parentComment)
                 .replyFlag(true)
+                .mentionList(mentionList)
                 .build();
         Comment savedReply = commentRepository.save(reply);
         parentComment.getChildComments().add(reply);

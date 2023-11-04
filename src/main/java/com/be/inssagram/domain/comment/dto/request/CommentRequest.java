@@ -2,6 +2,8 @@ package com.be.inssagram.domain.comment.dto.request;
 
 import lombok.*;
 
+import java.util.List;
+
 @Setter
 @Getter
 @ToString
@@ -11,5 +13,6 @@ import lombok.*;
 public class CommentRequest {
     private Long memberId;
     private String contents;
+    private List<String> mentionList;
 
 }
