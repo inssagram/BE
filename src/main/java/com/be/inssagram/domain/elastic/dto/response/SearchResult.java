@@ -11,24 +11,23 @@ import lombok.Setter;
 public class SearchResult {
     private Long memberId;
     private Long hashtagId;
-    private String hashtagName;
-    private String memberEmail;
-    private String memberNickname;
-    private String memberCompanyName;
+    private String email;
+    private String nickName;
+    private String job;
     private String searched;
 
     public static SearchResult createHashtagResult(String hashtagName) {
         SearchResult result = new SearchResult();
-        result.setHashtagName(hashtagName);
+        result.setNickName(hashtagName);
         return result;
     }
 
     public static SearchResult createMemberResult(Long memberId, String memberEmail, String memberNickname, String memberCompanyName) {
         SearchResult result = new SearchResult();
         result.setMemberId(memberId);
-        result.setMemberEmail(memberEmail);
-        result.setMemberNickname(memberNickname);
-        result.setMemberCompanyName(memberCompanyName);
+        result.setEmail(memberEmail);
+        result.setNickName(memberNickname);
+        result.setJob(memberCompanyName);
         return result;
     }
 

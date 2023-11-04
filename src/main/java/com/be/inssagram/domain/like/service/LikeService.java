@@ -7,7 +7,6 @@ import com.be.inssagram.domain.like.entity.Like;
 import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Member;
-import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
@@ -25,7 +24,6 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
 
     private final NotificationService notificationService;
 
@@ -54,6 +52,7 @@ public class LikeService {
                             post.getMember().getId(),
                             "post",
                             post.getId(),
+                            post.getImage().get(0),
                             member.getId(),
                             member.getNickname(),
                             member.getProfilePic(),
@@ -92,6 +91,7 @@ public class LikeService {
                             comment.getMember().getId(),
                             "post",
                             post.getId(),
+                            post.getImage().get(0),
                             member.getId(),
                             member.getNickname(),
                             member.getProfilePic(),

@@ -24,11 +24,12 @@ public class Notification {
     private Long receiverId;
     private String location;
     private Long location_id;
+    private String postImage;
     private Long senderId;
     private String senderName;
     private String senderImage;
     private String message;
     private boolean friendStatus;
     private boolean readStatus;
-    private LocalDateTime createdAt;
+    private String createdAt;
 }

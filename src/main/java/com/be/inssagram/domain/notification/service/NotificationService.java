@@ -3,16 +3,20 @@ package com.be.inssagram.domain.notification.service;
 
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
+import com.be.inssagram.domain.notification.dto.MessageInfo;
 import com.be.inssagram.domain.notification.dto.NotificationRequest;
 import com.be.inssagram.domain.notification.entity.Notification;
 import com.be.inssagram.domain.notification.repository.EmittersRepository;
 import com.be.inssagram.domain.notification.repository.NotificationRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
 
 @Service
@@ -33,15 +37,16 @@ public class NotificationService {
      */
     public SseEmitter subscribe(Long userId) {
         SseEmitter emitter = createEmitter(userId);
-
-        sendToClient(userId, "EventStream Created. [userId=" + userId + "]");
+        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(userId, false);
+        sendToClient(userId, setMessage("연결이 되었습니다", list.size()));
         return emitter;
     }
 
     //알람 전송
     public void notify(NotificationRequest request) {
-        sendToClient(request.getReceiver_id(), request.getMessage());
         notificationRepository.save(saveNotification(request));
+        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(request.getReceiver_id(), false);
+        sendToClient(request.getReceiver_id(), setMessage(request.getMessage(), list.size()));
     }
 
     //알림 삭제
@@ -60,13 +65,14 @@ public class NotificationService {
         return notificationRepository.findByReceiverId(member_id);
     }
 
-    //알림 생성
-    public NotificationRequest createNotifyDto(Long receiver_id, String location, Long location_id, Long sender_id,
+    //알림정보 생성
+    public NotificationRequest createNotifyDto(Long receiver_id, String location, Long location_id, String post_img, Long sender_id,
                                                String senderName, String senderImage, String message){
         return NotificationRequest.builder()
                 .receiver_id(receiver_id)
                 .location(location)
                 .location_id(location_id)
+                .postImage(post_img)
                 .sender_id(sender_id)
                 .senderName(senderName)
                 .senderImage(senderImage)
@@ -84,12 +90,19 @@ public class NotificationService {
         SseEmitter emitter = emittersRepository.get(id);
         if (emitter != null) {
             try {
-                emitter.send(SseEmitter.event().id(String.valueOf(id)).name("sse").data(data));
+                emitter.send(SseEmitter.event().id(String.valueOf(id)).name("sse").data(data, MediaType.APPLICATION_JSON));
             } catch (IOException exception) {
                 emittersRepository.deleteById(id);
                 emitter.completeWithError(exception);
             }
         }
+    }
+
+    private MessageInfo setMessage(String msg, int unreadCount){
+        return MessageInfo.builder()
+                .message(msg)
+                .unreadCount(unreadCount)
+                .build();
     }
 
     /**
@@ -112,8 +125,12 @@ public class NotificationService {
 
     private Notification saveNotification(NotificationRequest request) {
         Follow exists = followRepository.findByMyIdAndMemberId(request.getSender_id(), request.getReceiver_id());
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
+
         boolean isFriend = false;
-        if(exists != null){
+
+        if (exists != null) {
             List<Notification> list = notificationRepository
                     .findAllByReceiverIdAndSenderId(request.getReceiver_id(), request.getSender_id());
             for (Notification notification : list) {
@@ -122,6 +139,9 @@ public class NotificationService {
             }
             isFriend = true;
         }
+
+        String formattedNow = now.format(formatter);
+
         return Notification.builder()
                 .message(request.getMessage())
                 .senderId(request.getSender_id())
@@ -129,9 +149,10 @@ public class NotificationService {
                 .senderName(request.getSenderName())
                 .location(request.getLocation())
                 .location_id(request.getLocation_id())
+                .postImage(request.getPostImage())
                 .friendStatus(isFriend)
                 .readStatus(false)
-                .createdAt(LocalDateTime.now())
+                .createdAt(formattedNow)
                 .receiverId(request.getReceiver_id())
                 .build();
     }

@@ -9,7 +9,6 @@ import com.be.inssagram.domain.comment.repository.CommentRepository;
 import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.entity.Member;
-import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
@@ -30,7 +29,6 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
     private final LikeRepository likeRepository;
     private final NotificationService notificationService;
 
@@ -68,6 +66,7 @@ public class CommentService {
                             post.getMember().getId(),
                             "post",
                             post.getId(),
+                            post.getImage().get(0),
                             member.getId(),
                             member.getNickname(),
                             member.getProfilePic(),
@@ -103,6 +102,7 @@ public class CommentService {
                             parentComment.getMember().getId(),
                             "post",
                             parentComment.getPost().getId(),
+                            parentComment.getPost().getImage().get(0),
                             member.getId(),
                             member.getNickname(),
                             member.getProfilePic(),
@@ -120,16 +120,20 @@ public class CommentService {
         Comment parentComment = commentRepository.findById(parentCommentId)
                 .orElseThrow(CommentDoesNotExistException::new);
 
+        Comment replyComment = commentRepository.findById(replyId)
+                .orElseThrow(CommentDoesNotExistException::new);
+
         Comment savedReply = getSavedReply(request, member, parentComment);
         ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
 
         //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
-        if (!parentComment.getMember().getId().equals(member.getId())) {
+        if (!replyComment.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            parentComment.getMember().getId(),
+                            replyComment.getMember().getId(),
                             "post",
                             parentComment.getPost().getId(),
+                            parentComment.getPost().getImage().get(0),
                             member.getId(),
                             member.getNickname(),
                             member.getProfilePic(),
