@@ -166,6 +166,7 @@ public class MemberService {
                 .password(request.getPassword())
                 .role("ROLE_MEMBER")
                 .nickname(request.getNickname())
+                .image(request.getImage())
                 .job(request.getJob())
                 .build();
     }

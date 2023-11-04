@@ -9,7 +9,7 @@ public record InfoResponse(
         String email,
         String nickname,
         String job,
-        String profilePic
+        String image
 ) {
     public static InfoResponse fromEntity(Member member) {
         return InfoResponse.builder()
@@ -17,7 +17,7 @@ public record InfoResponse(
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .job(member.getJob())
-                .profilePic(member.getProfilePic())
+                .image(member.getImage())
                 .build();
     }
 }

@@ -3,8 +3,9 @@ package com.be.inssagram.domain.elastic.service;
 
 import com.be.inssagram.domain.elastic.documents.index.History;
 import com.be.inssagram.domain.elastic.documents.repository.HistorySearchRepository;
-import com.be.inssagram.domain.elastic.dto.request.SearchRequest;
 import com.be.inssagram.domain.elastic.dto.response.SearchResult;
+import com.be.inssagram.domain.follow.entity.Follow;
+import com.be.inssagram.domain.follow.repository.FollowRepository;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,6 +31,7 @@ public class ElasticSearchService {
 
     private final RestTemplate restTemplate;
     private final HistorySearchRepository historySearchRepository;
+    private final FollowRepository followRepository;
 
     @Value("${spring.elastic.url}")
     private String elasticUrl;
@@ -64,13 +66,19 @@ public class ElasticSearchService {
         JsonNode hitsArray = root.path("hits").path("hits");
         for (JsonNode hit : hitsArray) {
             JsonNode source = hit.path("_source");
-
             if (hit.path("_index").asText().equals("members")) {
+                Follow memberInfo = followRepository.findByMyIdAndMemberId(memberId.member_id(), source.path("id").asLong());
+                Boolean status = false;
+                if(memberInfo != null){
+                    status = true;
+                }
                 SearchResult memberResult = SearchResult.createMemberResult(
                         source.path("id").asLong(),
                         source.path("email").asText(),
                         source.path("name").asText(),
-                        source.path("job").asText()
+                        source.path("job").asText(),
+                        source.path("image").asText(),
+                        status
                 );
                 results.add(memberResult);
             } else {

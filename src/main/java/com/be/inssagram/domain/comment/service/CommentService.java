@@ -69,7 +69,7 @@ public class CommentService {
                             post.getImage().get(0),
                             member.getId(),
                             member.getNickname(),
-                            member.getProfilePic(),
+                            member.getImage(),
                             member.getNickname() + "님이 회원님의 게시물에 댓글을 다셧습니다"
                     ));
         }
@@ -105,7 +105,7 @@ public class CommentService {
                             parentComment.getPost().getImage().get(0),
                             member.getId(),
                             member.getNickname(),
-                            member.getProfilePic(),
+                            member.getImage(),
                             member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
                     ));
         // 대댓글을 저장합니다.
@@ -136,7 +136,7 @@ public class CommentService {
                             parentComment.getPost().getImage().get(0),
                             member.getId(),
                             member.getNickname(),
-                            member.getProfilePic(),
+                            member.getImage(),
                             member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
                     ));
         }

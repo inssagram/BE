@@ -55,7 +55,7 @@ public class LikeService {
                             post.getImage().get(0),
                             member.getId(),
                             member.getNickname(),
-                            member.getProfilePic(),
+                            member.getImage(),
                             member.getNickname()+"님이 회원님의 게시물을 좋아합니다"
                     ));
         }
@@ -94,7 +94,7 @@ public class LikeService {
                             post.getImage().get(0),
                             member.getId(),
                             member.getNickname(),
-                            member.getProfilePic(),
+                            member.getImage(),
                             member.getNickname()+"님이 회원님의 댓글을 좋아합니다"
                     ));
         }

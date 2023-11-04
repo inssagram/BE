@@ -15,6 +15,8 @@ public class SearchResult {
     private String nickName;
     private String job;
     private String searched;
+    private Boolean friendStatus;
+    private String image;
 
     public static SearchResult createHashtagResult(String hashtagName) {
         SearchResult result = new SearchResult();
@@ -22,12 +24,15 @@ public class SearchResult {
         return result;
     }
 
-    public static SearchResult createMemberResult(Long memberId, String memberEmail, String memberNickname, String memberCompanyName) {
+    public static SearchResult createMemberResult(Long memberId, String memberEmail,
+                                                  String memberNickname, String memberCompanyName, String image, Boolean friendStatus) {
         SearchResult result = new SearchResult();
         result.setMemberId(memberId);
         result.setEmail(memberEmail);
         result.setNickName(memberNickname);
         result.setJob(memberCompanyName);
+        result.setFriendStatus(friendStatus);
+        result.setImage(image);
         return result;
     }
 

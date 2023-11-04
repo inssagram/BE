@@ -27,12 +27,16 @@ public class MemberIndex {
     @Field(name = "job", type = FieldType.Text)
     private String job;
 
+    @Field(name = "image", type = FieldType.Text)
+    private String image;
+
     public static MemberIndex from(Member member) {
         return MemberIndex.builder()
                 .id(member.getId())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .job(member.getJob())
+                .image(member.getImage())
                 .build();
     }
 }

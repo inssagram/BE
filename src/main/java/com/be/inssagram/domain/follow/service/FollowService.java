@@ -36,9 +36,10 @@ public class FollowService {
                                 request.getFollowId(),
                                 "follow",
                                 follow.getId(),
+                                null,
                                 myInfo.member_id(),
                                 myInfo.nickname(),
-                                myInfo.profilePic(),
+                                myInfo.image(),
                                 myInfo.nickname()+"님이 회원님을 팔로우 하셧습니다"
                         ));
                 return "팔로잉 하셧습니다";
@@ -54,7 +55,7 @@ public class FollowService {
                 .myId(myInfo.member_id())
                 .myName(myInfo.nickname())
                 .memberId(memberInfo.getId())
-                .memberImage(memberInfo.getProfilePic())
+                .memberImage(memberInfo.getImage())
                 .memberName(memberInfo.getNickname())
                 .build();
     }

@@ -21,11 +21,11 @@ public class NotificationController {
     private final NotificationService notificationService;
     private final TokenProvider tokenProvider;
 
-    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter subscribe(@RequestHeader("Authorization") String token) {
-        InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
-        return notificationService.subscribe(member.member_id());
+    @GetMapping(value = "/subscribe/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribe(@PathVariable Long id) {
+        return notificationService.subscribe(id);
     }
+
 
     @DeleteMapping("/{id}")
     public ApiResponse<InfoResponse> deleteNotification(@RequestHeader("Authorization") String token,

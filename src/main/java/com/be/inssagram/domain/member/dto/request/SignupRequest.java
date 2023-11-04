@@ -18,4 +18,6 @@ public class SignupRequest {
     private String nickname;
     @NotBlank
     private String job;
+
+    private String image;
 }
