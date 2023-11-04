@@ -3,6 +3,8 @@ package com.be.inssagram.domain.comment.dto.response;
 import com.be.inssagram.domain.comment.entity.Comment;
 import lombok.*;
 
+import java.util.List;
+
 @Setter
 @Getter
 @ToString
@@ -17,10 +19,9 @@ public class ReplyInfoResponse {
     private String nickName;
     private String content;
     private boolean replyFlag;
-    private Long targetMemberId;
     private Integer likeCount;
     private String createdAt;
-
+    private List<String> mentionList;
 
     public static ReplyInfoResponse from(Comment comment) {
 
@@ -32,6 +33,7 @@ public class ReplyInfoResponse {
                 .content(comment.getContent())
                 .replyFlag(comment.isReplyFlag())
                 .createdAt(comment.getCreatedAt())
+                .mentionList(comment.getMentionList())
                 .build();
     }
 
