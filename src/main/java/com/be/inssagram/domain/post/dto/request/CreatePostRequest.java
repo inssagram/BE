@@ -12,7 +12,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class CreatePostRequest {
-    private Long memberId;
     private List<String> image;
     private String contents;
     private String location;
