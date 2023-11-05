@@ -20,6 +20,7 @@ import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class PostService {
 
     private final TokenProvider tokenProvider;
 
-
+    @Transactional
     public PostInfoResponse createPost(String token, CreatePostRequest request) {
 
         Member member = tokenProvider.getMemberFromToken(token);
@@ -84,6 +85,7 @@ public class PostService {
         return response;
     }
 
+    @Transactional
     public PostInfoResponse updatePost(Long postId, UpdatePostRequest request) {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
@@ -119,6 +121,7 @@ public class PostService {
         return response;
     }
 
+    @Transactional
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
@@ -126,6 +129,7 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    @Transactional
     public PostInfoResponse searchPostDetail(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
@@ -135,6 +139,7 @@ public class PostService {
         return response;
     }
 
+    @Transactional
     public List<PostInfoResponse> searchPostAll() {
         try {
             List<Post> posts = postRepository.findAll();
@@ -145,6 +150,7 @@ public class PostService {
         }
     }
 
+    @Transactional
     public List<PostInfoResponse> searchPostWithMember(Long memberId) {
         if (!memberRepository.existsById(memberId)) {
             throw new UserDoesNotExistException();

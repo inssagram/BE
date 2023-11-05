@@ -17,6 +17,7 @@ import com.be.inssagram.exception.comment.CommentDoesNotExistException;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public class CommentService {
 
     private final TokenProvider tokenProvider;
 
+    @Transactional
     public CommentInfoResponse createComment(
             String token, Long postId, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
@@ -77,6 +79,7 @@ public class CommentService {
         return response;
     }
 
+    @Transactional
     public ReplyInfoResponse createReply(
             String token, Long parentCommentId, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
@@ -112,6 +115,7 @@ public class CommentService {
         return response;
     }
 
+    @Transactional
     public ReplyInfoResponse createReplyToReply(
             String token, Long parentCommentId, Long replyId, CommentRequest request
     ) {
@@ -143,6 +147,7 @@ public class CommentService {
         return response;
     }
 
+    @Transactional
     public CommentInfoResponse updateComment(
             Long commentId, CommentRequest request) {
         Comment comment = commentRepository.findById(commentId)
@@ -153,6 +158,7 @@ public class CommentService {
         return CommentInfoResponse.from(comment);
     }
 
+    @Transactional
     public void deletePost(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentDoesNotExistException::new);
@@ -160,6 +166,7 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    @Transactional
     public List<CommentInfoResponse> searchComments(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostDoesNotExistException::new);
@@ -180,6 +187,7 @@ public class CommentService {
         return responseList;
     }
 
+    @Transactional
     public List<ReplyInfoResponse> searchReply(Long parentCommentId) {
         Comment comment = commentRepository.findById(parentCommentId)
                 .orElseThrow(CommentDoesNotExistException::new);
