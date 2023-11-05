@@ -14,6 +14,7 @@ import com.be.inssagram.exception.comment.CommentDoesNotExistException;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -101,6 +102,7 @@ public class LikeService {
         likeRepository.save(like);
     }
 
+    @Transactional
     public List<InfoResponse> searchMemberLikePost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostDoesNotExistException::new);
@@ -112,6 +114,7 @@ public class LikeService {
                 .toList();
     }
 
+    @Transactional
     public List<InfoResponse> searchMemberLikeComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentDoesNotExistException::new);

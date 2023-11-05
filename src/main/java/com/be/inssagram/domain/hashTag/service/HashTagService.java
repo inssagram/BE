@@ -8,6 +8,7 @@ import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
 import com.be.inssagram.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class HashTagService {
         }
     }
 
+    @Transactional
     public List<PostInfoResponse> searchPostWithHashTagName(String name) {
         List<HashTag> hashTagList = hashTagRepository.findByName(name);
         System.out.println(hashTagList.size());
