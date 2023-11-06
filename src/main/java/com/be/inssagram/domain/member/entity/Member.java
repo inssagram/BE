@@ -49,8 +49,8 @@ public class Member {
         if (updateRequest.getPassword() != null) {
             this.password = updateRequest.getPassword();
         }
-        if (updateRequest.getCompanyName() != null) {
-            this.job = updateRequest.getCompanyName();
+        if (updateRequest.getJob() != null) {
+            this.job = updateRequest.getJob();
         }
     }
 

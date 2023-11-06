@@ -13,6 +13,6 @@ public class UpdateRequest {
     private String nickname;
     private String image;
     private String description;
-    private String companyName;
+    private String job;
     private String password;
 }
