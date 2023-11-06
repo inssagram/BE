@@ -20,6 +20,7 @@ public class ElasticSearchController {
     private final ElasticSearchService elasticsearchService;
     private final TokenProvider tokenProvider;
 
+    //엘라스틱 검색
     @GetMapping("/search/{keyword}")
     public List<SearchResult> searchMemberAndHashtag(
             @PathVariable String keyword,
@@ -33,6 +34,16 @@ public class ElasticSearchController {
         return elasticsearchService.search(keyword, member);
     }
 
+    //최근 검색기록 저장
+    @PostMapping("/search/save")
+    public ApiResponse<?> saveSearchData(@RequestHeader(value = "Authorization") String token,
+                                         @RequestBody SearchRequest request) {
+        InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
+        String result = elasticsearchService.saveSearch(member.member_id(), request);
+        return ApiResponse.createMessage(result);
+    }
+
+    //최근 검색기록 조회
     @GetMapping("/search")
     public List<SearchResult> getMySearchHistory(
             @RequestHeader(value = "Authorization") String token) {
@@ -40,6 +51,7 @@ public class ElasticSearchController {
         return elasticsearchService.getSearchHistoryList(member.member_id());
     }
 
+    //최근 검색기록 삭제
     @DeleteMapping("/search/{keyword}")
     public ApiResponse<?> deleteHistory(
             @PathVariable String keyword,

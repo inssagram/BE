@@ -1,16 +1,26 @@
 package com.be.inssagram.domain.elastic.service;
 
 
-import com.be.inssagram.domain.elastic.documents.index.History;
+import com.be.inssagram.domain.elastic.documents.index.HashtagIndex;
+import com.be.inssagram.domain.elastic.documents.index.HistoryIndex;
+import com.be.inssagram.domain.elastic.documents.repository.HashtagSearchRepository;
 import com.be.inssagram.domain.elastic.documents.repository.HistorySearchRepository;
+import com.be.inssagram.domain.elastic.dto.request.SearchRequest;
 import com.be.inssagram.domain.elastic.dto.response.SearchResult;
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
+import com.be.inssagram.domain.hashTag.entity.HashTag;
+import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
+import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.exception.common.DataDoesNotExistException;
+import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -32,6 +42,8 @@ public class ElasticSearchService {
     private final RestTemplate restTemplate;
     private final HistorySearchRepository historySearchRepository;
     private final FollowRepository followRepository;
+    private final MemberRepository memberRepository;
+    private final HashtagSearchRepository hashtagSearchRepository;
 
     @Value("${spring.elastic.url}")
     private String elasticUrl;
@@ -43,15 +55,6 @@ public class ElasticSearchService {
         String requestBody = "{ \"query\": { \"wildcard\": { \"name\": { \"value\": \"*" + value + "*\" } } } }";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;
 
-        //검색한 기록을 저장
-        if(memberId != null) {
-            History newHistory = History.builder()
-                    .createdAt(LocalDateTime.now())
-                    .memberId(memberId.member_id())
-                    .searched(value)
-                    .build();
-            historySearchRepository.save(newHistory);
-        }
         //검색 정보를 JsonNode 로 받아오기, 없으면 빈 배열 반환
         JsonNode root;
         try {
@@ -67,7 +70,9 @@ public class ElasticSearchService {
         for (JsonNode hit : hitsArray) {
             JsonNode source = hit.path("_source");
             if (hit.path("_index").asText().equals("members")) {
-                Follow memberInfo = followRepository.findByMyIdAndMemberId(memberId.member_id(), source.path("id").asLong());
+                //검색기록중 친구상태값 반환
+                Follow memberInfo = followRepository.findByMyIdAndMemberId(
+                        memberId.member_id(), source.path("id").asLong());
                 Boolean status = false;
                 if(memberInfo != null){
                     status = true;
@@ -83,7 +88,8 @@ public class ElasticSearchService {
                 results.add(memberResult);
             } else {
                 SearchResult hashtagResult = SearchResult.createHashtagResult(
-                        "#" + source.path("name").asText()
+                        "#" + source.path("name").asText(),
+                        source.path("id").asLong()
                 );
                 results.add(hashtagResult);
             }
@@ -113,13 +119,43 @@ public class ElasticSearchService {
         for (JsonNode hit : hitsArray) {
             JsonNode source = hit.path("_source");
             SearchResult historyResult = SearchResult.createSearchHistoryResult(
-                    source.path("searched").asText()
+                    source.path("search_id").asLong(),
+                    source.path("searched").asText(),
+                    source.path("image").asText()
             );
             results.add(historyResult);
         }
         return results;
     }
 
+    //검색 기록 저장
+    public String saveSearch(Long memberId, SearchRequest request){
+        if(request.getHashtagId() == null){
+            Member member = memberRepository.findById(request.getMemberId())
+                    .orElseThrow(UserDoesNotExistException::new);
+            HistoryIndex newHistory = HistoryIndex.builder()
+                    .createdAt(LocalDateTime.now())
+                    .memberId(memberId)
+                    .searched(member.getNickname())
+                    .search_id(member.getId())
+                    .image(member.getImage())
+                    .build();
+            historySearchRepository.save(newHistory);
+            return "성공적으로 회원 검색을 저장하였습니다";
+        }
+        HashtagIndex hashtag = hashtagSearchRepository.findById(request.getHashtagId())
+                .orElseThrow(DataDoesNotExistException::new);
+        HistoryIndex newHistory = HistoryIndex.builder()
+                .createdAt(LocalDateTime.now())
+                .memberId(memberId)
+                .searched("#"+hashtag.getName())
+                .search_id(hashtag.getId())
+                .build();
+        historySearchRepository.save(newHistory);
+        return "성공적으로 해시태그 검색을 저장하였습니다";
+    }
+
+    //최근 검색기록 삭제
     public void deleteSearchHistory(String value, Long memberId){
         String endpoint = "/histories/_doc/_delete_by_query";
         String requestBody = "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"searched\":\"" + value + "\"}}," +

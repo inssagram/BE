@@ -18,9 +18,10 @@ public class SearchResult {
     private Boolean friendStatus;
     private String image;
 
-    public static SearchResult createHashtagResult(String hashtagName) {
+    public static SearchResult createHashtagResult(String hashtagName, Long hashtagId) {
         SearchResult result = new SearchResult();
         result.setNickName(hashtagName);
+        result.setHashtagId(hashtagId);
         return result;
     }
 
@@ -36,9 +37,18 @@ public class SearchResult {
         return result;
     }
 
-    public static SearchResult createSearchHistoryResult(String searched) {
+    public static SearchResult createSearchHistoryResult(Long id, String searched, String image) {
+        if(searched.contains("#")){
+            SearchResult result = new SearchResult();
+            result.setHashtagId(id);
+            result.setSearched(searched);
+            result.setImage(image);
+            return result;
+        }
         SearchResult result = new SearchResult();
+        result.setMemberId(id);
         result.setSearched(searched);
+        result.setImage(image);
         return result;
     }
 }
