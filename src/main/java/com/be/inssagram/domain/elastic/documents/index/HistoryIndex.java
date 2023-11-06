@@ -17,13 +17,19 @@ import java.time.LocalDateTime;
 @ToString
 @Mapping(mappingPath = "elastic/history-mapping.json")
 @Document(indexName = Indices.HISTORY_INDEX)
-public class History {
+public class HistoryIndex {
     @Id
     @Field(name = "created_at", type = FieldType.Date)
     private LocalDateTime createdAt;
 
     @Field(name = "member_id", type = FieldType.Long)
     private Long memberId;
+
+    @Field(name = "image", type = FieldType.Text)
+    private String image;
+
+    @Field(name = "search_id", type = FieldType.Long)
+    private Long search_id;
 
     @Field(name = "searched", type = FieldType.Text)
     private String searched;
