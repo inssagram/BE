@@ -12,6 +12,7 @@ import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
+import com.be.inssagram.domain.post.type.PostType;
 import com.be.inssagram.domain.tag.dto.request.TagCreateRequest;
 import com.be.inssagram.domain.tag.entity.Tag;
 import com.be.inssagram.domain.tag.repository.TagRepository;
@@ -47,6 +48,7 @@ public class PostService {
 
         Post post = Post.builder()
                 .member(member)
+                .type(request.getType())
                 .image(request.getImage())
                 .contents(request.getContents())
                 .location(request.getLocation())
@@ -156,7 +158,7 @@ public class PostService {
             throw new UserDoesNotExistException();
         }
 
-        List<Post> posts = postRepository.findByMemberId(memberId);
+        List<Post> posts = postRepository.findByMemberIdAndType(memberId, PostType.post);
 
         return getPostInfoResponsesWithLikeInfo(posts);
     }

@@ -1,6 +1,9 @@
 package com.be.inssagram.domain.post.dto.response;
 
 import com.be.inssagram.domain.post.entity.Post;
+import com.be.inssagram.domain.post.type.PostType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 
 import java.util.List;
@@ -13,6 +16,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class PostInfoResponse {
+    @Enumerated(EnumType.STRING)
+    private PostType type;
     private Long postId;
     private Long memberId;
     private String nickName;
@@ -36,6 +41,7 @@ public class PostInfoResponse {
                 .memberId(post.getMember().getId())
                 .nickName(post.getMember().getNickname())
                 .memberImage(post.getMember().getImage())
+                .type(post.getType())
                 .image(post.getImage())
                 .contents(post.getContents())
                 .location(post.getLocation())
