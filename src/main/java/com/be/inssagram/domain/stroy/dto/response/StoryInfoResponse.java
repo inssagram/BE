@@ -19,7 +19,7 @@ public class StoryInfoResponse {
     private List<String> image;
     private String createdAt;
     private String updatedAt;
-    private Integer childStoryCounts;
+    private String passedTime;
 
     public static StoryInfoResponse from(Story story) {
         return StoryInfoResponse.builder()
@@ -29,6 +29,7 @@ public class StoryInfoResponse {
                 .memberProfile(story.getMember().getImage())
                 .createdAt(story.getCreatedAt())
                 .updatedAt(story.getUpdatedAt())
+                .passedTime(story.getPassedTime())
                 .build();
     }
 }
