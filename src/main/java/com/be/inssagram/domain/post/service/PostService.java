@@ -144,7 +144,7 @@ public class PostService {
     @Transactional
     public List<PostInfoResponse> searchPostAll() {
         try {
-            List<Post> posts = postRepository.findAll();
+            List<Post> posts = postRepository.findByType(PostType.post);
             return getPostInfoResponsesWithLikeInfo(posts);
         } catch (Exception e) {
             // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
