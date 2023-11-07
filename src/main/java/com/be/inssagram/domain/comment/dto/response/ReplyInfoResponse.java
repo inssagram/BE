@@ -13,10 +13,12 @@ import java.util.List;
 @Builder
 public class ReplyInfoResponse {
 
+    private Long parentId;
     private Long commentId;
     private Long postId;
     private Long memberId;
     private String nickName;
+    private String memberImage;
     private String content;
     private boolean replyFlag;
     private Integer likeCount;
@@ -26,10 +28,12 @@ public class ReplyInfoResponse {
     public static ReplyInfoResponse from(Comment comment) {
 
         return ReplyInfoResponse.builder()
+                .parentId(comment.getParentComment().getId())
                 .commentId(comment.getId())
                 .postId(comment.getPost().getId())
                 .memberId(comment.getMember().getId())
                 .nickName(comment.getMember().getNickname())
+                .memberImage(comment.getMember().getImage())
                 .content(comment.getContent())
                 .replyFlag(comment.isReplyFlag())
                 .createdAt(comment.getCreatedAt())

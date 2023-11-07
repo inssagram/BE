@@ -1,6 +1,5 @@
 package com.be.inssagram.domain.post.dto.response;
 
-import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.post.entity.Post;
 import lombok.*;
 
@@ -16,7 +15,8 @@ import java.util.Set;
 public class PostInfoResponse {
     private Long postId;
     private Long memberId;
-    private String nickname;
+    private String nickName;
+    private String memberImage;
     private List<String> image;
     private String contents;
     private String location;
@@ -34,7 +34,8 @@ public class PostInfoResponse {
         return PostInfoResponse.builder()
                 .postId(post.getId())
                 .memberId(post.getMember().getId())
-                .nickname(post.getMember().getNickname())
+                .nickName(post.getMember().getNickname())
+                .memberImage(post.getMember().getImage())
                 .image(post.getImage())
                 .contents(post.getContents())
                 .location(post.getLocation())
