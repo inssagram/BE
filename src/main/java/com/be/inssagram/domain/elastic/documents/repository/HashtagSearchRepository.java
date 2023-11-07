@@ -6,4 +6,5 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 
 @EnableElasticsearchRepositories
 public interface HashtagSearchRepository extends ElasticsearchRepository<HashtagIndex, Long> {
+    HashtagIndex findByName(String name);
 }

@@ -10,7 +10,6 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SearchResult {
     private Long memberId;
-    private Long hashtagId;
     private String email;
     private String nickName;
     private String job;
@@ -18,10 +17,9 @@ public class SearchResult {
     private Boolean friendStatus;
     private String image;
 
-    public static SearchResult createHashtagResult(String hashtagName, Long hashtagId) {
+    public static SearchResult createHashtagResult(String hashtagName) {
         SearchResult result = new SearchResult();
         result.setNickName(hashtagName);
-        result.setHashtagId(hashtagId);
         return result;
     }
 
@@ -40,7 +38,6 @@ public class SearchResult {
     public static SearchResult createSearchHistoryResult(Long id, String searched, String image) {
         if(searched.contains("#")){
             SearchResult result = new SearchResult();
-            result.setHashtagId(id);
             result.setSearched(searched);
             result.setImage(image);
             return result;

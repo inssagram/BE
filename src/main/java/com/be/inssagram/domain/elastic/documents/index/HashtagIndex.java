@@ -19,15 +19,14 @@ import org.springframework.data.elasticsearch.annotations.Mapping;
 @Document(indexName = Indices.HASHTAG_INDEX)
 public class HashtagIndex {
     @Id
-    @Field(name = "id", type = FieldType.Long)
-    private Long id;
+    @Field(name = "id", type = FieldType.Text)
+    private String id;
 
     @Field(name = "name", type = FieldType.Text)
     private String name;
 
     public static HashtagIndex from(HashTag hashTag) {
         return HashtagIndex.builder()
-                .id(hashTag.getId())
                 .name(hashTag.getName())
                 .build();
     }

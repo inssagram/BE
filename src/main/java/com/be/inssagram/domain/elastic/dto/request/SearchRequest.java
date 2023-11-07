@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SearchRequest {
     private Long memberId;
-    private Long hashtagId;
+    private String hashtagName;
 }

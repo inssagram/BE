@@ -7,6 +7,7 @@ import com.be.inssagram.domain.elastic.dto.request.SearchRequest;
 import com.be.inssagram.domain.elastic.dto.response.SearchResult;
 import com.be.inssagram.domain.elastic.service.ElasticSearchService;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
+import com.be.inssagram.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +26,9 @@ public class ElasticSearchController {
     public List<SearchResult> searchMemberAndHashtag(
             @PathVariable String keyword,
             @RequestHeader(value = "Authorization", required = false) String token) {
-        InfoResponse member;
+        Member member;
         if(token != null) {
-             member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
+             member = tokenProvider.getMemberFromToken(token);
         } else{
              member = null;
         }
