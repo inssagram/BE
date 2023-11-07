@@ -19,9 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,12 +35,12 @@ public class CommentService {
 
     @Transactional
     public CommentInfoResponse createComment(
-            String token, Long postId, CommentRequest request) {
+            String token, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
         Member member = tokenProvider.getMemberFromToken(token);
 
         // 게시물(Post)을 찾아옵니다.
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(PostDoesNotExistException::new);
 
         //멘션 리스트가 비어있을 때를 처리합니다.
@@ -77,12 +75,12 @@ public class CommentService {
 
     @Transactional
     public ReplyInfoResponse createReply(
-            String token, Long parentCommentId, CommentRequest request) {
+            String token, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
         Member member = tokenProvider.getMemberFromToken(token);
 
         // 부모 댓글을 찾아옵니다.
-        Comment parentComment = commentRepository.findById(parentCommentId)
+        Comment parentComment = commentRepository.findById(request.getParentCommentId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
         // isReply 값 확인
@@ -109,14 +107,14 @@ public class CommentService {
 
     @Transactional
     public ReplyInfoResponse createReplyToReply(
-            String token, Long parentCommentId, Long replyId, CommentRequest request
+            String token, CommentRequest request
     ) {
         Member member = tokenProvider.getMemberFromToken(token);
 
-        Comment parentComment = commentRepository.findById(parentCommentId)
+        Comment parentComment = commentRepository.findById(request.getParentCommentId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
-        Comment replyComment = commentRepository.findById(replyId)
+        Comment replyComment = commentRepository.findById(request.getReplyId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
         Comment savedReply = getSavedReply(request, member, parentComment);
@@ -136,9 +134,8 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentInfoResponse updateComment(
-            Long commentId, CommentRequest request) {
-        Comment comment = commentRepository.findById(commentId)
+    public CommentInfoResponse updateComment(CommentRequest request) {
+        Comment comment = commentRepository.findById(request.getCommentId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
         comment.updateFields(request);
