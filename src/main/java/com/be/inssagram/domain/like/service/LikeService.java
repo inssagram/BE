@@ -50,13 +50,9 @@ public class LikeService {
         if(!post.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            post.getMember().getId(),
-                            "post",
-                            post.getId(),
-                            post.getImage().get(0),
-                            member.getId(),
-                            member.getNickname(),
-                            member.getImage(),
+                            post.getMember(),
+                            post,
+                            member,
                             member.getNickname()+"님이 회원님의 게시물을 좋아합니다"
                     ));
         }
@@ -89,13 +85,9 @@ public class LikeService {
         if(!comment.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            comment.getMember().getId(),
-                            "post",
-                            post.getId(),
-                            post.getImage().get(0),
-                            member.getId(),
-                            member.getNickname(),
-                            member.getImage(),
+                            comment.getMember(),
+                            post,
+                            member,
                             member.getNickname()+"님이 회원님의 댓글을 좋아합니다"
                     ));
         }

@@ -65,13 +65,9 @@ public class CommentService {
         if (!post.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            post.getMember().getId(),
-                            "post",
-                            post.getId(),
-                            post.getImage().get(0),
-                            member.getId(),
-                            member.getNickname(),
-                            member.getImage(),
+                            post.getMember(),
+                            post,
+                            member,
                             member.getNickname() + "님이 회원님의 게시물에 댓글을 다셧습니다"
                     ));
         }
@@ -102,13 +98,9 @@ public class CommentService {
         if (!parentComment.getMember().getId().equals(member.getId()))
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            parentComment.getMember().getId(),
-                            "post",
-                            parentComment.getPost().getId(),
-                            parentComment.getPost().getImage().get(0),
-                            member.getId(),
-                            member.getNickname(),
-                            member.getImage(),
+                            parentComment.getMember(),
+                            parentComment.getPost(),
+                            member,
                             member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
                     ));
         // 대댓글을 저장합니다.
@@ -134,13 +126,9 @@ public class CommentService {
         if (!replyComment.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            replyComment.getMember().getId(),
-                            "post",
-                            parentComment.getPost().getId(),
-                            parentComment.getPost().getImage().get(0),
-                            member.getId(),
-                            member.getNickname(),
-                            member.getImage(),
+                            replyComment.getMember(),
+                            parentComment.getPost(),
+                            member,
                             member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
                     ));
         }

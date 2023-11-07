@@ -1,13 +1,10 @@
 package com.be.inssagram.domain.notification.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.post.entity.Post;
+import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -22,12 +19,15 @@ public class Notification {
     private Long id;
 
     private Long receiverId;
-    private String location;
-    private Long location_id;
-    private String postImage;
-    private Long senderId;
-    private String senderName;
-    private String senderImage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_Info")
+    private Post postInfo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_Info")
+    private Member senderInfo;
+
     private String message;
     private boolean friendStatus;
     private boolean readStatus;

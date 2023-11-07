@@ -3,10 +3,11 @@ package com.be.inssagram.domain.notification.controller;
 import com.be.inssagram.common.ApiResponse;
 import com.be.inssagram.config.Jwt.TokenProvider;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
-import com.be.inssagram.domain.notification.entity.Notification;
+import com.be.inssagram.domain.notification.dto.response.NotificationResponse;
 import com.be.inssagram.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -36,7 +37,8 @@ public class NotificationController {
     }
 
     @GetMapping("/all")
-    public ApiResponse<List<Notification>> getMyNotifications(@RequestHeader("Authorization") String token) {
+    @Transactional
+    public ApiResponse<List<NotificationResponse>> getMyNotifications(@RequestHeader("Authorization") String token) {
         InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
         return ApiResponse.createSuccessWithMessage(
                 notificationService.getMyNotifications(member.member_id()), "모든 알림을 조회하셧습니다");
