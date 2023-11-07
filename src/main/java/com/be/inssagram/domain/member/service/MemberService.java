@@ -20,10 +20,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,17 +144,24 @@ public class MemberService {
     }
 
     //회원 상세조회
+    @Transactional
     public DetailedInfoResponse getMemberDetail(String nickname){
         Member member = memberRepository.findByNickname(nickname);
-        List<Follow> followers = followRepository.findAllByMemberId(member.getId());
-        List<Follow> following = followRepository.findAllByMyId(member.getId());
+        List<Follow> following = followRepository.findAllByRequesterInfo(member);
+        List<Follow> followers = followRepository.findAllByFollowingInfo(member);
 
         List<FollowingList> followingLists = following.stream()
-                .map(follow -> new FollowingList(follow.getMemberId(), follow.getMemberName()))
+                .map(follow -> new FollowingList(
+                        follow.getFollowingInfo().getId(),
+                        follow.getFollowingInfo().getNickname(),
+                        follow.getFollowingInfo().getImage()))
                 .collect(Collectors.toList());
 
         List<FollowerList> followerLists = followers.stream()
-                .map(follow -> new FollowerList(follow.getMyId(), follow.getMyName()))
+                .map(follow -> new FollowerList(
+                        follow.getRequesterInfo().getId(),
+                        follow.getRequesterInfo().getNickname(),
+                        follow.getRequesterInfo().getImage()))
                 .collect(Collectors.toList());
 
         return DetailedInfoResponse.fromEntity(member, followingLists, followerLists);

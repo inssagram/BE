@@ -7,11 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FollowingList {
-    private Long memberId;
-    private String memberName;
+    private Long following_Id;
+    private String following_Name;
+    private String following_Image;
 
-    public FollowingList(Long memberId, String memberNickname) {
-        this.memberId = memberId;
-        this.memberName = memberNickname;
+    public FollowingList(Long memberId, String memberName, String memberImage) {
+        this.following_Id = memberId;
+        this.following_Name = memberName;
+        this.following_Image = memberImage;
     }
+
 }

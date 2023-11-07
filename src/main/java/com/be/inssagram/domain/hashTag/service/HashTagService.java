@@ -27,6 +27,11 @@ public class HashTagService {
                     .post(post)
                     .build();
             hashTagRepository.save(hashTag);
+            HashtagIndex existingIndex = hashtagSearchRepository.findByName(name);
+
+            if (existingIndex != null) {
+                return;
+            }
             hashtagSearchRepository.save(HashtagIndex.from(hashTag));
         }
     }

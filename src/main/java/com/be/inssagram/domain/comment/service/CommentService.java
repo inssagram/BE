@@ -19,9 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,12 +35,12 @@ public class CommentService {
 
     @Transactional
     public CommentInfoResponse createComment(
-            String token, Long postId, CommentRequest request) {
+            String token, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
         Member member = tokenProvider.getMemberFromToken(token);
 
         // 게시물(Post)을 찾아옵니다.
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findById(request.getPostId())
                 .orElseThrow(PostDoesNotExistException::new);
 
         //멘션 리스트가 비어있을 때를 처리합니다.
@@ -65,13 +63,9 @@ public class CommentService {
         if (!post.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            post.getMember().getId(),
-                            "post",
-                            post.getId(),
-                            post.getImage().get(0),
-                            member.getId(),
-                            member.getNickname(),
-                            member.getImage(),
+                            post.getMember(),
+                            post,
+                            member,
                             member.getNickname() + "님이 회원님의 게시물에 댓글을 다셧습니다"
                     ));
         }
@@ -81,12 +75,12 @@ public class CommentService {
 
     @Transactional
     public ReplyInfoResponse createReply(
-            String token, Long parentCommentId, CommentRequest request) {
+            String token, CommentRequest request) {
         // 유저(Member)를 찾아옵니다.
         Member member = tokenProvider.getMemberFromToken(token);
 
         // 부모 댓글을 찾아옵니다.
-        Comment parentComment = commentRepository.findById(parentCommentId)
+        Comment parentComment = commentRepository.findById(request.getParentCommentId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
         // isReply 값 확인
@@ -102,13 +96,9 @@ public class CommentService {
         if (!parentComment.getMember().getId().equals(member.getId()))
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            parentComment.getMember().getId(),
-                            "post",
-                            parentComment.getPost().getId(),
-                            parentComment.getPost().getImage().get(0),
-                            member.getId(),
-                            member.getNickname(),
-                            member.getImage(),
+                            parentComment.getMember(),
+                            parentComment.getPost(),
+                            member,
                             member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
                     ));
         // 대댓글을 저장합니다.
@@ -117,14 +107,14 @@ public class CommentService {
 
     @Transactional
     public ReplyInfoResponse createReplyToReply(
-            String token, Long parentCommentId, Long replyId, CommentRequest request
+            String token, CommentRequest request
     ) {
         Member member = tokenProvider.getMemberFromToken(token);
 
-        Comment parentComment = commentRepository.findById(parentCommentId)
+        Comment parentComment = commentRepository.findById(request.getParentCommentId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
-        Comment replyComment = commentRepository.findById(replyId)
+        Comment replyComment = commentRepository.findById(request.getReplyId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
         Comment savedReply = getSavedReply(request, member, parentComment);
@@ -134,13 +124,9 @@ public class CommentService {
         if (!replyComment.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
                     .createNotifyDto(
-                            replyComment.getMember().getId(),
-                            "post",
-                            parentComment.getPost().getId(),
-                            parentComment.getPost().getImage().get(0),
-                            member.getId(),
-                            member.getNickname(),
-                            member.getImage(),
+                            replyComment.getMember(),
+                            parentComment.getPost(),
+                            member,
                             member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
                     ));
         }
@@ -148,9 +134,8 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentInfoResponse updateComment(
-            Long commentId, CommentRequest request) {
-        Comment comment = commentRepository.findById(commentId)
+    public CommentInfoResponse updateComment(CommentRequest request) {
+        Comment comment = commentRepository.findById(request.getCommentId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
         comment.updateFields(request);

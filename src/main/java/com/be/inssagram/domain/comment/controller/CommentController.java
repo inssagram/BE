@@ -21,35 +21,32 @@ public class CommentController {
     @PostMapping("/create")
     public ApiResponse<CommentInfoResponse> createComment(
             @RequestHeader("Authorization") String token,
-            @RequestParam(value = "post-id") Long postId,
             @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
-                commentService.createComment(token, postId, request));
+                commentService.createComment(token, request));
     }
 
     @PostMapping("/create/reply")
     public ApiResponse<ReplyInfoResponse> createReply(
             @RequestHeader("Authorization") String token,
-            @RequestParam(value = "parent-comment-id") Long parentCommentId,
             @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
-                commentService.createReply(token, parentCommentId, request));
+                commentService.createReply(token, request));
     }
 
-    @PostMapping("/create/reply/{replyId}")
+    @PostMapping("/create/replytoreply")
     public ApiResponse<ReplyInfoResponse> createReplyToReply(
             @RequestHeader("Authorization") String token,
-            @RequestParam(value = "parent-comment-id") Long parentCommentId,
-            @RequestBody CommentRequest request, @PathVariable Long replyId) {
+            @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
-                commentService.createReplyToReply(token, parentCommentId, replyId, request));
+                commentService.createReplyToReply(token, request));
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/update")
     public ApiResponse<CommentInfoResponse> updateComment(
-            @PathVariable Long id, @RequestBody CommentRequest request) {
+            @RequestBody CommentRequest request) {
         return ApiResponse.createSuccessWithMessage(
-                commentService.updateComment(id, request), "수정됨");
+                commentService.updateComment(request), "수정됨");
     }
 
     @DeleteMapping("/delete/{id}")

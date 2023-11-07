@@ -1,4 +1,4 @@
-package com.be.inssagram.domain.notification.dto;
+package com.be.inssagram.domain.notification.dto.request;
 
 
 import lombok.Builder;

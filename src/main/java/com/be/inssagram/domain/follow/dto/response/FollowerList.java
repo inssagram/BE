@@ -9,9 +9,11 @@ import lombok.Setter;
 public class FollowerList {
     private Long followerId;
     private String followerName;
+    private String followerImage;
 
-    public FollowerList(Long memberId, String memberName) {
-        this.followerId = memberId;
-        this.followerName = memberName;
+    public FollowerList(Long myId, String myNickname, String followerImage) {
+        this.followerId = myId;
+        this.followerName = myNickname;
+        this.followerImage = followerImage;
     }
 }

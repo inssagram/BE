@@ -1,17 +1,18 @@
 package com.be.inssagram.domain.follow.repository;
 
 import com.be.inssagram.domain.follow.entity.Follow;
+import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
-    Follow findByMyIdAndMemberId(Long myId, Long MemberId);
+    Follow findByRequesterInfoAndFollowingInfo(Member requesterInfo, Member memberInfo);
 
-    List<Follow> findAllByMyId(Long myId);
+    List<Follow> findAllByFollowingInfo(Member memberInfo);
 
-    List<Follow> findAllByMemberId(Long followId);
+    List<Follow> findAllByRequesterInfo(Member requesterInfo);
 
-    Follow findByMyIdAndHashtagId(Long myId, Long hashtagId);
+    Follow findByRequesterInfoAndHashtagId(Member myInfo, HashTag hashTag);
 }

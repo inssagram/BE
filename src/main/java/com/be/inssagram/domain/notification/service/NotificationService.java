@@ -3,11 +3,14 @@ package com.be.inssagram.domain.notification.service;
 
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
-import com.be.inssagram.domain.notification.dto.MessageInfo;
-import com.be.inssagram.domain.notification.dto.NotificationRequest;
+import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.notification.dto.request.MessageInfo;
+import com.be.inssagram.domain.notification.dto.request.NotificationRequest;
+import com.be.inssagram.domain.notification.dto.response.NotificationResponse;
 import com.be.inssagram.domain.notification.entity.Notification;
 import com.be.inssagram.domain.notification.repository.EmittersRepository;
 import com.be.inssagram.domain.notification.repository.NotificationRepository;
+import com.be.inssagram.domain.post.entity.Post;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,8 +49,8 @@ public class NotificationService {
     //알람 전송
     public void notify(NotificationRequest request) {
         notificationRepository.save(saveNotification(request));
-        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(request.getReceiver_id(), false);
-        sendToClient(request.getReceiver_id(), setMessage(request.getMessage(), list.size()));
+        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(request.getReceiver_info().getId(), false);
+        sendToClient(request.getReceiver_info().getId(), setMessage(request.getMessage(), list.size()));
     }
 
     //알림 삭제
@@ -56,26 +60,29 @@ public class NotificationService {
     }
 
     //알림 조회후 안읽은 알림은 읽음 상태로 변환
-    public List<Notification> getMyNotifications(Long member_id) {
-        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(member_id, false);
+    public List<NotificationResponse> getMyNotifications(Long member_id) {
+        List<Notification> list = notificationRepository.findAllByReceiverId(member_id);
         for (Notification notification : list) {
             notification.setReadStatus(true);
             notificationRepository.save(notification);
         }
-        return notificationRepository.findByReceiverId(member_id);
+        List<NotificationResponse> responseList = new ArrayList<>();
+
+        for (Notification notification : list) {
+            NotificationResponse response = NotificationResponse.fromEntity(notification);
+            responseList.add(response);
+        }
+
+        return responseList;
     }
 
     //알림정보 생성
-    public NotificationRequest createNotifyDto(Long receiver_id, String location, Long location_id, String post_img, Long sender_id,
-                                               String senderName, String senderImage, String message){
+    public NotificationRequest createNotifyDto(Member receiver_info, Post post_info, Member sender_info,
+                                               String message){
         return NotificationRequest.builder()
-                .receiver_id(receiver_id)
-                .location(location)
-                .location_id(location_id)
-                .postImage(post_img)
-                .sender_id(sender_id)
-                .senderName(senderName)
-                .senderImage(senderImage)
+                .receiver_info(receiver_info)
+                .post_info(post_info)
+                .sender_info(sender_info)
                 .message(message)
                 .build();
     }
@@ -124,7 +131,7 @@ public class NotificationService {
     }
 
     private Notification saveNotification(NotificationRequest request) {
-        Follow exists = followRepository.findByMyIdAndMemberId(request.getSender_id(), request.getReceiver_id());
+        Follow exists = followRepository.findByRequesterInfoAndFollowingInfo(request.getSender_info(), request.getReceiver_info());
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
 
@@ -132,7 +139,7 @@ public class NotificationService {
 
         if (exists != null) {
             List<Notification> list = notificationRepository
-                    .findAllByReceiverIdAndSenderId(request.getReceiver_id(), request.getSender_id());
+                    .findAllByReceiverIdAndSenderInfo(request.getReceiver_info().getId(), request.getSender_info());
             for (Notification notification : list) {
                 notification.setFriendStatus(true);
                 notificationRepository.save(notification);
@@ -144,16 +151,12 @@ public class NotificationService {
 
         return Notification.builder()
                 .message(request.getMessage())
-                .senderId(request.getSender_id())
-                .senderImage(request.getSenderImage())
-                .senderName(request.getSenderName())
-                .location(request.getLocation())
-                .location_id(request.getLocation_id())
-                .postImage(request.getPostImage())
+                .senderInfo(request.getSender_info())
+                .postInfo(request.getPost_info())
                 .friendStatus(isFriend)
                 .readStatus(false)
                 .createdAt(formattedNow)
-                .receiverId(request.getReceiver_id())
+                .receiverId(request.getReceiver_info().getId())
                 .build();
     }
 }

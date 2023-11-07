@@ -11,6 +11,10 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CommentRequest {
+    private Long commentId;
+    private Long postId;
+    private Long parentCommentId;
+    private Long replyId;
     private String contents;
     private List<String> mentionList;
 

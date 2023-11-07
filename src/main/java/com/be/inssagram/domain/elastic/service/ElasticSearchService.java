@@ -9,9 +9,6 @@ import com.be.inssagram.domain.elastic.dto.request.SearchRequest;
 import com.be.inssagram.domain.elastic.dto.response.SearchResult;
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
-import com.be.inssagram.domain.hashTag.entity.HashTag;
-import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
-import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.exception.common.DataDoesNotExistException;
@@ -20,7 +17,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -50,7 +46,7 @@ public class ElasticSearchService {
 
 
     //검색 기능
-    public List<SearchResult> search (String value, InfoResponse memberId) {
+    public List<SearchResult> search (String value, Member myInfo) {
         String endpoint = "/members,hashtags/_search";
         String requestBody = "{ \"query\": { \"wildcard\": { \"name\": { \"value\": \"*" + value + "*\" } } } }";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;
@@ -70,11 +66,12 @@ public class ElasticSearchService {
         for (JsonNode hit : hitsArray) {
             JsonNode source = hit.path("_source");
             if (hit.path("_index").asText().equals("members")) {
+                Member memberInfo = memberRepository.findById(source.path("id").asLong())
+                        .orElseThrow(UserDoesNotExistException::new);
                 //검색기록중 친구상태값 반환
-                Follow memberInfo = followRepository.findByMyIdAndMemberId(
-                        memberId.member_id(), source.path("id").asLong());
+                Follow isFriend = followRepository.findByRequesterInfoAndFollowingInfo(myInfo , memberInfo);
                 Boolean status = false;
-                if(memberInfo != null){
+                if(isFriend != null){
                     status = true;
                 }
                 SearchResult memberResult = SearchResult.createMemberResult(
@@ -88,8 +85,7 @@ public class ElasticSearchService {
                 results.add(memberResult);
             } else {
                 SearchResult hashtagResult = SearchResult.createHashtagResult(
-                        "#" + source.path("name").asText(),
-                        source.path("id").asLong()
+                        "#" + source.path("name").asText()
                 );
                 results.add(hashtagResult);
             }
@@ -130,7 +126,7 @@ public class ElasticSearchService {
 
     //검색 기록 저장
     public String saveSearch(Long memberId, SearchRequest request){
-        if(request.getHashtagId() == null){
+        if(request.getHashtagName() == null){
             Member member = memberRepository.findById(request.getMemberId())
                     .orElseThrow(UserDoesNotExistException::new);
             HistoryIndex newHistory = HistoryIndex.builder()
@@ -143,13 +139,11 @@ public class ElasticSearchService {
             historySearchRepository.save(newHistory);
             return "성공적으로 회원 검색을 저장하였습니다";
         }
-        HashtagIndex hashtag = hashtagSearchRepository.findById(request.getHashtagId())
-                .orElseThrow(DataDoesNotExistException::new);
+        HashtagIndex hashtag = hashtagSearchRepository.findByName(request.getHashtagName());
         HistoryIndex newHistory = HistoryIndex.builder()
                 .createdAt(LocalDateTime.now())
                 .memberId(memberId)
                 .searched("#"+hashtag.getName())
-                .search_id(hashtag.getId())
                 .build();
         historySearchRepository.save(newHistory);
         return "성공적으로 해시태그 검색을 저장하였습니다";
