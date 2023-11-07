@@ -14,10 +14,12 @@ import java.util.List;
 @Builder
 public class CommentInfoResponse {
 
+    private Long parentId;
     private Long commentId;
     private Long postId;
     private Long memberId;
     private String nickname;
+    private String memberImage;
     private String content;
     private Integer CommentCount;
     private Integer likeCount;
@@ -45,6 +47,7 @@ public class CommentInfoResponse {
                 .postId(comment.getPost().getId())
                 .memberId(comment.getMember().getId())
                 .nickname(comment.getMember().getNickname())
+                .memberImage(comment.getMember().getImage())
                 .content(comment.getContent())
                 .CommentCount(list.size())
                 .replyFlag(comment.isReplyFlag())

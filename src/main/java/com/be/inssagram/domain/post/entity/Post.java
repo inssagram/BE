@@ -4,6 +4,7 @@ import com.be.inssagram.common.BaseEntity;
 import com.be.inssagram.domain.comment.entity.Comment;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
+import com.be.inssagram.domain.post.type.PostType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -30,6 +31,8 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID", nullable = false)
     private Member member;
+    @Enumerated(EnumType.STRING)
+    private PostType type;
     private List<String> image;
     private String contents;
     private String location;

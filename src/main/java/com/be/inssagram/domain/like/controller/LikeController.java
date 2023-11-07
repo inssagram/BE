@@ -18,8 +18,7 @@ public class LikeController {
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "post-id") Long postId
     ) {
-        likeService.onLikePost(token, postId);
-        return ApiResponse.createSuccessWithNoContent();
+        return ApiResponse.createSuccess(likeService.onLikePost(token, postId));
     }
 
     @PostMapping("/comment")
@@ -27,8 +26,7 @@ public class LikeController {
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "comment-id") Long commentId
     ) {
-        likeService.onLikeComment(token, commentId);
-        return ApiResponse.createSuccessWithNoContent();
+        return ApiResponse.createSuccess(likeService.onLikeComment(token, commentId));
     }
 
     @GetMapping("/member-list/post")
