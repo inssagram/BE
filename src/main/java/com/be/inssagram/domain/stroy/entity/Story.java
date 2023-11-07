@@ -32,4 +32,8 @@ public class Story extends BaseEntity {
     private List<Story> childStory = new LinkedList<>();
     private Long updatedFlag;
     private String passedTime;
+
+    public void setPassedTime(String passedTime) {
+        this.passedTime = passedTime;
+    }
 }
