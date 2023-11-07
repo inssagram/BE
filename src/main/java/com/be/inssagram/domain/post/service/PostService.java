@@ -218,10 +218,14 @@ public class PostService {
                         post.getId(), newTaggedMemberId, null) != null) {
                     continue;
                 }
-                tagService.createTag(TagCreateRequest.builder()
-                        .postId(post.getId())
-                        .memberId(newTaggedMemberId)
-                        .build());
+                if (memberRepository.existsById(newTaggedMemberId)) {
+                    tagService.createTag(TagCreateRequest.builder()
+                            .postId(post.getId())
+                            .memberId(newTaggedMemberId)
+                            .build());
+                } else {
+                    newTaggedMemberIds.remove(newTaggedMemberId);
+                }
             }
         }
     }
