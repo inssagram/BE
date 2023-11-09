@@ -1,5 +1,6 @@
 package com.be.inssagram.domain.follow.entity;
 
+import com.be.inssagram.domain.elastic.documents.index.HashtagIndex;
 import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.member.entity.Member;
 import jakarta.persistence.*;
@@ -22,7 +23,6 @@ public class Follow {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_id")
     private Member followingInfo;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hashtag_id")
-    private HashTag hashtagId;
+
+    private String hashtagName;
 }

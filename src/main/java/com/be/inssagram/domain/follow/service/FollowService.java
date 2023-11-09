@@ -1,14 +1,13 @@
 package com.be.inssagram.domain.follow.service;
 
+import com.be.inssagram.domain.elastic.documents.index.HashtagIndex;
+import com.be.inssagram.domain.elastic.documents.repository.HashtagSearchRepository;
 import com.be.inssagram.domain.follow.dto.request.FollowRequest;
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
-import com.be.inssagram.domain.hashTag.entity.HashTag;
-import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
-import com.be.inssagram.exception.common.DataDoesNotExistException;
 import com.be.inssagram.exception.member.UserDoesNotExistException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,18 +19,34 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
     private final NotificationService notificationService;
-    private final HashTagRepository hashTagRepository;
+    private final HashtagSearchRepository hashtagSearchRepository;
 
     //팔로잉 및 해제
-    public String follow(Member myInfo, FollowRequest request){
+    public String follow(Member myInfo, FollowRequest request) {
+        if (request.getFollowId() == null && request.getHashtagName() != null) {
+            //db에 있는 정보인지 확인
+            HashtagIndex hashTag = hashtagSearchRepository.findByName(request.getHashtagName());
+                if(hashTag != null){
+                    //팔로우 상태 확인
+                    Follow exists = followRepository.findByRequesterInfoAndHashtagName(myInfo, hashTag.getName());
+                    //팔로우일 경우 팔로우 해지
+                    if (exists != null) {
+                        followRepository.delete(exists);
+                        return "팔로잉을 해지하셧습니다";
+                    }
+                    followRepository.save(setFollowHashtag(myInfo, hashTag.getName()));
+                    return "팔로잉을 시작하셧습니다";
+                }
+            return "정보가 없습니다! 다시 확인 부탁드립니다";
+        }
         Member memberInfo = memberRepository.findById(request.getFollowId()).orElseThrow(
                 UserDoesNotExistException::new);
         Follow exists = followRepository.findByRequesterInfoAndFollowingInfo(myInfo, memberInfo);
-        if(exists != null){
+        if (exists != null) {
             followRepository.delete(exists);
             return "팔로잉을 해지하셧습니다";
         } else {
-            if(request.getHashtagId() == null) {
+            if (request.getHashtagName() == null) {
                 Follow follow = setFollowMember(myInfo, memberInfo);
                 followRepository.save(follow);
                 notificationService.notify(notificationService
@@ -39,16 +54,13 @@ public class FollowService {
                                 memberInfo,
                                 null,
                                 myInfo,
-                                myInfo.getNickname()+"님이 회원님을 팔로우 하셧습니다"
+                                myInfo.getNickname() + "님이 회원님을 팔로우하기 시작했습니다."
                         ));
-                return "팔로잉 하셧습니다";
             }
-            HashTag hashTag = hashTagRepository.findById(request.getHashtagId())
-                    .orElseThrow(DataDoesNotExistException::new);
-            followRepository.save(setFollowHashtag(myInfo, hashTag));
-            return "팔로잉 하셧습니다";
         }
+        return "팔로잉 하셧습니다";
     }
+
 
 
     private Follow setFollowMember(Member myInfo, Member memberInfo){
@@ -58,10 +70,10 @@ public class FollowService {
                 .build();
     }
 
-    private Follow setFollowHashtag(Member myInfo, HashTag hashtagId){
+    private Follow setFollowHashtag(Member myInfo, String hashtagName){
         return Follow.builder()
                 .requesterInfo(myInfo)
-                .hashtagId(hashtagId)
+                .hashtagName(hashtagName)
                 .build();
     }
 }

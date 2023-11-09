@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FollowRequest {
     private Long followId;
-    private Long hashtagId;
+    private String hashtagName;
 }
