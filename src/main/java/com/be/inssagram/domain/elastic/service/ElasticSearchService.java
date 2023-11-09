@@ -11,22 +11,22 @@ import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
-import com.be.inssagram.exception.common.DataDoesNotExistException;
 import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -114,23 +114,62 @@ public class ElasticSearchService {
         JsonNode hitsArray = root.path("hits").path("hits");
         for (JsonNode hit : hitsArray) {
             JsonNode source = hit.path("_source");
+            //해시태그 일 경우
+            if(source.path("searched").asText().contains("#")){
+                String hashtagName = source.path("searched").asText().substring(1);
+                HashtagIndex hashtagIndex = hashtagSearchRepository.findByName(hashtagName);
+                Member myInfo = memberRepository.findById(memberId)
+                        .orElseThrow(UserDoesNotExistException::new);
+                Follow isFriend = followRepository.findByRequesterInfoAndHashtagName(myInfo,hashtagIndex.getName());
+                Boolean status = false;
+                if(isFriend != null){
+                    status = true;
+                }
+                SearchResult historyResult = SearchResult.createSearchHistoryResult(
+                        source.path("search_id").asLong(),
+                        source.path("searched").asText(),
+                        source.path("image").asText(),
+                        status,
+                        null
+                );
+                results.add(historyResult);
+            }
+            if(!source.path("searched").asText().contains("#")){
+            //회원일 경우
+            Member memberInfo = memberRepository.findById(source.path("search_id").asLong())
+                    .orElseThrow(UserDoesNotExistException::new);
+            Member myInfo = memberRepository.findById(memberId)
+                    .orElseThrow(UserDoesNotExistException::new);
+            //검색기록중 친구상태값 반환
+            Follow isFriend = followRepository.findByRequesterInfoAndFollowingInfo(myInfo , memberInfo);
+            Boolean status = false;
+            if(isFriend != null){
+                status = true;
+            }
             SearchResult historyResult = SearchResult.createSearchHistoryResult(
                     source.path("search_id").asLong(),
                     source.path("searched").asText(),
-                    source.path("image").asText()
+                    source.path("image").asText(),
+                    status,
+                    memberInfo.getJob()
             );
             results.add(historyResult);
-        }
+        }}
         return results;
     }
 
     //검색 기록 저장
     public String saveSearch(Long memberId, SearchRequest request){
+        //회원 저장
         if(request.getHashtagName() == null){
             Member member = memberRepository.findById(request.getMemberId())
                     .orElseThrow(UserDoesNotExistException::new);
+            HistoryIndex exists = historySearchRepository.findByMemberIdAndSearched(memberId, member.getNickname());
+            if(exists != null){
+                return "이미 저장된 정보입니다";
+            }
             HistoryIndex newHistory = HistoryIndex.builder()
-                    .createdAt(LocalDateTime.now())
+                    .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
                     .memberId(memberId)
                     .searched(member.getNickname())
                     .search_id(member.getId())
@@ -139,9 +178,14 @@ public class ElasticSearchService {
             historySearchRepository.save(newHistory);
             return "성공적으로 회원 검색을 저장하였습니다";
         }
+        //해시태그 저장
         HashtagIndex hashtag = hashtagSearchRepository.findByName(request.getHashtagName());
+        HistoryIndex exists = historySearchRepository.findByMemberIdAndSearched(memberId, request.getHashtagName());
+        if(exists != null){
+            return "이미 저장된 정보입니다";
+        }
         HistoryIndex newHistory = HistoryIndex.builder()
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
                 .memberId(memberId)
                 .searched("#"+hashtag.getName())
                 .build();

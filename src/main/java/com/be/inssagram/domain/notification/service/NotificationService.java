@@ -19,7 +19,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,8 +131,6 @@ public class NotificationService {
 
     private Notification saveNotification(NotificationRequest request) {
         Follow exists = followRepository.findByRequesterInfoAndFollowingInfo(request.getSender_info(), request.getReceiver_info());
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);
 
         boolean isFriend = false;
 
@@ -147,15 +144,13 @@ public class NotificationService {
             isFriend = true;
         }
 
-        String formattedNow = now.format(formatter);
-
         return Notification.builder()
                 .message(request.getMessage())
                 .senderInfo(request.getSender_info())
                 .postInfo(request.getPost_info())
                 .friendStatus(isFriend)
                 .readStatus(false)
-                .createdAt(formattedNow)
+                .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
                 .receiverId(request.getReceiver_info().getId())
                 .build();
     }

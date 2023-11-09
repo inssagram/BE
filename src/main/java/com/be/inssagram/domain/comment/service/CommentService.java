@@ -9,6 +9,7 @@ import com.be.inssagram.domain.comment.repository.CommentRepository;
 import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
@@ -30,7 +31,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final NotificationService notificationService;
-
+    private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
 
     @Transactional
@@ -59,6 +60,17 @@ public class CommentService {
         CommentInfoResponse response = CommentInfoResponse.from(
                 commentRepository.save(comment));
 
+        for (String targetMember : mentionList) {
+            Member friend = memberRepository.findByNickname(targetMember);
+            notificationService.notify(notificationService
+                    .createNotifyDto(
+                            friend,
+                            post,
+                            member,
+                            member.getNickname() + "님이 댓글에서 회원님을 언급했습니다: "+ request.getContents()
+                    ));
+        }
+
         //게시물 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
         if (!post.getMember().getId().equals(member.getId())) {
             notificationService.notify(notificationService
@@ -66,7 +78,7 @@ public class CommentService {
                             post.getMember(),
                             post,
                             member,
-                            member.getNickname() + "님이 회원님의 게시물에 댓글을 다셧습니다"
+                            member.getNickname() + "님이 회원님의 게시물에 댓글을 남겼습니다: "+ request.getContents()
                     ));
         }
         // 댓글을 저장합니다.
@@ -99,7 +111,7 @@ public class CommentService {
                             parentComment.getMember(),
                             parentComment.getPost(),
                             member,
-                            member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
+                            member.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: "+savedReply.getContent()
                     ));
         // 대댓글을 저장합니다.
         return response;
@@ -127,7 +139,7 @@ public class CommentService {
                             replyComment.getMember(),
                             parentComment.getPost(),
                             member,
-                            member.getNickname() + "님이 회원님의 댓글에 답장하였습니다"
+                            member.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: "+savedReply.getContent()
                     ));
         }
         return response;

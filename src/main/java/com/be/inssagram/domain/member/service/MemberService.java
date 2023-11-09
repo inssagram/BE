@@ -134,7 +134,8 @@ public class MemberService {
 
     //회원탈퇴
     public void deleteMember(Long id, String token){
-        Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
+        Member member = memberRepository.findById(id)
+                .orElseThrow(UserDoesNotExistException::new);
         String requestEmail = tokenProvider.getEmailFromToken(token);
         if(member.getEmail().equals(requestEmail) == false){
             throw new UnauthorizedRequestException();
@@ -145,8 +146,9 @@ public class MemberService {
 
     //회원 상세조회
     @Transactional
-    public DetailedInfoResponse getMemberDetail(String nickname){
-        Member member = memberRepository.findByNickname(nickname);
+    public DetailedInfoResponse getMemberDetail(Long id){
+        Member member = memberRepository.findById(id)
+                .orElseThrow(UserDoesNotExistException::new);
         List<Follow> following = followRepository.findAllByRequesterInfo(member);
         List<Follow> followers = followRepository.findAllByFollowingInfo(member);
 

@@ -6,4 +6,5 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 
 @EnableElasticsearchRepositories
 public interface HistorySearchRepository extends ElasticsearchRepository<HistoryIndex, Long> {
+    HistoryIndex findByMemberIdAndSearched (Long memberId, String searched);
 }
