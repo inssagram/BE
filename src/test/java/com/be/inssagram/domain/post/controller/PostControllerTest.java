@@ -74,7 +74,7 @@ class PostControllerTest {
     @WithMockUser()
     void successUpdatePost() throws Exception {
         //given
-        given(postService.updatePost(anyLong(), any()))
+        given(postService.updatePost(anyString(), anyLong(), any()))
                 .willReturn(PostInfoResponse.builder()
                         .postId(1L)
                         .memberId(1L)
@@ -123,7 +123,7 @@ class PostControllerTest {
     @WithMockUser()
     void successSearchPost_detail() throws Exception {
         //given
-        given(postService.searchPostDetail(anyLong()))
+        given(postService.searchPostDetail(anyString() ,anyLong()))
                 .willReturn(PostInfoResponse.builder()
                         .postId(1L)
                         .memberId(1L)
@@ -163,7 +163,7 @@ class PostControllerTest {
 //                        .taggedMembers(new HashSet<>())
                         .hashTags(new ArrayList<>())
                         .build());
-        given(postService.searchPostAll())
+        given(postService.searchPostAll(anyString()))
                 .willReturn(postInfoResponseList);
         //when
         //then

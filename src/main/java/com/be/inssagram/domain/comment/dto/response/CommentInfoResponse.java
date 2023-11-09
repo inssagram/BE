@@ -26,6 +26,8 @@ public class CommentInfoResponse {
     private boolean replyFlag;
     private String createdAt;
     private List<String> mentionList;
+    //state
+    private Boolean commentLike;
 
     public CommentInfoResponse(Long commentId, Long postId, Long memberId,
                                String content, boolean replyFlag) {

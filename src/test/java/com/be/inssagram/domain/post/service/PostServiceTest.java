@@ -87,7 +87,7 @@ class PostServiceTest {
                 .build();
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
         //when
-        PostInfoResponse updateResponse = postService.updatePost(1L, UpdatePostRequest
+        PostInfoResponse updateResponse = postService.updatePost("token", 1L, UpdatePostRequest
                 .builder()
                 .contents("AAA")
                 .location("sweet")
@@ -136,7 +136,7 @@ class PostServiceTest {
         given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
 
         //when
-        PostInfoResponse searchResponse = postService.searchPostDetail(1L);
+        PostInfoResponse searchResponse = postService.searchPostDetail("token" ,1L);
 
         searchResponse.setLikeCount(0);
         searchResponse.setHashTags(new ArrayList<>());
@@ -159,7 +159,7 @@ class PostServiceTest {
         List<Post> list = Collections.singletonList(post);
         given(postRepository.findAll()).willReturn(list);
         //when
-        List<PostInfoResponse> responses = postService.searchPostAll();
+        List<PostInfoResponse> responses = postService.searchPostAll("token");
         //then
         assertEquals(1L, responses.get(0).getPostId());
     }
@@ -171,7 +171,7 @@ class PostServiceTest {
                 .willReturn(Optional.empty());
         //when
         RuntimeException exception = assertThrows(PostDoesNotExistException.class,
-                () -> postService.updatePost(1L, UpdatePostRequest
+                () -> postService.updatePost("token", 1L, UpdatePostRequest
                         .builder()
                         .contents("AAA")
                         .location("sweet")
@@ -201,7 +201,7 @@ class PostServiceTest {
                 .willReturn(Optional.empty());
         //when
         RuntimeException exception = assertThrows(PostDoesNotExistException.class,
-                () -> postService.searchPostDetail(1L));
+                () -> postService.searchPostDetail("token",1L));
         //then
         assertEquals("존재하지 않는 게시글 입니다.", exception.getMessage());
     }

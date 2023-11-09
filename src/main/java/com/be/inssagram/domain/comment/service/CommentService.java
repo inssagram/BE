@@ -146,13 +146,18 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentInfoResponse updateComment(CommentRequest request) {
+    public CommentInfoResponse updateComment(String token, CommentRequest request) {
         Comment comment = commentRepository.findById(request.getCommentId())
                 .orElseThrow(CommentDoesNotExistException::new);
-
         comment.updateFields(request);
         commentRepository.save(comment);
-        return CommentInfoResponse.from(comment);
+        Long memberId = tokenProvider.getMemberFromToken(token).getId();
+        CommentInfoResponse response = CommentInfoResponse.from(comment);
+        if(likeRepository.findByPostIdAndMemberIdAndCommentId(response
+                .getPostId(), memberId, response.getCommentId()).isPresent()) {
+            response.setCommentLike(true);
+        }
+        return response;
     }
 
     @Transactional
@@ -164,14 +169,13 @@ public class CommentService {
     }
 
     @Transactional
-    public List<CommentInfoResponse> searchComments(Long postId) {
+    public List<CommentInfoResponse> searchComments(String token, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostDoesNotExistException::new);
-
         List<Comment> comments = commentRepository.findByPostAndReplyFlagIsFalse(post);
         List<CommentInfoResponse> responseList = comments.stream()
                 .map(CommentInfoResponse::from).toList();
-
+        Long memberId = tokenProvider.getMemberFromToken(token).getId();
         for (int i = 0; i < comments.size(); i++) {
             Comment comment = comments.get(i);
             CommentInfoResponse response = responseList.get(i);
@@ -179,24 +183,27 @@ public class CommentService {
                     .stream().map(LikeInfoResponse::from)
                     .collect(Collectors.toSet());
             response.setLikeCount(likeSet.size());
+            if(likeRepository.findByPostIdAndMemberIdAndCommentId(response
+                    .getPostId(), memberId, response.getCommentId()).isPresent()) {
+                response.setCommentLike(true);
+            }
         }
 
         return responseList;
     }
 
     @Transactional
-    public List<ReplyInfoResponse> searchReply(Long parentCommentId) {
+    public List<ReplyInfoResponse> searchReply(String token, Long parentCommentId) {
         Comment comment = commentRepository.findById(parentCommentId)
                 .orElseThrow(CommentDoesNotExistException::new);
-
-        return getReplyInfoResponses(comment);
+        return getReplyInfoResponses(token, comment);
     }
 
-    private List<ReplyInfoResponse> getReplyInfoResponses(Comment comment) {
+    private List<ReplyInfoResponse> getReplyInfoResponses(String token, Comment comment) {
         List<Comment> replies = commentRepository.findByParentComment(comment);
         List<ReplyInfoResponse> responseList = replies.stream()
                 .map(ReplyInfoResponse::from).toList();
-
+        Long memberId = tokenProvider.getMemberFromToken(token).getId();
         for (int i = 0; i < replies.size(); i++) {
             Comment reply = replies.get(i);
             ReplyInfoResponse response = responseList.get(i);
@@ -204,6 +211,10 @@ public class CommentService {
                     .stream().map(LikeInfoResponse::from)
                     .collect(Collectors.toSet());
             response.setLikeCount(likeSet.size());
+            if(likeRepository.findByPostIdAndMemberIdAndCommentId(response
+                    .getPostId(), memberId, response.getCommentId()).isPresent()) {
+                response.setCommentLike(true);
+            }
         }
         return responseList;
     }

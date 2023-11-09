@@ -30,6 +30,11 @@ public class PostInfoResponse {
     private Set<Long> taggedMemberIds;
     private List<String> hashTags;
     private String createdAt;
+    //state
+    private boolean postLike;
+    private boolean bookmarked;
+    private boolean followed;
+
 
     public static PostInfoResponse from(Post post) {
         int commentCounts = 0;

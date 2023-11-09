@@ -31,8 +31,9 @@ public class PostController {
 
     @PutMapping("/update/{id}")
     public ApiResponse<PostInfoResponse> updatePost(
+            @RequestHeader("Authorization") String token,
             @PathVariable Long id, @RequestBody UpdatePostRequest request) {
-        return ApiResponse.createSuccess(postService.updatePost(id, request));
+        return ApiResponse.createSuccess(postService.updatePost(token, id, request));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -44,21 +45,39 @@ public class PostController {
 
     @GetMapping("/search-detail/{id}")
     public ApiResponse<PostInfoResponse> searchPostDetail(
+            @RequestHeader("Authorization") String token,
             @PathVariable Long id) {
-        return ApiResponse.createSuccess(postService.searchPostDetail(id));
+        return ApiResponse.createSuccess(postService.searchPostDetail(token, id));
     }
 
     @GetMapping("/all")
-    public ApiResponse<List<PostInfoResponse>> searchPostAll() {
-        return ApiResponse.createSuccess(postService.searchPostAll());
+    public ApiResponse<List<PostInfoResponse>> searchPostAll(
+            @RequestHeader("Authorization") String token
+    ) {
+        return ApiResponse.createSuccess(postService.searchPostAll(token));
+    }
+
+    @GetMapping("/my")
+    public ApiResponse<List<PostInfoResponse>> searchMyPosts(
+            @RequestHeader("Authorization") String token
+    ) {
+        return ApiResponse.createSuccess(postService.searchMyPosts(token));
+    }
+
+    @GetMapping("/following-member")
+    public ApiResponse<List<PostInfoResponse>> searchPostsWithFollowingMember(
+            @RequestHeader("Authorization") String token
+    ) {
+        return ApiResponse.createSuccess(postService.searchPostsWithFollowingMember(token));
     }
 
     @GetMapping("/member")
     public ApiResponse<List<PostInfoResponse>> searchPostWithMemberId(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "member-id") Long memberId
     ) {
         return ApiResponse.createSuccess(
-                postService.searchPostWithMember(memberId));
+                postService.searchPostWithMember(token, memberId));
     }
 
 }
