@@ -35,17 +35,20 @@ public class SearchResult {
         return result;
     }
 
-    public static SearchResult createSearchHistoryResult(Long id, String searched, String image) {
+    public static SearchResult createSearchHistoryResult(Long id, String searched, String image, boolean friendStatus, String job) {
         if(searched.contains("#")){
             SearchResult result = new SearchResult();
             result.setSearched(searched);
             result.setImage(image);
+            result.setFriendStatus(friendStatus);
             return result;
         }
         SearchResult result = new SearchResult();
         result.setMemberId(id);
         result.setSearched(searched);
         result.setImage(image);
+        result.setJob(job);
+        result.setFriendStatus(friendStatus);
         return result;
     }
 }

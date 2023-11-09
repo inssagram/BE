@@ -1,5 +1,8 @@
 {
   "properties": {
+    "created_at": {
+      "type": "text"
+    },
     "id": {
       "type" : "long"
     },
