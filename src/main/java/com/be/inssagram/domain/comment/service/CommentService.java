@@ -9,7 +9,6 @@ import com.be.inssagram.domain.comment.repository.CommentRepository;
 import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.entity.Member;
-import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
@@ -19,6 +18,7 @@ import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,6 +34,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
 
+
     @Transactional
     public CommentInfoResponse createComment(
             String token, CommentRequest request) {
@@ -47,7 +48,7 @@ public class CommentService {
         //멘션 리스트가 비어있을 때를 처리합니다.
         List<String> mentionList = Optional.ofNullable(request.getMentionList())
                 .orElse(new ArrayList<>());
-
+      
         // 댓글(Comment) 객체를 생성합니다.
         Comment comment = Comment.builder()
                 .post(post)
@@ -107,7 +108,6 @@ public class CommentService {
 
         Comment parentComment = commentRepository.findById(request.getParentCommentId())
                 .orElseThrow(CommentDoesNotExistException::new);
-
         Comment replyComment = commentRepository.findById(request.getReplyId())
                 .orElseThrow(CommentDoesNotExistException::new);
 
@@ -213,7 +213,6 @@ public class CommentService {
         commentRepository.save(parentComment);
         return savedReply;
     }
-
     private void notifyMentionedMembers(List<String> mentionList, Member commenter, Post post, String commentContent) {
         for (String targetMember : mentionList) {
             Member friend = memberRepository.findByNickname(targetMember);
