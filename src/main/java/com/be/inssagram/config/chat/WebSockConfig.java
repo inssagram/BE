@@ -17,13 +17,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompHandler stompHandler;
-
+    @Value("${spring.rabbitmq.host}")
+    private String dockerUrl;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.setPathMatcher(new AntPathMatcher(".")); // URL을 / -> .으로
         config.setApplicationDestinationPrefixes("/pub");
         config.enableStompBrokerRelay("/queue", "/topic", "/exchange", "/amq/queue")
-                .setRelayHost("localhost")
+                .setRelayHost(dockerUrl)
                 .setRelayPort(61613)
                 .setVirtualHost("/")
                 .setSystemLogin("guest")
