@@ -21,7 +21,7 @@ public class RabbitConfig {
     private static final String CHAT_EXCHANGE_NAME = "chat.exchange";
     private static final String ROUTING_KEY = "room.*";
 
-    @Value("${spring.rabbitmq.url}")
+    @Value("${spring.rabbitmq.host}")
     private String dockerUrl;
 
     //Queue 등록

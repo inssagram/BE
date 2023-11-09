@@ -17,8 +17,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompHandler stompHandler;
-    @Value("${spring.rabbitmq.url}")
-    private String dockerUrl;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -37,7 +35,9 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*").withSockJS();
+        registry.addEndpoint("/ws-stomp")
+                .setAllowedOrigins("http://localhost:3000")
+                .withSockJS();
         ;
     }
 }
