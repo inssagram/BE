@@ -90,9 +90,9 @@ public class MemberController {
     }
 
     //회원 상세조회
-    @GetMapping("/member/detail/{nickname}")
-    public ApiResponse<DetailedInfoResponse> getMemberDetail(@PathVariable String nickname){
-        DetailedInfoResponse result = memberService.getMemberDetail(nickname);
+    @GetMapping("/member/detail/{id}")
+    public ApiResponse<DetailedInfoResponse> getMemberDetail(@PathVariable Long id){
+        DetailedInfoResponse result = memberService.getMemberDetail(id);
         return ApiResponse.createSuccessWithMessage(result, "정보를 불러왔습니다");
     }
 }
