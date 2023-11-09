@@ -1,6 +1,6 @@
 package com.be.inssagram.domain.chat;
 
-import com.be.inssagram.config.security.JwtTokenProvider;
+import com.be.inssagram.config.Jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StompHandler implements ChannelInterceptor {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenProvider jwtTokenProvider;
 
     // websocket을 통해 들어온 요청이 처리 되기전 실행된다.
     @Override
