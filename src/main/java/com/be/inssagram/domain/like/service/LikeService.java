@@ -89,7 +89,7 @@ public class LikeService {
                             comment.getMember(),
                             post,
                             member,
-                            member.getNickname()+"님이 회원님의 댓글을 좋아합니다:"+comment.getContent()
+                            member.getNickname()+"님이 회원님의 댓글을 좋아합니다: "+comment.getContent()
                     ));
         }
         likeRepository.save(like);

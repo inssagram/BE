@@ -67,7 +67,7 @@ public class CommentService {
                             friend,
                             post,
                             member,
-                            member.getNickname() + "님이 댓글에서 회원님을 언급했습니다:"+ request.getContents()
+                            member.getNickname() + "님이 댓글에서 회원님을 언급했습니다: "+ request.getContents()
                     ));
         }
 
@@ -78,7 +78,7 @@ public class CommentService {
                             post.getMember(),
                             post,
                             member,
-                            member.getNickname() + "님이 회원님의 게시물에 댓글을 남겼습니다:"+ request.getContents()
+                            member.getNickname() + "님이 회원님의 게시물에 댓글을 남겼습니다: "+ request.getContents()
                     ));
         }
         // 댓글을 저장합니다.
@@ -111,7 +111,7 @@ public class CommentService {
                             parentComment.getMember(),
                             parentComment.getPost(),
                             member,
-                            member.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다"+savedReply.getContent()
+                            member.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: "+savedReply.getContent()
                     ));
         // 대댓글을 저장합니다.
         return response;
@@ -139,7 +139,7 @@ public class CommentService {
                             replyComment.getMember(),
                             parentComment.getPost(),
                             member,
-                            member.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다"+savedReply.getContent()
+                            member.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: "+savedReply.getContent()
                     ));
         }
         return response;
