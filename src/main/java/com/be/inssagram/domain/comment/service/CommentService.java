@@ -9,6 +9,7 @@ import com.be.inssagram.domain.comment.repository.CommentRepository;
 import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.like.repository.LikeRepository;
 import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
