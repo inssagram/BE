@@ -44,9 +44,10 @@ public class CommentController {
 
     @PutMapping("/update")
     public ApiResponse<CommentInfoResponse> updateComment(
+            @RequestHeader("Authorization") String token,
             @RequestBody CommentRequest request) {
         return ApiResponse.createSuccessWithMessage(
-                commentService.updateComment(request), "수정됨");
+                commentService.updateComment(token, request), "수정됨");
     }
 
     @DeleteMapping("/delete/{id}")
@@ -58,17 +59,19 @@ public class CommentController {
 
     @GetMapping("/search")
     public ApiResponse<List<CommentInfoResponse>> searchParentComments2(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "post-id") Long postId
     ) {
         return ApiResponse.createSuccess(
-                commentService.searchComments(postId));
+                commentService.searchComments(token, postId));
     }
 
     @GetMapping("/search/reply")
     public ApiResponse<List<ReplyInfoResponse>> searchReplyByParentComment2(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "parent-comment-id") Long parentCommentId
     ) {
         return ApiResponse.createSuccess(
-                commentService.searchReply(parentCommentId));
+                commentService.searchReply(token, parentCommentId));
     }
 }

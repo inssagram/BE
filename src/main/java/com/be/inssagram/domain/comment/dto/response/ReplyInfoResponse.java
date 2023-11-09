@@ -24,6 +24,8 @@ public class ReplyInfoResponse {
     private Integer likeCount;
     private String createdAt;
     private List<String> mentionList;
+    //state
+    private Boolean commentLike;
 
     public static ReplyInfoResponse from(Comment comment) {
 

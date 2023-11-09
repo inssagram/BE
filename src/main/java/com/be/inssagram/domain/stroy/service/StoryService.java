@@ -123,13 +123,17 @@ public class StoryService {
     @Transactional
     public void deleteStory(Long storyId) {
         Story story = storyRepository.findById(storyId).orElseThrow();
-        Story parentStory = story.getParentStory();
-        if (parentStory.getChildStory().size() == 1) {
-            storyRepository.save(parentStory);
-            storyRepository.delete(parentStory);
-        } else {
-            storyRepository.save(story);
+        if (story.getParentStory() == null) {
             storyRepository.delete(story);
+        } else {
+            Story parentStory = story.getParentStory();
+            if (parentStory.getChildStory().size() == 1) {
+                storyRepository.save(parentStory);
+                storyRepository.delete(parentStory);
+            } else {
+                storyRepository.save(story);
+                storyRepository.delete(story);
+            }
         }
     }
 
