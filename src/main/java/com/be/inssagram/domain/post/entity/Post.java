@@ -33,6 +33,7 @@ public class Post extends BaseEntity {
     private Member member;
     @Enumerated(EnumType.STRING)
     private PostType type;
+
     private List<String> image;
     private String contents;
     private String location;
