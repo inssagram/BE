@@ -45,10 +45,9 @@ public class CommentService {
                 .orElseThrow(PostDoesNotExistException::new);
 
         //멘션 리스트가 비어있을 때를 처리합니다.
-        List<String> mentionList = new ArrayList<>();
-        if (request.getMentionList() != null) {
-            mentionList = request.getMentionList();
-        }
+        List<String> mentionList = Optional.ofNullable(request.getMentionList())
+                .orElse(new ArrayList<>());
+
         // 댓글(Comment) 객체를 생성합니다.
         Comment comment = Comment.builder()
                 .post(post)
@@ -60,26 +59,13 @@ public class CommentService {
         CommentInfoResponse response = CommentInfoResponse.from(
                 commentRepository.save(comment));
 
-        for (String targetMember : mentionList) {
-            Member friend = memberRepository.findByNickname(targetMember);
-            notificationService.notify(notificationService
-                    .createNotifyDto(
-                            friend,
-                            post,
-                            member,
-                            member.getNickname() + "님이 댓글에서 회원님을 언급했습니다: "+ request.getContents()
-                    ));
+        if (!mentionList.isEmpty()) {
+            notifyMentionedMembers(mentionList, member, post, request.getContents());
         }
 
-        //게시물 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
+        // 게시물 작성자에게 알림을 전송합니다
         if (!post.getMember().getId().equals(member.getId())) {
-            notificationService.notify(notificationService
-                    .createNotifyDto(
-                            post.getMember(),
-                            post,
-                            member,
-                            member.getNickname() + "님이 회원님의 게시물에 댓글을 남겼습니다: "+ request.getContents()
-                    ));
+            notifyPostAuthor(post, member, request.getContents());
         }
         // 댓글을 저장합니다.
         return response;
@@ -104,15 +90,11 @@ public class CommentService {
         Comment savedReply = getSavedReply(request, member, parentComment);
         ReplyInfoResponse response = ReplyInfoResponse.from(savedReply);
 
-        //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
-        if (!parentComment.getMember().getId().equals(member.getId()))
-            notificationService.notify(notificationService
-                    .createNotifyDto(
-                            parentComment.getMember(),
-                            parentComment.getPost(),
-                            member,
-                            member.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: "+savedReply.getContent()
-                    ));
+        // 댓글 작성자에게 알림을 전송합니다
+        if (!parentComment.getMember().getId().equals(member.getId())) {
+            notifyOriginalCommentAuthor(parentComment, member, savedReply.getContent());
+        }
+
         // 대댓글을 저장합니다.
         return response;
     }
@@ -134,13 +116,7 @@ public class CommentService {
 
         //댓글 작성자가 자신이 아닐 경우에, 작성자에게 알림을 전송합니다
         if (!replyComment.getMember().getId().equals(member.getId())) {
-            notificationService.notify(notificationService
-                    .createNotifyDto(
-                            replyComment.getMember(),
-                            parentComment.getPost(),
-                            member,
-                            member.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: "+savedReply.getContent()
-                    ));
+            notifyOriginalReplyAuthor(replyComment, member, savedReply.getContent());
         }
         return response;
     }
@@ -238,4 +214,42 @@ public class CommentService {
         return savedReply;
     }
 
+    private void notifyMentionedMembers(List<String> mentionList, Member commenter, Post post, String commentContent) {
+        for (String targetMember : mentionList) {
+            Member friend = memberRepository.findByNickname(targetMember);
+            notificationService.notify(notificationService.createNotifyDto(
+                    friend,
+                    post,
+                    commenter,
+                    commenter.getNickname() + "님이 댓글에서 회원님을 언급했습니다: " + commentContent
+            ));
+        }
+    }
+
+    private void notifyPostAuthor(Post post, Member commenter, String commentContent) {
+        notificationService.notify(notificationService.createNotifyDto(
+                post.getMember(),
+                post,
+                commenter,
+                commenter.getNickname() + "님이 회원님의 게시물에 댓글을 남겼습니다: " + commentContent
+        ));
+    }
+
+    private void notifyOriginalCommentAuthor(Comment commentAuthor, Member commenter, String replyContent) {
+        notificationService.notify(notificationService.createNotifyDto(
+                commentAuthor.getMember(),
+                commentAuthor.getPost(),
+                commenter,
+                commenter.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: " + replyContent
+        ));
+    }
+
+    private void notifyOriginalReplyAuthor(Comment replyComment, Member commenter, String replyContent) {
+        notificationService.notify(notificationService.createNotifyDto(
+                replyComment.getMember(),
+                replyComment.getParentComment().getPost(),
+                commenter,
+                commenter.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: " + replyContent
+        ));
+    }
 }
