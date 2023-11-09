@@ -8,8 +8,6 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.Mapping;
 
-import java.time.LocalDateTime;
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,13 +15,26 @@ import java.time.LocalDateTime;
 @ToString
 @Mapping(mappingPath = "elastic/history-mapping.json")
 @Document(indexName = Indices.HISTORY_INDEX)
-public class History {
+public class HistoryIndex {
+
     @Id
-    @Field(name = "created_at", type = FieldType.Date)
-    private LocalDateTime createdAt;
+    @Field(name = "id", type = FieldType.Long)
+    private Long id;
+
+    @Field(name = "created_at", type = FieldType.Text)
+    private String createdAt;
 
     @Field(name = "member_id", type = FieldType.Long)
     private Long memberId;
+
+    @Field(name = "job", type = FieldType.Text)
+    private String job;
+
+    @Field(name = "image", type = FieldType.Text)
+    private String image;
+
+    @Field(name = "search_id", type = FieldType.Long)
+    private Long search_id;
 
     @Field(name = "searched", type = FieldType.Text)
     private String searched;

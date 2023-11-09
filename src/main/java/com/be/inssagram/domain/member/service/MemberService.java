@@ -18,12 +18,14 @@ import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.exception.member.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,12 +55,12 @@ public class MemberService {
     }
 
     //인증코드 발급
-    public void sendCode (AuthenticationRequest request) {
+    public void sendCode(AuthenticationRequest request) {
         Instant currentTime = Instant.now();
         Auth existingAuth = authRepository.findByEmail(request.getEmail()).orElse(null);
 
-        if (existingAuth == null || Duration.between(existingAuth.getCreatedAt(),
-            currentTime).toMillis() >= 2 * 60 * 1000) {
+        if (existingAuth == null || Duration.between(existingAuth.getCreatedAt(), currentTime)
+                .toMillis() >= 2 * 60 * 1000) {
             int authCode = mailService.sendMail(request);
             String code = String.valueOf(authCode);
             if (existingAuth == null) {
@@ -67,7 +69,13 @@ public class MemberService {
             }
             existingAuth.setCode(code);
             existingAuth.setCreatedAt(currentTime);
-            authRepository.save(existingAuth);
+
+            try {
+                authRepository.save(existingAuth);
+            } catch (ObjectOptimisticLockingFailureException ex) {
+                // 동시 수정이 감지되면 여기에서 처리, 예를 들어 재시도하거나 사용자 정의 예외 던지기 등
+                throw new ConcurrentModificationException("동시 수정이 감지되었습니다", ex);
+            }
         } else {
             throw new AuthCodeAlreadySentException();
         }
@@ -90,7 +98,7 @@ public class MemberService {
 
     //사용할수 있는 닉네임인지 확인
     public void checkNicknameAvailability(AuthenticationRequest request){
-        boolean exists = memberRepository.existsByNickname(request.getNickName());
+        boolean exists = memberRepository.existsByNickname(request.getNickname());
         if(exists){
             throw new DuplicatedUserException();
         }
@@ -134,7 +142,8 @@ public class MemberService {
 
     //회원탈퇴
     public void deleteMember(Long id, String token){
-        Member member = memberRepository.findById(id).orElseThrow(() -> new UserDoesNotExistException());
+        Member member = memberRepository.findById(id)
+                .orElseThrow(UserDoesNotExistException::new);
         String requestEmail = tokenProvider.getEmailFromToken(token);
         if(member.getEmail().equals(requestEmail) == false){
             throw new UnauthorizedRequestException();
@@ -144,17 +153,25 @@ public class MemberService {
     }
 
     //회원 상세조회
-    public DetailedInfoResponse getMemberDetail(String nickname){
-        Member member = memberRepository.findByNickname(nickname);
-        List<Follow> followers = followRepository.findAllByMemberId(member.getId());
-        List<Follow> following = followRepository.findAllByMyId(member.getId());
+    @Transactional
+    public DetailedInfoResponse getMemberDetail(Long id){
+        Member member = memberRepository.findById(id)
+                .orElseThrow(UserDoesNotExistException::new);
+        List<Follow> following = followRepository.findAllByRequesterInfo(member);
+        List<Follow> followers = followRepository.findAllByFollowingInfo(member);
 
         List<FollowingList> followingLists = following.stream()
-                .map(follow -> new FollowingList(follow.getMemberId(), follow.getMemberName()))
+                .map(follow -> new FollowingList(
+                        follow.getFollowingInfo().getId(),
+                        follow.getFollowingInfo().getNickname(),
+                        follow.getFollowingInfo().getImage()))
                 .collect(Collectors.toList());
 
         List<FollowerList> followerLists = followers.stream()
-                .map(follow -> new FollowerList(follow.getMyId(), follow.getMyName()))
+                .map(follow -> new FollowerList(
+                        follow.getRequesterInfo().getId(),
+                        follow.getRequesterInfo().getNickname(),
+                        follow.getRequesterInfo().getImage()))
                 .collect(Collectors.toList());
 
         return DetailedInfoResponse.fromEntity(member, followingLists, followerLists);
@@ -166,6 +183,7 @@ public class MemberService {
                 .password(request.getPassword())
                 .role("ROLE_MEMBER")
                 .nickname(request.getNickname())
+                .image(request.getImage())
                 .job(request.getJob())
                 .build();
     }

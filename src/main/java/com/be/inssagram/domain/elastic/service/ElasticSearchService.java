@@ -1,24 +1,32 @@
 package com.be.inssagram.domain.elastic.service;
 
 
-import com.be.inssagram.domain.elastic.documents.index.History;
+import com.be.inssagram.domain.elastic.documents.index.HashtagIndex;
+import com.be.inssagram.domain.elastic.documents.index.HistoryIndex;
+import com.be.inssagram.domain.elastic.documents.repository.HashtagSearchRepository;
 import com.be.inssagram.domain.elastic.documents.repository.HistorySearchRepository;
 import com.be.inssagram.domain.elastic.dto.request.SearchRequest;
 import com.be.inssagram.domain.elastic.dto.response.SearchResult;
+import com.be.inssagram.domain.follow.entity.Follow;
+import com.be.inssagram.domain.follow.repository.FollowRepository;
+import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,26 +37,20 @@ public class ElasticSearchService {
 
     private final RestTemplate restTemplate;
     private final HistorySearchRepository historySearchRepository;
+    private final FollowRepository followRepository;
+    private final MemberRepository memberRepository;
+    private final HashtagSearchRepository hashtagSearchRepository;
 
     @Value("${spring.elastic.url}")
     private String elasticUrl;
 
 
     //검색 기능
-    public List<SearchResult> search (String value, SearchRequest request) {
+    public List<SearchResult> search (String value, Member myInfo) {
         String endpoint = "/members,hashtags/_search";
         String requestBody = "{ \"query\": { \"wildcard\": { \"name\": { \"value\": \"*" + value + "*\" } } } }";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;
 
-        //검색한 기록을 저장
-        if(request != null) {
-            History newHistory = History.builder()
-                    .createdAt(LocalDateTime.now())
-                    .memberId(request.getMemberId())
-                    .searched(value)
-                    .build();
-            historySearchRepository.save(newHistory);
-        }
         //검색 정보를 JsonNode 로 받아오기, 없으면 빈 배열 반환
         JsonNode root;
         try {
@@ -63,13 +65,22 @@ public class ElasticSearchService {
         JsonNode hitsArray = root.path("hits").path("hits");
         for (JsonNode hit : hitsArray) {
             JsonNode source = hit.path("_source");
-
             if (hit.path("_index").asText().equals("members")) {
+                Member memberInfo = memberRepository.findById(source.path("id").asLong())
+                        .orElseThrow(UserDoesNotExistException::new);
+                //검색기록중 친구상태값 반환
+                Follow isFriend = followRepository.findByRequesterInfoAndFollowingInfo(myInfo , memberInfo);
+                Boolean status = false;
+                if(isFriend != null){
+                    status = true;
+                }
                 SearchResult memberResult = SearchResult.createMemberResult(
                         source.path("id").asLong(),
                         source.path("email").asText(),
                         source.path("name").asText(),
-                        source.path("job").asText()
+                        source.path("job").asText(),
+                        source.path("image").asText(),
+                        status
                 );
                 results.add(memberResult);
             } else {
@@ -83,10 +94,10 @@ public class ElasticSearchService {
     }
 
     //최근 검색기록 조회
-    public List<SearchResult> getSearchHistoryList(SearchRequest request) {
+    public List<SearchResult> getSearchHistoryList(Long memberId) {
         //아무것도 적지 않았을때 마지막으로 검색했던 기록을 보여줌
         String endpoint = "/histories/_search";
-        String requestBody = "{\"query\": {\"term\": {\"member_id\":" + request.getMemberId() + "}}, " +
+        String requestBody = "{\"query\": {\"term\": {\"member_id\":" + memberId + "}}, " +
                 "\"sort\": [{\"_id\": {\"order\": \"desc\"}}], " +
                 "\"size\": 5}";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;
@@ -103,18 +114,90 @@ public class ElasticSearchService {
         JsonNode hitsArray = root.path("hits").path("hits");
         for (JsonNode hit : hitsArray) {
             JsonNode source = hit.path("_source");
+            //해시태그 일 경우
+            if(source.path("searched").asText().contains("#")){
+                String hashtagName = source.path("searched").asText().substring(1);
+                HashtagIndex hashtagIndex = hashtagSearchRepository.findByName(hashtagName);
+                Member myInfo = memberRepository.findById(memberId)
+                        .orElseThrow(UserDoesNotExistException::new);
+                Follow isFriend = followRepository.findByRequesterInfoAndHashtagName(myInfo,hashtagIndex.getName());
+                Boolean status = false;
+                if(isFriend != null){
+                    status = true;
+                }
+                SearchResult historyResult = SearchResult.createSearchHistoryResult(
+                        source.path("search_id").asLong(),
+                        source.path("searched").asText(),
+                        source.path("image").asText(),
+                        status,
+                        null
+                );
+                results.add(historyResult);
+            }
+            if(!source.path("searched").asText().contains("#")){
+            //회원일 경우
+            Member memberInfo = memberRepository.findById(source.path("search_id").asLong())
+                    .orElseThrow(UserDoesNotExistException::new);
+            Member myInfo = memberRepository.findById(memberId)
+                    .orElseThrow(UserDoesNotExistException::new);
+            //검색기록중 친구상태값 반환
+            Follow isFriend = followRepository.findByRequesterInfoAndFollowingInfo(myInfo , memberInfo);
+            Boolean status = false;
+            if(isFriend != null){
+                status = true;
+            }
             SearchResult historyResult = SearchResult.createSearchHistoryResult(
-                    source.path("searched").asText()
+                    source.path("search_id").asLong(),
+                    source.path("searched").asText(),
+                    source.path("image").asText(),
+                    status,
+                    memberInfo.getJob()
             );
             results.add(historyResult);
-        }
+        }}
         return results;
     }
 
-    public void deleteSearchHistory(String value, SearchRequest request){
+    //검색 기록 저장
+    public String saveSearch(Long memberId, SearchRequest request){
+        //회원 저장
+        if(request.getHashtagName() == null){
+            Member member = memberRepository.findById(request.getMemberId())
+                    .orElseThrow(UserDoesNotExistException::new);
+            HistoryIndex exists = historySearchRepository.findByMemberIdAndSearched(memberId, member.getNickname());
+            if(exists != null){
+                return "이미 저장된 정보입니다";
+            }
+            HistoryIndex newHistory = HistoryIndex.builder()
+                    .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
+                    .memberId(memberId)
+                    .searched(member.getNickname())
+                    .search_id(member.getId())
+                    .image(member.getImage())
+                    .build();
+            historySearchRepository.save(newHistory);
+            return "성공적으로 회원 검색을 저장하였습니다";
+        }
+        //해시태그 저장
+        HashtagIndex hashtag = hashtagSearchRepository.findByName(request.getHashtagName());
+        HistoryIndex exists = historySearchRepository.findByMemberIdAndSearched(memberId, request.getHashtagName());
+        if(exists != null){
+            return "이미 저장된 정보입니다";
+        }
+        HistoryIndex newHistory = HistoryIndex.builder()
+                .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
+                .memberId(memberId)
+                .searched("#"+hashtag.getName())
+                .build();
+        historySearchRepository.save(newHistory);
+        return "성공적으로 해시태그 검색을 저장하였습니다";
+    }
+
+    //최근 검색기록 삭제
+    public void deleteSearchHistory(String value, Long memberId){
         String endpoint = "/histories/_doc/_delete_by_query";
         String requestBody = "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"searched\":\"" + value + "\"}}," +
-                " {\"term\":{\"member_id\":" + request.getMemberId() + "}}]}}}";
+                " {\"term\":{\"member_id\":" + memberId + "}}]}}}";
         String elasticsearchUrl = "http://" + elasticUrl + endpoint;
 
         sendHttpRequest(requestBody, elasticsearchUrl);

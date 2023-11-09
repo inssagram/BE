@@ -46,9 +46,15 @@ public class Comment extends BaseEntity {
     // 댓글과 대댓글을 구분하기 위한 필드
     private boolean replyFlag;
 
+    //멘션할 사람을 담기 위한 필드
+    private List<String> mentionList;
+
     public void updateFields(CommentRequest request) {
         if (request.getContents() != null) {
             content = request.getContents();
+        }
+        if (request.getMentionList() != null) {
+            mentionList = request.getMentionList();
         }
     }
 

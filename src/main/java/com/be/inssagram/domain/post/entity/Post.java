@@ -4,6 +4,7 @@ import com.be.inssagram.common.BaseEntity;
 import com.be.inssagram.domain.comment.entity.Comment;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
+import com.be.inssagram.domain.post.type.PostType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -11,7 +12,6 @@ import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 
 @Getter
@@ -31,6 +31,9 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID", nullable = false)
     private Member member;
+    @Enumerated(EnumType.STRING)
+    private PostType type;
+
     private List<String> image;
     private String contents;
     private String location;
@@ -46,5 +49,4 @@ public class Post extends BaseEntity {
             contents = request.getContents();
         }
     }
-
 }

@@ -5,13 +5,16 @@ import com.be.inssagram.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
-    Follow findByMyIdAndMemberId(Long myId, Long MemberId);
+    Follow findByRequesterInfoAndFollowingInfo(Member requesterInfo, Member memberInfo);
+    Optional<Follow> findByRequesterInfoIdAndFollowingInfoId(Long requesterInfoId, Long memberInfoId);
 
-    List<Follow> findAllByMyId(Long myId);
+    List<Follow> findAllByFollowingInfo(Member memberInfo);
 
-    List<Follow> findAllByMemberId(Long followId);
+    List<Follow> findAllByRequesterInfo(Member requesterInfo);
+    List<Follow> findAllByRequesterInfoId(Long requesterId);
 
-    Follow findByMyIdAndHashtagId(Long myId, Long hashtagId);
+    Follow findByRequesterInfoAndHashtagName(Member myInfo, String hashtagName);
 }

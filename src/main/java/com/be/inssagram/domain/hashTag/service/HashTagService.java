@@ -1,6 +1,6 @@
 package com.be.inssagram.domain.hashTag.service;
 
-import com.be.inssagram.domain.elastic.documents.index.Hashtag;
+import com.be.inssagram.domain.elastic.documents.index.HashtagIndex;
 import com.be.inssagram.domain.elastic.documents.repository.HashtagSearchRepository;
 import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
@@ -8,6 +8,7 @@ import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
 import com.be.inssagram.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,13 +27,14 @@ public class HashTagService {
                     .post(post)
                     .build();
             hashTagRepository.save(hashTag);
-            Hashtag searchHashtag = Hashtag.builder()
-                    .name(name)
-                    .build();
-            hashtagSearchRepository.save(searchHashtag);
+            HashtagIndex existingIndex = hashtagSearchRepository.findByName(name);
+            if(existingIndex == null) {
+                hashtagSearchRepository.save(HashtagIndex.from(hashTag));
+            }
         }
     }
 
+    @Transactional
     public List<PostInfoResponse> searchPostWithHashTagName(String name) {
         List<HashTag> hashTagList = hashTagRepository.findByName(name);
         System.out.println(hashTagList.size());

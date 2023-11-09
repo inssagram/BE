@@ -18,8 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -42,7 +41,7 @@ class PostControllerTest {
     @WithMockUser()
     void successCreatePost() throws Exception {
         //given
-        given(postService.createPost(any())).willReturn(PostInfoResponse
+        given(postService.createPost(anyString() ,any())).willReturn(PostInfoResponse
                 .builder()
                 .postId(1L)
                 .memberId(1L)
@@ -59,7 +58,6 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON).with(csrf())
                         .content(objectMapper.writeValueAsString(
                                 CreatePostRequest.builder()
-                                        .memberId(2L)
                                         .image(new ArrayList<>())
                                         .contents("AAA")
                                         .location("sweet")
@@ -76,7 +74,7 @@ class PostControllerTest {
     @WithMockUser()
     void successUpdatePost() throws Exception {
         //given
-        given(postService.updatePost(anyLong(), any()))
+        given(postService.updatePost(anyString(), anyLong(), any()))
                 .willReturn(PostInfoResponse.builder()
                         .postId(1L)
                         .memberId(1L)
@@ -125,7 +123,7 @@ class PostControllerTest {
     @WithMockUser()
     void successSearchPost_detail() throws Exception {
         //given
-        given(postService.searchPostDetail(anyLong()))
+        given(postService.searchPostDetail(anyString() ,anyLong()))
                 .willReturn(PostInfoResponse.builder()
                         .postId(1L)
                         .memberId(1L)
@@ -165,7 +163,7 @@ class PostControllerTest {
 //                        .taggedMembers(new HashSet<>())
                         .hashTags(new ArrayList<>())
                         .build());
-        given(postService.searchPostAll())
+        given(postService.searchPostAll(anyString()))
                 .willReturn(postInfoResponseList);
         //when
         //then

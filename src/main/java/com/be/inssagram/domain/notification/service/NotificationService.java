@@ -3,16 +3,23 @@ package com.be.inssagram.domain.notification.service;
 
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
-import com.be.inssagram.domain.notification.dto.NotificationRequest;
+import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.notification.dto.request.MessageInfo;
+import com.be.inssagram.domain.notification.dto.request.NotificationRequest;
+import com.be.inssagram.domain.notification.dto.response.NotificationResponse;
 import com.be.inssagram.domain.notification.entity.Notification;
 import com.be.inssagram.domain.notification.repository.EmittersRepository;
 import com.be.inssagram.domain.notification.repository.NotificationRepository;
+import com.be.inssagram.domain.post.entity.Post;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,15 +40,16 @@ public class NotificationService {
      */
     public SseEmitter subscribe(Long userId) {
         SseEmitter emitter = createEmitter(userId);
-
-        sendToClient(userId, "EventStream Created. [userId=" + userId + "]");
+        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(userId, false);
+        sendToClient(userId, setMessage("연결이 되었습니다", list.size()));
         return emitter;
     }
 
     //알람 전송
     public void notify(NotificationRequest request) {
-        sendToClient(request.getReceiver_id(), request.getMessage());
         notificationRepository.save(saveNotification(request));
+        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(request.getReceiver_info().getId(), false);
+        sendToClient(request.getReceiver_info().getId(), setMessage(request.getMessage(), list.size()));
     }
 
     //알림 삭제
@@ -51,25 +59,29 @@ public class NotificationService {
     }
 
     //알림 조회후 안읽은 알림은 읽음 상태로 변환
-    public List<Notification> getMyNotifications(Long member_id) {
-        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(member_id, false);
+    public List<NotificationResponse> getMyNotifications(Long member_id) {
+        List<Notification> list = notificationRepository.findAllByReceiverId(member_id);
         for (Notification notification : list) {
             notification.setReadStatus(true);
             notificationRepository.save(notification);
         }
-        return notificationRepository.findByReceiverId(member_id);
+        List<NotificationResponse> responseList = new ArrayList<>();
+
+        for (Notification notification : list) {
+            NotificationResponse response = NotificationResponse.fromEntity(notification);
+            responseList.add(response);
+        }
+
+        return responseList;
     }
 
-    //알림 생성
-    public NotificationRequest createNotifyDto(Long receiver_id, String location, Long location_id, Long sender_id,
-                                               String senderName, String senderImage, String message){
+    //알림정보 생성
+    public NotificationRequest createNotifyDto(Member receiver_info, Post post_info, Member sender_info,
+                                               String message){
         return NotificationRequest.builder()
-                .receiver_id(receiver_id)
-                .location(location)
-                .location_id(location_id)
-                .sender_id(sender_id)
-                .senderName(senderName)
-                .senderImage(senderImage)
+                .receiver_info(receiver_info)
+                .post_info(post_info)
+                .sender_info(sender_info)
                 .message(message)
                 .build();
     }
@@ -84,12 +96,19 @@ public class NotificationService {
         SseEmitter emitter = emittersRepository.get(id);
         if (emitter != null) {
             try {
-                emitter.send(SseEmitter.event().id(String.valueOf(id)).name("sse").data(data));
+                emitter.send(SseEmitter.event().id(String.valueOf(id)).name("sse").data(data, MediaType.APPLICATION_JSON));
             } catch (IOException exception) {
                 emittersRepository.deleteById(id);
                 emitter.completeWithError(exception);
             }
         }
+    }
+
+    private MessageInfo setMessage(String msg, int unreadCount){
+        return MessageInfo.builder()
+                .message(msg)
+                .unreadCount(unreadCount)
+                .build();
     }
 
     /**
@@ -111,28 +130,28 @@ public class NotificationService {
     }
 
     private Notification saveNotification(NotificationRequest request) {
-        Follow exists = followRepository.findByMyIdAndMemberId(request.getSender_id(), request.getReceiver_id());
+        Follow exists = followRepository.findByRequesterInfoAndFollowingInfo(request.getSender_info(), request.getReceiver_info());
+
         boolean isFriend = false;
-        if(exists != null){
+
+        if (exists != null) {
             List<Notification> list = notificationRepository
-                    .findAllByReceiverIdAndSenderId(request.getReceiver_id(), request.getSender_id());
+                    .findAllByReceiverIdAndSenderInfo(request.getReceiver_info().getId(), request.getSender_info());
             for (Notification notification : list) {
                 notification.setFriendStatus(true);
                 notificationRepository.save(notification);
             }
             isFriend = true;
         }
+
         return Notification.builder()
                 .message(request.getMessage())
-                .senderId(request.getSender_id())
-                .senderImage(request.getSenderImage())
-                .senderName(request.getSenderName())
-                .location(request.getLocation())
-                .location_id(request.getLocation_id())
+                .senderInfo(request.getSender_info())
+                .postInfo(request.getPost_info())
                 .friendStatus(isFriend)
                 .readStatus(false)
-                .createdAt(LocalDateTime.now())
-                .receiverId(request.getReceiver_id())
+                .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
+                .receiverId(request.getReceiver_info().getId())
                 .build();
     }
 }

@@ -9,20 +9,17 @@ import com.be.inssagram.domain.member.dto.request.SignupRequest;
 import com.be.inssagram.domain.member.dto.request.UpdateRequest;
 import com.be.inssagram.domain.member.dto.response.DetailedInfoResponse;
 import com.be.inssagram.domain.member.dto.response.InfoResponse;
-import com.be.inssagram.domain.member.entity.Auth;
 import com.be.inssagram.domain.member.entity.Member;
-import com.be.inssagram.domain.member.repository.AuthRepository;
-import com.be.inssagram.domain.member.service.MailService;
 import com.be.inssagram.domain.member.service.MemberService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class MemberController {
 
     private final MemberService memberService;
@@ -58,7 +55,7 @@ public class MemberController {
 
     //회원가입
     @PostMapping("/signup")
-    public ApiResponse<?> signup(@RequestBody SignupRequest request){
+    public ApiResponse<?> signup(@Valid @RequestBody SignupRequest request){
         memberService.signup(request);
         return ApiResponse.createMessage("가입이 완료되었습니다!");
     }
@@ -90,9 +87,9 @@ public class MemberController {
     }
 
     //회원 상세조회
-    @GetMapping("/member/detail/{nickname}")
-    public ApiResponse<DetailedInfoResponse> getMemberDetail(@PathVariable String nickname){
-        DetailedInfoResponse result = memberService.getMemberDetail(nickname);
+    @GetMapping("/member/detail/{id}")
+    public ApiResponse<DetailedInfoResponse> getMemberDetail(@PathVariable Long id){
+        DetailedInfoResponse result = memberService.getMemberDetail(id);
         return ApiResponse.createSuccessWithMessage(result, "정보를 불러왔습니다");
     }
 }

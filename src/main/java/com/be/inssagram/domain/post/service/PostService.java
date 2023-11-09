@@ -1,5 +1,8 @@
 package com.be.inssagram.domain.post.service;
 
+import com.be.inssagram.config.Jwt.TokenProvider;
+import com.be.inssagram.domain.bookmark.repository.BookmarkRepository;
+import com.be.inssagram.domain.follow.repository.FollowRepository;
 import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.hashTag.service.HashTagService;
@@ -11,6 +14,7 @@ import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
+import com.be.inssagram.domain.post.type.PostType;
 import com.be.inssagram.domain.tag.dto.request.TagCreateRequest;
 import com.be.inssagram.domain.tag.entity.Tag;
 import com.be.inssagram.domain.tag.repository.TagRepository;
@@ -19,6 +23,7 @@ import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,18 +37,22 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final HashTagRepository hashTagRepository;
     private final TagRepository tagRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final FollowRepository followRepository;
 
     private final HashTagService hashTagService;
     private final TagService tagService;
 
+    private final TokenProvider tokenProvider;
 
-    public PostInfoResponse createPost(CreatePostRequest request) {
+    @Transactional
+    public PostInfoResponse createPost(String token, CreatePostRequest request) {
 
-        Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(UserDoesNotExistException::new);
+        Member member = tokenProvider.getMemberFromToken(token);
 
         Post post = Post.builder()
                 .member(member)
+                .type(request.getType())
                 .image(request.getImage())
                 .contents(request.getContents())
                 .location(request.getLocation())
@@ -68,7 +77,7 @@ public class PostService {
         // 태그한 사람 저장
         if (request.getTaggedMemberIds() != null) {
             for (Long memberId : request.getTaggedMemberIds()) {
-                if(memberRepository.existsById(memberId)){
+                if (memberRepository.existsById(memberId)) {
                     tagService.createTag(TagCreateRequest.builder()
                             .postId(post.getId())
                             .memberId(memberId)
@@ -82,7 +91,8 @@ public class PostService {
         return response;
     }
 
-    public PostInfoResponse updatePost(Long postId, UpdatePostRequest request) {
+    @Transactional
+    public PostInfoResponse updatePost(String token, Long postId, UpdatePostRequest request) {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
         post.updateFields(request);
@@ -102,21 +112,24 @@ public class PostService {
 
         // 태그한 사람 수정
         Set<Long> curTaggedMember = tagRepository.findByPostIdAndImageId(
-                post.getId(), null)
+                        post.getId(), null)
                 .stream().map(Tag::getMember).map(Member::getId)
                 .collect(Collectors.toSet());
         Set<Long> newTaggedMemberIds = curTaggedMember;
-        if(request.getTaggedMemberIds() != null) {
+        if (request.getTaggedMemberIds() != null) {
             newTaggedMemberIds = new HashSet<>(request.getTaggedMemberIds());
         }
         updateTaggedMembers(post, curTaggedMember, newTaggedMemberIds);
         response.setTaggedMemberIds(new HashSet<>(newTaggedMemberIds));
 
+        Long memberId = tokenProvider.getMemberFromToken(token).getId();
+        stateOfPostBookmarkAndFollow(postId, response, memberId);
 
         postRepository.save(post);
         return response;
     }
 
+    @Transactional
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
@@ -124,35 +137,87 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public PostInfoResponse searchPostDetail(Long postId) {
+    @Transactional
+    public PostInfoResponse searchPostDetail(String token, Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
         PostInfoResponse response = PostInfoResponse.from(post);
+        Long memberId = tokenProvider.getMemberFromToken(token).getId();
+
+        stateOfPostBookmarkAndFollow(postId, response, memberId);
         insertHashTags(post, response);
         insertLikeInfo(post, response);
         return response;
     }
 
-    public List<PostInfoResponse> searchPostAll() {
+    @Transactional
+    public List<PostInfoResponse> searchPostAll(String token) {
         try {
-            List<Post> posts = postRepository.findAll();
-            return getPostInfoResponsesWithLikeInfo(posts);
+            List<Post> posts = postRepository.findByType(PostType.post);
+            List<PostInfoResponse> responses =
+                    getPostInfoResponsesWithLikeInfo(posts);
+            Long memberId = tokenProvider.getMemberFromToken(token).getId();
+            for (PostInfoResponse response : responses) {
+                Long postId = response.getPostId();
+                stateOfPostBookmarkAndFollow(postId, response, memberId);
+            }
+            return responses;
         } catch (Exception e) {
             // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
             return Collections.emptyList();
         }
     }
 
-    public List<PostInfoResponse> searchPostWithMember(Long memberId) {
+    @Transactional
+    public List<PostInfoResponse> searchMyPosts(String token) {
+        Long memberId = tokenProvider.getMemberFromToken(token).getId();
+        List<Post> posts = postRepository.findByMemberIdAndType(memberId, PostType.post);
+        List<PostInfoResponse> responses =
+                getPostInfoResponsesWithLikeInfo(posts);
+        for (PostInfoResponse response : responses) {
+            Long postId = response.getPostId();
+            stateOfPostBookmarkAndFollow(postId, response, memberId);
+        }
+        return responses;
+    }
+
+    @Transactional
+    public List<PostInfoResponse> searchPostsWithFollowingMember(String token) {
+        Long memberId = tokenProvider.getMemberFromToken(token).getId();
+        List<Long> followingMemberIds = followRepository
+                .findAllByRequesterInfoId(memberId).stream()
+                .map(x -> x.getFollowingInfo().getId())
+                .toList();
+        List<PostInfoResponse> result = new ArrayList<>();
+        for (Long followingMemberId : followingMemberIds) {
+            List<Post> posts = postRepository.findByMemberIdAndType(
+                    followingMemberId, PostType.post);
+            List<PostInfoResponse> responses =
+                    getPostInfoResponsesWithLikeInfo(posts);
+            for (PostInfoResponse response : responses) {
+                Long postId = response.getPostId();
+                stateOfPostBookmarkAndFollow(postId, response, memberId);
+            }
+            result.addAll(responses);
+        }
+        return result;
+    }
+
+    @Transactional
+    public List<PostInfoResponse> searchPostWithMember(String token, Long memberId) {
         if (!memberRepository.existsById(memberId)) {
             throw new UserDoesNotExistException();
         }
-
-        List<Post> posts = postRepository.findByMemberId(memberId);
-
-        return getPostInfoResponsesWithLikeInfo(posts);
+        List<Post> posts = postRepository.findByMemberIdAndType(memberId, PostType.post);
+        List<PostInfoResponse> responses =
+                getPostInfoResponsesWithLikeInfo(posts);
+        Long memberId2 = tokenProvider.getMemberFromToken(token).getId();
+        for (PostInfoResponse response : responses) {
+            Long postId = response.getPostId();
+            stateOfPostBookmarkAndFollow(postId, response, memberId2);
+        }
+        return responses;
     }
-
 
     // 내부 메서드
     private List<PostInfoResponse> getPostInfoResponsesWithLikeInfo(List<Post> posts) {
@@ -205,14 +270,35 @@ public class PostService {
 
             for (Long newTaggedMemberId : newTaggedMemberIds) {
                 if (tagRepository.findByPostIdAndMemberIdAndImageId(
-                        post.getId(), newTaggedMemberId,null) != null) {
+                        post.getId(), newTaggedMemberId, null) != null) {
                     continue;
                 }
-                tagService.createTag(TagCreateRequest.builder()
-                        .postId(post.getId())
-                        .memberId(newTaggedMemberId)
-                        .build());
+                if (memberRepository.existsById(newTaggedMemberId)) {
+                    tagService.createTag(TagCreateRequest.builder()
+                            .postId(post.getId())
+                            .memberId(newTaggedMemberId)
+                            .build());
+                } else {
+                    newTaggedMemberIds.remove(newTaggedMemberId);
+                }
             }
+        }
+    }
+
+    private void stateOfPostBookmarkAndFollow(Long postId, PostInfoResponse response, Long memberId) {
+        if (likeRepository.findByPostIdAndMemberIdAndCommentId(
+                postId, memberId, null).isPresent()) {
+            response.setPostLike(true);
+        }
+
+        if (bookmarkRepository.findByMemberIdAndPostId(
+                memberId, postId).isPresent()) {
+            response.setBookmarked(true);
+        }
+
+        if (followRepository.findByRequesterInfoIdAndFollowingInfoId(
+                memberId, response.getMemberId()).isPresent()) {
+            response.setFollowed(true);
         }
     }
 

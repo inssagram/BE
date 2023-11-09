@@ -15,20 +15,18 @@ public class LikeController {
 
     @PostMapping("/post")
     public ApiResponse<?> onLikePost(
-            @RequestParam(value = "post-id") Long postId,
-            @RequestParam(value = "member-id") Long memberId
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "post-id") Long postId
     ) {
-        likeService.onLikePost(postId, memberId);
-        return ApiResponse.createSuccessWithNoContent();
+        return ApiResponse.createMessage(likeService.onLikePost(token, postId));
     }
 
     @PostMapping("/comment")
     public ApiResponse<?> onLikeComment(
-            @RequestParam(value = "comment-id") Long commentId,
-            @RequestParam(value = "member-id") Long memberId
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "comment-id") Long commentId
     ) {
-        likeService.onLikeComment(commentId, memberId);
-        return ApiResponse.createSuccessWithNoContent();
+        return ApiResponse.createMessage(likeService.onLikeComment(token, commentId));
     }
 
     @GetMapping("/member-list/post")

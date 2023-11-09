@@ -6,6 +6,7 @@ spring:
       ddl-auto: create-drop
     generate-ddl: true
     show-sql: true
+    open-in-view: false
     properties:
       hibernate.format_sql: true
   datasource:

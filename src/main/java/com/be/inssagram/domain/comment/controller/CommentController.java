@@ -20,33 +20,34 @@ public class CommentController {
 
     @PostMapping("/create")
     public ApiResponse<CommentInfoResponse> createComment(
-            @RequestParam(value = "post-id") Long postId,
+            @RequestHeader("Authorization") String token,
             @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
-                commentService.createComment(postId, request));
+                commentService.createComment(token, request));
     }
 
     @PostMapping("/create/reply")
     public ApiResponse<ReplyInfoResponse> createReply(
-            @RequestParam(value = "parent-comment-id") Long parentCommentId,
+            @RequestHeader("Authorization") String token,
             @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
-                commentService.createReply(parentCommentId, request));
+                commentService.createReply(token, request));
     }
 
-    @PostMapping("/create/reply/{replyId}")
+    @PostMapping("/create/replytoreply")
     public ApiResponse<ReplyInfoResponse> createReplyToReply(
-            @RequestParam(value = "parent-comment-id") Long parentCommentId,
-            @RequestBody CommentRequest request, @PathVariable Long replyId) {
+            @RequestHeader("Authorization") String token,
+            @RequestBody CommentRequest request) {
         return ApiResponse.createSuccess(
-                commentService.createReplyToReply(parentCommentId, replyId, request));
+                commentService.createReplyToReply(token, request));
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/update")
     public ApiResponse<CommentInfoResponse> updateComment(
-            @PathVariable Long id, @RequestBody CommentRequest request) {
+            @RequestHeader("Authorization") String token,
+            @RequestBody CommentRequest request) {
         return ApiResponse.createSuccessWithMessage(
-                commentService.updateComment(id, request), "수정됨");
+                commentService.updateComment(token, request), "수정됨");
     }
 
     @DeleteMapping("/delete/{id}")
@@ -57,34 +58,20 @@ public class CommentController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<CommentInfoResponse>> searchParentComments(
-            @RequestParam(value = "post-id") Long postId
-    ) {
-        return ApiResponse.createSuccess(
-                commentService.searchParentComments(postId));
-    }
-
-    @GetMapping("/search2")
     public ApiResponse<List<CommentInfoResponse>> searchParentComments2(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "post-id") Long postId
     ) {
         return ApiResponse.createSuccess(
-                commentService.searchComments(postId));
+                commentService.searchComments(token, postId));
     }
 
     @GetMapping("/search/reply")
-    public ApiResponse<List<CommentInfoResponse>> searchReplyByParentComment(
-            @RequestParam(value = "parent-comment-id") Long parentCommentId
-    ) {
-        return ApiResponse.createSuccess(
-                commentService.searchReplyByParentComment(parentCommentId));
-    }
-
-    @GetMapping("/search/reply2")
     public ApiResponse<List<ReplyInfoResponse>> searchReplyByParentComment2(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "parent-comment-id") Long parentCommentId
     ) {
         return ApiResponse.createSuccess(
-                commentService.searchReply(parentCommentId));
+                commentService.searchReply(token, parentCommentId));
     }
 }

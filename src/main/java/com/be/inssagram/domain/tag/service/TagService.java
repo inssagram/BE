@@ -13,6 +13,7 @@ import com.be.inssagram.exception.member.UserDoesNotExistException;
 import com.be.inssagram.exception.post.PostDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class TagService {
         return TagInfoResponse.from(tagRepository.save(tag));
     }
 
+    @Transactional
     public List<PostInfoResponse> searchPostWithMemberId(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(UserDoesNotExistException::new);

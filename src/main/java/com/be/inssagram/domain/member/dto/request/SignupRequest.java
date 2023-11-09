@@ -1,8 +1,11 @@
 package com.be.inssagram.domain.member.dto.request;
 
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -10,12 +13,14 @@ import lombok.*;
 @AllArgsConstructor
 public class SignupRequest {
 
-    @NotBlank
+    @NotNull(message = "이메일 정보가 없습니다")
     private String email;
-    @NotBlank
+    @NotNull(message = "비밀번호 정보가 없습니다")
     private String password;
-    @NotBlank
+    @NotNull(message = "닉네임 정보가 없습니다")
     private String nickname;
-    @NotBlank
+    @NotNull(message = "직업 정보가 없습니다")
     private String job;
+
+    private String image;
 }

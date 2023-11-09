@@ -23,7 +23,7 @@ public record DetailedInfoResponse(
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .companyName(member.getJob())
-                .profilePic(member.getProfilePic())
+                .profilePic(member.getImage())
                 .description(member.getDescription())
                 .followers(followers)
                 .following(following)
