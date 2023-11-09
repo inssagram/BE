@@ -25,7 +25,7 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
         config.setPathMatcher(new AntPathMatcher(".")); // URL을 / -> .으로
         config.setApplicationDestinationPrefixes("/pub");
         config.enableStompBrokerRelay("/queue", "/topic", "/exchange", "/amq/queue")
-                .setRelayHost(dockerUrl)
+                .setRelayHost("localhost")
                 .setRelayPort(61613)
                 .setVirtualHost("/")
                 .setClientLogin("guest")
@@ -35,7 +35,7 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*")
+        registry.addEndpoint("/ws-stomp").setAllowedOrigins("*").withSockJS();
         ;
     }
 }

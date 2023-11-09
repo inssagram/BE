@@ -30,3 +30,7 @@ spring:
             enable: true
   rabbitmq:
     url: "${rabbitmq.url}"
+    host: "${rabbitmq.url}"
+    port: 5672
+    username: "guest"
+    password: "guest"
