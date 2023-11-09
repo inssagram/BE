@@ -36,6 +36,7 @@ jobs:
           spring.datasource.username: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
           spring.datasource.password: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
           spring.mail.password: ${{ secrets.SPRING_MAIL_PASSWORD }}
+          spring.rabbitmq.url: ${{ secrets.SPRING_RABBITMQ_URL }}
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
