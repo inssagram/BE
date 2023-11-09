@@ -30,7 +30,7 @@ public class LikeService {
 
     private final TokenProvider tokenProvider;
 
-    public void onLikePost(String token, Long postId) {
+    public String onLikePost(String token, Long postId) {
         // 유저(Member)를 찾아옵니다.
         Member member = tokenProvider.getMemberFromToken(token);
 
@@ -43,7 +43,7 @@ public class LikeService {
 
         if (existingLike.isPresent()) {
             likeRepository.delete(existingLike.orElse(null));
-            return;
+            return "빈 하트";
         }
         Like like = Like.builder().post(post).member(member).build();
         //자신이 이외의 사람이 좋아요를 눌렀을때 작성자에게 알림을 전송합니다
@@ -57,9 +57,10 @@ public class LikeService {
                     ));
         }
         likeRepository.save(like);
+        return "하트";
     }
 
-    public void onLikeComment(String token, Long commentId) {
+    public String onLikeComment(String token, Long commentId) {
 
         // 댓글(Comment)를 찾아옵니다.
         Comment comment = commentRepository.findById(commentId)
@@ -77,7 +78,7 @@ public class LikeService {
                         post.getId(), member.getId(), commentId);
         if (existingLike.isPresent()) {
             likeRepository.delete(existingLike.orElse(null));
-            return;
+            return "빈 하트";
         }
         Like like = Like.builder().post(post).member(member).comment(comment)
                 .build();
@@ -92,6 +93,7 @@ public class LikeService {
                     ));
         }
         likeRepository.save(like);
+        return "하트";
     }
 
     @Transactional

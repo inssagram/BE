@@ -53,6 +53,9 @@ public class Comment extends BaseEntity {
         if (request.getContents() != null) {
             content = request.getContents();
         }
+        if (request.getMentionList() != null) {
+            mentionList = request.getMentionList();
+        }
     }
 
 }

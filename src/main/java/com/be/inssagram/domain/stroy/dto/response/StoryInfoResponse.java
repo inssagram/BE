@@ -16,10 +16,10 @@ public class StoryInfoResponse {
     private Long memberId;
     private String memberNickname;
     private String memberProfile;
-    private List<String> image;
+    private String image;
     private String createdAt;
     private String updatedAt;
-    private Integer childStoryCounts;
+    private String passedTime;
 
     public static StoryInfoResponse from(Story story) {
         return StoryInfoResponse.builder()
@@ -27,8 +27,10 @@ public class StoryInfoResponse {
                 .memberId(story.getMember().getId())
                 .memberNickname(story.getMember().getNickname())
                 .memberProfile(story.getMember().getImage())
+                .image(story.getImages())
                 .createdAt(story.getCreatedAt())
                 .updatedAt(story.getUpdatedAt())
+                .passedTime(story.getPassedTime())
                 .build();
     }
 }

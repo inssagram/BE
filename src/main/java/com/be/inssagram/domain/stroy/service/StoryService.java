@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -57,8 +58,10 @@ public class StoryService {
         parentStory.setUpdatedAt(story.getCreatedAt());
         storyRepository.save(parentStory);
 
-        return StoryInfoResponse.from(
-                storyRepository.save(story));
+        StoryInfoResponse response = StoryInfoResponse.from(storyRepository.save(story));
+        calculatePassedTime(story);
+        response.setPassedTime(story.getPassedTime());
+        return response;
     }
 
     @Transactional
@@ -93,6 +96,7 @@ public class StoryService {
     public StoryInfoResponse searchParentStoryByMemberId(Long memberId) {
         Story story = storyRepository.findByMemberIdAndParentFlag(memberId, true)
                 .orElseThrow();
+        calculatePassedTime(story);
         return StoryInfoResponse.builder()
                 .storyId(story.getId())
                 .memberId(story.getMember().getId())
@@ -100,6 +104,7 @@ public class StoryService {
                 .memberNickname(story.getMember().getNickname())
                 .createdAt(story.getCreatedAt())
                 .updatedAt(story.getUpdatedAt())
+                .passedTime(story.getPassedTime())
                 .build();
     }
 
@@ -107,6 +112,10 @@ public class StoryService {
     public List<StoryInfoResponse> searchStoryWithChildStoryByMemberId(Long memberId) {
         Story story = storyRepository.findByMemberIdAndParentFlag(memberId, true)
                 .orElseThrow();
+        for (Story child : story.getChildStory()) {
+            calculatePassedTime(child);
+        }
+        storyRepository.save(story);
         return story.getChildStory().stream()
                 .map(StoryInfoResponse::from).toList();
     }
@@ -122,6 +131,14 @@ public class StoryService {
             storyRepository.save(story);
             storyRepository.delete(story);
         }
+    }
+
+    private void calculatePassedTime(Story story) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime targetDateTime = LocalDateTime.parse(story.getCreatedAt(), formatter);
+        Duration duration = Duration.between(LocalDateTime.now(), targetDateTime);
+        story.setPassedTime("약 " + String.valueOf(duration.toHours() * -1) + "시간 전");
+        storyRepository.save(story);
     }
 
 }

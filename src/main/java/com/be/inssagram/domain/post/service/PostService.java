@@ -12,6 +12,7 @@ import com.be.inssagram.domain.post.dto.request.UpdatePostRequest;
 import com.be.inssagram.domain.post.dto.response.PostInfoResponse;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
+import com.be.inssagram.domain.post.type.PostType;
 import com.be.inssagram.domain.tag.dto.request.TagCreateRequest;
 import com.be.inssagram.domain.tag.entity.Tag;
 import com.be.inssagram.domain.tag.repository.TagRepository;
@@ -47,6 +48,7 @@ public class PostService {
 
         Post post = Post.builder()
                 .member(member)
+                .type(request.getType())
                 .image(request.getImage())
                 .contents(request.getContents())
                 .location(request.getLocation())
@@ -142,7 +144,7 @@ public class PostService {
     @Transactional
     public List<PostInfoResponse> searchPostAll() {
         try {
-            List<Post> posts = postRepository.findAll();
+            List<Post> posts = postRepository.findByType(PostType.post);
             return getPostInfoResponsesWithLikeInfo(posts);
         } catch (Exception e) {
             // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
@@ -156,7 +158,7 @@ public class PostService {
             throw new UserDoesNotExistException();
         }
 
-        List<Post> posts = postRepository.findByMemberId(memberId);
+        List<Post> posts = postRepository.findByMemberIdAndType(memberId, PostType.post);
 
         return getPostInfoResponsesWithLikeInfo(posts);
     }
@@ -216,10 +218,14 @@ public class PostService {
                         post.getId(), newTaggedMemberId, null) != null) {
                     continue;
                 }
-                tagService.createTag(TagCreateRequest.builder()
-                        .postId(post.getId())
-                        .memberId(newTaggedMemberId)
-                        .build());
+                if (memberRepository.existsById(newTaggedMemberId)) {
+                    tagService.createTag(TagCreateRequest.builder()
+                            .postId(post.getId())
+                            .memberId(newTaggedMemberId)
+                            .build());
+                } else {
+                    newTaggedMemberIds.remove(newTaggedMemberId);
+                }
             }
         }
     }
