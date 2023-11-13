@@ -17,10 +17,10 @@ public class ChatMessageWithPostResponse {
 
     private Long chatMessageId;
     private Long chatRoomId;
-    private String sender;
+    private String senderNickname;
     private Long senderMemberId;
     private String senderProfile;
-    private String receiver;
+    private String receiverNickname;
     private String message;
     @Enumerated(EnumType.STRING)
     private ChatMessageType type;
@@ -43,10 +43,10 @@ public class ChatMessageWithPostResponse {
         return ChatMessageWithPostResponse.builder()
                 .chatMessageId(message.getId())
                 .chatRoomId(message.getRoomId())
-                .sender(message.getSender().getNickname())
+                .senderNickname(message.getSender().getNickname())
                 .senderMemberId(message.getSender().getId())
                 .senderProfile(message.getSender().getImage())
-                .receiver(message.getReceiver().getNickname())
+                .receiverNickname(message.getReceiver().getNickname())
                 .type(message.getType())
                 .message(message.getMessage())
                 .createdAt(message.getCreatedAt())

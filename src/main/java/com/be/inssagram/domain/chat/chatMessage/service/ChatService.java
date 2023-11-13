@@ -25,9 +25,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,32 +45,32 @@ public class ChatService {
 
     private final ChatRoomService chatRoomService;
 
-    private TokenProvider tokenProvider;
+    private final TokenProvider tokenProvider;
 
     // 검색해서 나온 사람한테 메일 보낼 때. 이걸 사용하면 될 듯
     @Transactional
-    public ChatMessageOnlyResponse enter(String token, ChatMessageRequest request, Long chatRoomId) {
+    public List<List<?>> enter(String token, Long chatRoomId) {
+        return getLists(chatRoomId);
+    }
 
-        Member member = tokenProvider.getMemberFromToken(token);
+    @Transactional
+    public List<List<?>> enterAfterSearch(
+            String token, ChatMessageRequest request) {
 
-        ChatMessage chatMessage = ChatMessage.builder()
-                .roomId(request.getChatRoomId())
-                .sender(member)
-                .message(member.getNickname()+ "님이(가) 입장하셨습니다.")
-                .build();
+        Member sender = tokenProvider.getMemberFromToken(token);
 
-        ChatMessageOnlyResponse response = ChatMessageOnlyResponse.from(
-                chatMessageRepository.save(chatMessage));
+        Member receiver = memberRepository.findById(request.getReceiverMemberId())
+                .orElseThrow(UserDoesNotExistException::new);
 
-        template.convertAndSend(
-                CHAT_EXCHANGE_NAME, "room." + chatRoomId, response); // exchange
+        Long chatRoomId = getChatRoomId(request, sender);
 
-        return response;
+        return getLists(chatRoomId);
     }
 
     // 방안에서 메시지 보낼 때.
     @Transactional
-    public ChatMessageOnlyResponse send(String token, ChatMessageRequest request, Long chatRoomId) {
+    public ChatMessageOnlyResponse send(
+            String token, ChatMessageRequest request, Long chatRoomId) {
 
         Member sender = tokenProvider.getMemberFromToken(token);
         Member receiver = memberRepository.findById(request.getReceiverMemberId())
@@ -90,13 +89,14 @@ public class ChatService {
 
     // post와 스토리를 보낼 때 이렇게.
     @Transactional
-    public ChatMessageWithStoryResponse sendWithStory(String token, ChatMessageRequest request) {
+    public ChatMessageWithStoryResponse sendWithStory(
+            String token, ChatMessageRequest request, Long chatRoomId) {
 
         Member sender = tokenProvider.getMemberFromToken(token);
         Member receiver = memberRepository.findById(request.getReceiverMemberId())
                 .orElseThrow(UserDoesNotExistException::new);
 
-        Long chatRoomId = getChatRoomId(request, sender);
+//        Long chatRoomId = getChatRoomId(request, sender);
 
         ChatMessage chatMessage = getChatMessage(request, sender, receiver);
 
@@ -115,7 +115,62 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatMessageWithPostResponse sendWithPost(String token, ChatMessageRequest request) {
+    public ChatMessageWithPostResponse sendWithPost(
+            String token, ChatMessageRequest request, Long chatRoomId) {
+
+        Member sender = tokenProvider.getMemberFromToken(token);
+        Member receiver = memberRepository.findById(request.getReceiverMemberId())
+                .orElseThrow(UserDoesNotExistException::new);
+
+//        Long chatRoomId = getChatRoomId(request, sender);
+
+        ChatMessage chatMessage = getChatMessage(request, sender, receiver);
+
+        if (request.getPostId() != null) {
+            Post post = postRepository.findById(request.getPostId())
+                    .orElseThrow(PostDoesNotExistException::new);
+            chatMessage.setPost(post);
+        }
+
+        ChatMessageWithPostResponse response = ChatMessageWithPostResponse.from(
+                chatMessageRepository.save(chatMessage));
+
+        template.convertAndSend(
+                CHAT_EXCHANGE_NAME, "room." + chatRoomId, response);
+
+        return response;
+
+    }
+
+    @Transactional
+    public void sendWithStory2(
+            String token, ChatMessageRequest request) {
+
+        Member sender = tokenProvider.getMemberFromToken(token);
+
+        Member receiver = memberRepository.findById(request.getReceiverMemberId())
+                .orElseThrow(UserDoesNotExistException::new);
+
+        Long chatRoomId = getChatRoomId(request, sender);
+
+        ChatMessage chatMessage = getChatMessage(request, sender, receiver);
+
+        if (request.getStoryId() != null) {
+            Story story = storyRepository.findById(request.getStoryId())
+                    .orElseThrow();
+            chatMessage.setStory(story);
+        }
+
+        ChatMessageWithStoryResponse response = ChatMessageWithStoryResponse.from(
+                chatMessageRepository.save(chatMessage));
+
+        template.convertAndSend(
+                CHAT_EXCHANGE_NAME, "room." + chatRoomId, response); // exchange
+    }
+
+    @Transactional
+    public ChatMessageWithPostResponse sendWithPost2(
+            String token, ChatMessageRequest request) {
 
         Member sender = tokenProvider.getMemberFromToken(token);
         Member receiver = memberRepository.findById(request.getReceiverMemberId())
@@ -155,7 +210,7 @@ public class ChatService {
         }
 
         if (chatRoomRepository.findByFirstParticipantIdAndSecondParticipantId(
-                firstId, secondId).getRoomId() != null) {
+                firstId, secondId) != null) {
             chatRoomId = chatRoomRepository
                     .findByFirstParticipantIdAndSecondParticipantId(firstId, secondId)
                     .getRoomId();
@@ -185,43 +240,35 @@ public class ChatService {
                 .build();
     }
 
+    private List<List<?>> getLists(Long chatRoomId) {
+        List<ChatMessage> messages = chatMessageRepository
+                .findByRoomId(chatRoomId);
 
-    // 채팅 내용을 파일로 부터 읽어온다.
-    private String readFile() {
+        List<ChatMessageOnlyResponse> onlyResponses = new ArrayList<>();
+        List<ChatMessageWithPostResponse> postResponses = new ArrayList<>();
+        List<ChatMessageWithStoryResponse> storyResponses = new ArrayList<>();
 
-        // d드라이브의 chat 폴더의 chat 파일
-        File file = new File("d:\\chat\\chat");
-        // 파일 있는지 검사
-        if (!file.exists()) {
-            return "";
+        for (ChatMessage message : messages) {
+            if (message.getType() == ChatMessageType.message) {
+                ChatMessageOnlyResponse response = ChatMessageOnlyResponse
+                        .from(message);
+                onlyResponses.add(response);
+            } else if (message.getType() == ChatMessageType.messageWithPost) {
+                ChatMessageWithPostResponse response = ChatMessageWithPostResponse
+                        .from(message);
+                postResponses.add(response);
+            } else if (message.getType() == ChatMessageType.messageWithStory) {
+                ChatMessageWithStoryResponse response = ChatMessageWithStoryResponse
+                        .from(message);
+                storyResponses.add(response);
+            }
         }
-        // 파일을 읽어온다.
-        try (FileInputStream stream = new FileInputStream(file)) {
-            return new String(stream.readAllBytes());
-        } catch (Throwable e) {
-            e.printStackTrace();
-            return "";
-        }
+
+        List<List<?>> allResponses = new ArrayList<>();
+        allResponses.add(onlyResponses);
+        allResponses.add(postResponses);
+        allResponses.add(storyResponses);
+
+        return allResponses;
     }
-    // 파일를 저장하는 함수
-    private void saveFile(String sender, String message) {
-
-        String path = System.getProperty("user.dir")
-                + File.separator	// Windows('\'), Linux, MAC('/')
-                + "inssagram"
-                + File.separator
-                + ""
-                ;
-
-        // 메시지 내용
-        String msg = sender + "]  " + message + "\n";
-        // 파일을 저장한다.
-        try (FileOutputStream stream = new FileOutputStream("d:\\chat\\chat", true)) {
-            stream.write(msg.getBytes("UTF-8"));
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-
 }
