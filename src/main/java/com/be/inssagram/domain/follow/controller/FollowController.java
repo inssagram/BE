@@ -30,7 +30,7 @@ public class FollowController {
     @GetMapping("/follow/recommend")
     public ApiResponse<Page<InfoResponse>> recommendMembers(@RequestHeader("Authorization") String token,
                                                             @RequestParam(defaultValue = "0") int pageNumber,
-                                                            @RequestParam(defaultValue = "10") int pageSize
+                                                            @RequestParam(defaultValue = "5") int pageSize
                                            ){
         Member member = tokenProvider.getMemberFromToken(token);
         Page<InfoResponse> result = followService.recommendFollowing(member, pageNumber, pageSize);
