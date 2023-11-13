@@ -1,9 +1,7 @@
 package com.be.inssagram.domain.chat.chatRoom.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.be.inssagram.domain.member.entity.Member;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -12,11 +10,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
+@Entity(name = "ChatRoom")
 public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member firstParticipant;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member secondParticipant;
 
 }

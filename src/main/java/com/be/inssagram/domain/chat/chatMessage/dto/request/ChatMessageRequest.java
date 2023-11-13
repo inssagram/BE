@@ -1,5 +1,8 @@
 package com.be.inssagram.domain.chat.chatMessage.dto.request;
 
+import com.be.inssagram.domain.chat.ChatMessageType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 
 @Setter
@@ -9,14 +12,14 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ChatMessageRequest {
-
-    private enum type {
-        enter, message, messageWithPost
-    }
-    private type type;
+    @Enumerated(EnumType.STRING)
+    private ChatMessageType type;
     private Long chatMessageId;
     private Long chatRoomId;
-    private String sender;
+    private Long senderMemberId;
+    private Long receiverMemberId;
     private String message;
+    private String imageUrl;
     private Long postId;
+    private Long storyId;
 }

@@ -7,6 +7,7 @@ import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.hashTag.repository.HashTagRepository;
 import com.be.inssagram.domain.hashTag.service.HashTagService;
 import com.be.inssagram.domain.like.repository.LikeRepository;
+import com.be.inssagram.domain.like.type.LikeType;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.post.dto.request.CreatePostRequest;
@@ -234,7 +235,7 @@ public class PostService {
 
     private void insertLikeInfo(Post post, PostInfoResponse response) {
         response.setLikeCount(likeRepository
-                .findByPostAndCommentId(post, null).size());
+                .findByLikeTypeAndLikeTypeId(LikeType.post, post.getId()).size());
     }
 
     private void updateHashTags(Post post, Set<String> curHashTags,
@@ -286,8 +287,8 @@ public class PostService {
     }
 
     private void stateOfPostBookmarkAndFollow(Long postId, PostInfoResponse response, Long memberId) {
-        if (likeRepository.findByPostIdAndMemberIdAndCommentId(
-                postId, memberId, null).isPresent()) {
+        if (likeRepository.findByMemberIdAndLikeTypeAndAndLikeTypeId(
+                memberId, LikeType.post, postId).isPresent()) {
             response.setPostLike(true);
         }
 

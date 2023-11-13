@@ -17,8 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE inssagram.comment SET deleted_at = current_timestamp WHERE comment_id = ?")
-@Where(clause = "deleted_at is NULL")
+//@SQLDelete(sql = "UPDATE inssagram.comment SET deleted_at = current_timestamp WHERE comment_id = ?")
+//@Where(clause = "deleted_at is NULL")
 @Entity(name = "COMMENT")
 public class Comment extends BaseEntity {
 

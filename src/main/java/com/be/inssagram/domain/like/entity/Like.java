@@ -1,9 +1,7 @@
 package com.be.inssagram.domain.like.entity;
 
-import com.be.inssagram.domain.comment.entity.Comment;
+import com.be.inssagram.domain.like.type.LikeType;
 import com.be.inssagram.domain.member.entity.Member;
-import com.be.inssagram.domain.post.entity.Post;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,13 +16,10 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LIKE_ID")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Post post;
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Nullable
-    private Comment comment;
+    @Enumerated(EnumType.STRING)
+    private LikeType likeType;
+    private Long likeTypeId;
 
 }
