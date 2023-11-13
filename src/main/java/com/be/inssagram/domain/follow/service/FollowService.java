@@ -5,12 +5,19 @@ import com.be.inssagram.domain.elastic.documents.repository.HashtagSearchReposit
 import com.be.inssagram.domain.follow.dto.request.FollowRequest;
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
+import com.be.inssagram.domain.member.dto.response.InfoResponse;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.exception.member.UserDoesNotExistException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -61,7 +68,15 @@ public class FollowService {
         return "팔로잉 하셧습니다";
     }
 
-
+    public Page<InfoResponse> recommendFollowing(Member myInfo, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        //팔로우 상태가 아닌 회원 목록을 랜덤으로 추출후 InfoResponse 로 변환
+        Page<InfoResponse> recommendations = followRepository.findRandomMembersNotFollowing(myInfo, pageable)
+                .map(InfoResponse::fromEntity);
+        //내 정보를 빼낸 리스트를 반환
+        return recommendations.filter(infoResponse -> !infoResponse.member_id().equals(myInfo.getId()))
+                .stream().collect(Collectors.collectingAndThen(Collectors.toList(), PageImpl::new));
+    }
 
     private Follow setFollowMember(Member myInfo, Member memberInfo){
         return Follow.builder()
