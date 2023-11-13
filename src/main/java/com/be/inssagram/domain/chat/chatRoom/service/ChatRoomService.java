@@ -34,8 +34,19 @@ public class ChatRoomService {
             secondId = request.getSecondParticipantId();
         }
 
-        Member firstParticipant = memberRepository.findById(firstId).orElseThrow(UserDoesNotExistException::new);
-        Member secondParticipant = memberRepository.findById(secondId).orElseThrow(UserDoesNotExistException::new);
+        // 방 있다면 찾아서 넘겨줌.
+        if (chatRoomRepository.findByFirstParticipantIdAndSecondParticipantId(
+                firstId, secondId) != null) {
+            return ChatRoomResponse.from(chatRoomRepository
+                    .findByFirstParticipantIdAndSecondParticipantId(
+                            firstId, secondId));
+        }
+
+        // 방 없으면 방 생성.
+        Member firstParticipant = memberRepository.findById(firstId)
+                .orElseThrow(UserDoesNotExistException::new);
+        Member secondParticipant = memberRepository.findById(secondId)
+                .orElseThrow(UserDoesNotExistException::new);
 
         return ChatRoomResponse.from(chatRoomRepository.save(ChatRoom.builder()
                 .firstParticipant(firstParticipant)
@@ -52,7 +63,8 @@ public class ChatRoomService {
     public ChatRoomResponse findByFirstParticipantIdAndSecondParticipantId(
             Long firstMemberId, Long secondMemberId
     ) {
-        return ChatRoomResponse.from(chatRoomRepository.findByFirstParticipantIdAndSecondParticipantId(
+        return ChatRoomResponse.from(chatRoomRepository
+                .findByFirstParticipantIdAndSecondParticipantId(
                 firstMemberId, secondMemberId));
     }
 
