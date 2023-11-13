@@ -26,21 +26,35 @@ public class LikeController {
             @RequestHeader("Authorization") String token,
             @RequestParam(value = "comment-id") Long commentId
     ) {
-        return ApiResponse.createMessage(likeService.onLikeComment(token, commentId));
+        return ApiResponse.createMessage(
+                likeService.onLikeComment(token, commentId));
+    }
+
+    @PostMapping("/story")
+    public ApiResponse<?> onLikeStory(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(value = "story-id") Long storyId
+    ) {
+        return ApiResponse.createMessage(
+                likeService.onLikeStory(token, storyId));
     }
 
     @GetMapping("/member-list/post")
     public ApiResponse<?> searchMemberLikePost(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "post-id") Long postId
     ) {
-        return ApiResponse.createSuccess(likeService.searchMemberLikePost(postId));
+        return ApiResponse.createSuccess(
+                likeService.searchMemberLikePost(token, postId));
     }
 
     @GetMapping("/member-list/comment")
     public ApiResponse<?> searchMemberLikeComment(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "comment-id") Long commentId
     ) {
-        return ApiResponse.createSuccess(likeService.searchMemberLikeComment(commentId));
+        return ApiResponse.createSuccess(
+                likeService.searchMemberLikeComment(token, commentId));
     }
 
 }

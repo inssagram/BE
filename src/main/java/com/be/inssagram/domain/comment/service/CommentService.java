@@ -8,6 +8,7 @@ import com.be.inssagram.domain.comment.entity.Comment;
 import com.be.inssagram.domain.comment.repository.CommentRepository;
 import com.be.inssagram.domain.like.dto.response.LikeInfoResponse;
 import com.be.inssagram.domain.like.repository.LikeRepository;
+import com.be.inssagram.domain.like.type.LikeType;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
@@ -130,8 +131,8 @@ public class CommentService {
         commentRepository.save(comment);
         Long memberId = tokenProvider.getMemberFromToken(token).getId();
         CommentInfoResponse response = CommentInfoResponse.from(comment);
-        if(likeRepository.findByPostIdAndMemberIdAndCommentId(response
-                .getPostId(), memberId, response.getCommentId()).isPresent()) {
+        if(likeRepository.findByMemberIdAndLikeTypeAndAndLikeTypeId(
+                memberId, LikeType.comment, response.getCommentId()).isPresent()) {
             response.setCommentLike(true);
         }
         return response;
@@ -156,12 +157,13 @@ public class CommentService {
         for (int i = 0; i < comments.size(); i++) {
             Comment comment = comments.get(i);
             CommentInfoResponse response = responseList.get(i);
-            Set<LikeInfoResponse> likeSet = likeRepository.findByComment(comment)
+            Set<LikeInfoResponse> likeSet = likeRepository
+                    .findByLikeTypeAndLikeTypeId(LikeType.comment, comment.getId())
                     .stream().map(LikeInfoResponse::from)
                     .collect(Collectors.toSet());
             response.setLikeCount(likeSet.size());
-            if(likeRepository.findByPostIdAndMemberIdAndCommentId(response
-                    .getPostId(), memberId, response.getCommentId()).isPresent()) {
+            if(likeRepository.findByMemberIdAndLikeTypeAndAndLikeTypeId(
+                    memberId, LikeType.comment, response.getCommentId()).isPresent()) {
                 response.setCommentLike(true);
             }
         }
@@ -184,12 +186,13 @@ public class CommentService {
         for (int i = 0; i < replies.size(); i++) {
             Comment reply = replies.get(i);
             ReplyInfoResponse response = responseList.get(i);
-            Set<LikeInfoResponse> likeSet = likeRepository.findByComment(reply)
+            Set<LikeInfoResponse> likeSet = likeRepository
+                    .findByLikeTypeAndLikeTypeId(LikeType.comment, comment.getId())
                     .stream().map(LikeInfoResponse::from)
                     .collect(Collectors.toSet());
             response.setLikeCount(likeSet.size());
-            if(likeRepository.findByPostIdAndMemberIdAndCommentId(response
-                    .getPostId(), memberId, response.getCommentId()).isPresent()) {
+            if(likeRepository.findByMemberIdAndLikeTypeAndAndLikeTypeId(
+                    memberId, LikeType.comment, response.getCommentId()).isPresent()) {
                 response.setCommentLike(true);
             }
         }

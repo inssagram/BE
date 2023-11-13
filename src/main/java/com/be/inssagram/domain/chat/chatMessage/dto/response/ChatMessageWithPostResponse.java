@@ -1,6 +1,10 @@
 package com.be.inssagram.domain.chat.chatMessage.dto.response;
 
+import com.be.inssagram.domain.chat.ChatMessageType;
 import com.be.inssagram.domain.chat.chatMessage.entity.ChatMessage;
+import com.be.inssagram.domain.post.type.PostType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 
 @Setter
@@ -14,8 +18,15 @@ public class ChatMessageWithPostResponse {
     private Long chatMessageId;
     private Long chatRoomId;
     private String sender;
+    private Long senderMemberId;
+    private String senderProfile;
+    private String receiver;
     private String message;
+    @Enumerated(EnumType.STRING)
+    private ChatMessageType type;
     private String createdAt;
+    @Enumerated(EnumType.STRING)
+    private PostType postType;
     private Long postId;
     private String postImage;
     private String postContents;
@@ -32,9 +43,14 @@ public class ChatMessageWithPostResponse {
         return ChatMessageWithPostResponse.builder()
                 .chatMessageId(message.getId())
                 .chatRoomId(message.getRoomId())
-                .sender(message.getSender())
+                .sender(message.getSender().getNickname())
+                .senderMemberId(message.getSender().getId())
+                .senderProfile(message.getSender().getImage())
+                .receiver(message.getReceiver().getNickname())
+                .type(message.getType())
                 .message(message.getMessage())
                 .createdAt(message.getCreatedAt())
+                .postType(PostType.post)
                 .postId(message.getPost().getId())
                 .postImage(postImage)
                 .postContents(message.getPost().getContents())
