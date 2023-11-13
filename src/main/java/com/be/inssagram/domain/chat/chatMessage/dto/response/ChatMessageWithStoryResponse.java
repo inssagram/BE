@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatMessageOnlyResponse {
+public class ChatMessageWithStoryResponse {
 
     private Long chatMessageId;
     private Long chatRoomId;
@@ -23,11 +23,16 @@ public class ChatMessageOnlyResponse {
     private String message;
     @Enumerated(EnumType.STRING)
     private ChatMessageType type;
-    private String image;
     private String createdAt;
+    private Long storyId;
+    private String storyImage;
+    private Long memberIdInStory;
+    private String memberProfileInStory;
+    private String memberNicknameInStory;
 
-    public static ChatMessageOnlyResponse from(ChatMessage message) {
-        return ChatMessageOnlyResponse.builder()
+
+    public static ChatMessageWithStoryResponse from(ChatMessage message) {
+        return ChatMessageWithStoryResponse.builder()
                 .chatMessageId(message.getId())
                 .chatRoomId(message.getRoomId())
                 .sender(message.getSender().getNickname())
@@ -36,8 +41,12 @@ public class ChatMessageOnlyResponse {
                 .receiver(message.getReceiver().getNickname())
                 .type(message.getType())
                 .message(message.getMessage())
-                .image(message.getImage())
                 .createdAt(message.getCreatedAt())
+                .storyId(message.getStory().getId())
+                .storyImage(message.getStory().getImages())
+                .memberIdInStory(message.getStory().getMember().getId())
+                .memberProfileInStory(message.getStory().getMember().getImage())
+                .memberNicknameInStory(message.getStory().getMember().getNickname())
                 .build();
     }
 }
