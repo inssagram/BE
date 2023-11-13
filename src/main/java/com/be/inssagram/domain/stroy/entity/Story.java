@@ -22,6 +22,7 @@ public class Story extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBER_ID", nullable = false)
     private Member member;
+    private String accessKey;
     private String images;
     private String contents;
     private String location;
