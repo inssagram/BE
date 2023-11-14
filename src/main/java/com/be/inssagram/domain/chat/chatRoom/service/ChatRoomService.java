@@ -70,7 +70,7 @@ public class ChatRoomService {
 
     @Transactional
     public List<ChatRoomResponse> searchRoomsWithMemberId(Long memberId) {
-        return chatRoomRepository.findByFirstParticipantIdOrSecondParticipantId(
+        return chatRoomRepository.findByFirstParticipantIdOrSecondParticipantIdOrderByUpdatedAtDesc(
                 memberId, memberId).stream().map(ChatRoomResponse::from).toList();
     }
 
