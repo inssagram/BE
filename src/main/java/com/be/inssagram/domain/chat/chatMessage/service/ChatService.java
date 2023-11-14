@@ -55,7 +55,11 @@ public class ChatService {
 
     @Transactional
     public List<List<?>> enterAfterSearch(
-            String token, ChatMessageRequest request) {
+            String token, Long receiverMemberId) {
+
+        ChatMessageRequest request = ChatMessageRequest.builder()
+                .receiverMemberId(receiverMemberId)
+                .build();
 
         Member sender = tokenProvider.getMemberFromToken(token);
 
@@ -96,8 +100,6 @@ public class ChatService {
         Member receiver = memberRepository.findById(request.getReceiverMemberId())
                 .orElseThrow(UserDoesNotExistException::new);
 
-//        Long chatRoomId = getChatRoomId(request, sender);
-
         ChatMessage chatMessage = getChatMessage(request, sender, receiver);
 
         if (request.getStoryId() != null) {
@@ -122,8 +124,6 @@ public class ChatService {
         Member receiver = memberRepository.findById(request.getReceiverMemberId())
                 .orElseThrow(UserDoesNotExistException::new);
 
-//        Long chatRoomId = getChatRoomId(request, sender);
-
         ChatMessage chatMessage = getChatMessage(request, sender, receiver);
 
         if (request.getPostId() != null) {
@@ -143,7 +143,7 @@ public class ChatService {
     }
 
     @Transactional
-    public void sendWithStory2(
+    public ChatMessageWithStoryResponse sendWithStory2(
             String token, ChatMessageRequest request) {
 
         Member sender = tokenProvider.getMemberFromToken(token);
@@ -156,9 +156,12 @@ public class ChatService {
         ChatMessage chatMessage = getChatMessage(request, sender, receiver);
 
         if (request.getStoryId() != null) {
-            Story story = storyRepository.findById(request.getStoryId())
-                    .orElseThrow();
-            chatMessage.setStory(story);
+            if (storyRepository.existsById(request.getStoryId())) {
+                Story story = storyRepository.findById(request.getStoryId())
+                        .orElseThrow();
+                chatMessage.setType(ChatMessageType.messageWithStory);
+                chatMessage.setStory(story);
+            }
         }
 
         ChatMessageWithStoryResponse response = ChatMessageWithStoryResponse.from(
@@ -166,6 +169,8 @@ public class ChatService {
 
         template.convertAndSend(
                 CHAT_EXCHANGE_NAME, "room." + chatRoomId, response); // exchange
+
+        return response;
     }
 
     @Transactional
@@ -181,9 +186,12 @@ public class ChatService {
         ChatMessage chatMessage = getChatMessage(request, sender, receiver);
 
         if (request.getPostId() != null) {
-            Post post = postRepository.findById(request.getPostId())
-                    .orElseThrow(PostDoesNotExistException::new);
-            chatMessage.setPost(post);
+            if (postRepository.existsById(request.getPostId())) {
+                Post post = postRepository.findById(request.getPostId())
+                        .orElseThrow(PostDoesNotExistException::new);
+                chatMessage.setType(ChatMessageType.messageWithPost);
+                chatMessage.setPost(post);
+            }
         }
 
         ChatMessageWithPostResponse response = ChatMessageWithPostResponse.from(
@@ -194,6 +202,14 @@ public class ChatService {
 
         return response;
 
+    }
+
+    @Transactional
+    public void deleteChatMessage(Long chatMessageId) {
+        ChatMessage message = chatMessageRepository
+                .findById(chatMessageId).orElseThrow();
+        chatMessageRepository.save(message);
+        chatMessageRepository.delete(message);
     }
 
     // 내부 메서드
