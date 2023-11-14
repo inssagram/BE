@@ -26,7 +26,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -153,20 +156,15 @@ public class PostService {
 
     @Transactional
     public List<PostInfoResponse> searchPostAll(String token) {
-        try {
-            List<Post> posts = postRepository.findByType(PostType.post);
-            List<PostInfoResponse> responses =
-                    getPostInfoResponsesWithLikeInfo(posts);
-            Long memberId = tokenProvider.getMemberFromToken(token).getId();
-            for (PostInfoResponse response : responses) {
-                Long postId = response.getPostId();
-                stateOfPostBookmarkAndFollow(postId, response, memberId);
-            }
-            return responses;
-        } catch (Exception e) {
-            // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
-            return Collections.emptyList();
+        List<Post> posts = postRepository.findByType(PostType.post);
+        List<PostInfoResponse> responses =
+                getPostInfoResponsesWithLikeInfo(posts);
+        Long memberId = tokenProvider.getMemberFromToken(token).getId();
+        for (PostInfoResponse response : responses) {
+            Long postId = response.getPostId();
+            stateOfPostBookmarkAndFollow(postId, response, memberId);
         }
+        return responses;
     }
 
     @Transactional
