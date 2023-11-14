@@ -9,6 +9,7 @@ import com.be.inssagram.domain.chat.chatMessage.dto.response.ChatMessageWithStor
 import com.be.inssagram.domain.chat.chatMessage.entity.ChatMessage;
 import com.be.inssagram.domain.chat.chatMessage.repository.ChatMessageRepository;
 import com.be.inssagram.domain.chat.chatRoom.dto.request.ChatRoomRequest;
+import com.be.inssagram.domain.chat.chatRoom.entity.ChatRoom;
 import com.be.inssagram.domain.chat.chatRoom.repository.ChatRoomRepository;
 import com.be.inssagram.domain.chat.chatRoom.service.ChatRoomService;
 import com.be.inssagram.domain.member.entity.Member;
@@ -50,6 +51,9 @@ public class ChatService {
     // 검색해서 나온 사람한테 메일 보낼 때. 이걸 사용하면 될 듯
     @Transactional
     public List<List<?>> enter(String token, Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow();
+        chatRoomRepository.save(chatRoom);
         return getLists(chatRoomId);
     }
 
@@ -68,6 +72,10 @@ public class ChatService {
 
         Long chatRoomId = getChatRoomId(request, sender);
 
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow();
+        chatRoomRepository.save(chatRoom);
+
         return getLists(chatRoomId);
     }
 
@@ -80,13 +88,20 @@ public class ChatService {
         Member receiver = memberRepository.findById(request.getReceiverMemberId())
                 .orElseThrow(UserDoesNotExistException::new);
 
-        ChatMessage chatMessage = getChatMessage(request, sender, receiver);
+        ChatMessage chatMessage = getChatMessage(
+                chatRoomId, request, sender, receiver);
 
         ChatMessageOnlyResponse response = ChatMessageOnlyResponse.from(
                 chatMessageRepository.save(chatMessage));
 
         template.convertAndSend(
                 CHAT_EXCHANGE_NAME, "room." + chatRoomId, response); // exchange
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow();
+        chatRoom.setLateMessage(chatMessage);
+        chatRoom.setUpdatedAt(chatMessage.getCreatedAt());
+        chatRoomRepository.save(chatRoom);
 
         return response;
     }
@@ -100,7 +115,8 @@ public class ChatService {
         Member receiver = memberRepository.findById(request.getReceiverMemberId())
                 .orElseThrow(UserDoesNotExistException::new);
 
-        ChatMessage chatMessage = getChatMessage(request, sender, receiver);
+        ChatMessage chatMessage = getChatMessage(chatRoomId,
+                request, sender, receiver);
 
         if (request.getStoryId() != null) {
             Story story = storyRepository.findById(request.getStoryId()).orElseThrow();
@@ -124,7 +140,8 @@ public class ChatService {
         Member receiver = memberRepository.findById(request.getReceiverMemberId())
                 .orElseThrow(UserDoesNotExistException::new);
 
-        ChatMessage chatMessage = getChatMessage(request, sender, receiver);
+        ChatMessage chatMessage = getChatMessage(
+                chatRoomId, request, sender, receiver);
 
         if (request.getPostId() != null) {
             Post post = postRepository.findById(request.getPostId())
@@ -153,7 +170,8 @@ public class ChatService {
 
         Long chatRoomId = getChatRoomId(request, sender);
 
-        ChatMessage chatMessage = getChatMessage(request, sender, receiver);
+        ChatMessage chatMessage = getChatMessage(
+                chatRoomId, request, sender, receiver);
 
         if (request.getStoryId() != null) {
             if (storyRepository.existsById(request.getStoryId())) {
@@ -170,6 +188,12 @@ public class ChatService {
         template.convertAndSend(
                 CHAT_EXCHANGE_NAME, "room." + chatRoomId, response); // exchange
 
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow();
+        chatRoom.setLateMessage(chatMessage);
+        chatRoom.setUpdatedAt(chatMessage.getCreatedAt());
+        chatRoomRepository.save(chatRoom);
+
         return response;
     }
 
@@ -183,7 +207,8 @@ public class ChatService {
 
         Long chatRoomId = getChatRoomId(request, sender);
 
-        ChatMessage chatMessage = getChatMessage(request, sender, receiver);
+        ChatMessage chatMessage = getChatMessage(
+                chatRoomId, request, sender, receiver);
 
         if (request.getPostId() != null) {
             if (postRepository.existsById(request.getPostId())) {
@@ -199,6 +224,12 @@ public class ChatService {
 
         template.convertAndSend(
                 CHAT_EXCHANGE_NAME, "room." + chatRoomId, response);
+
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow();
+        chatRoom.setLateMessage(chatMessage);
+        chatRoom.setUpdatedAt(chatMessage.getCreatedAt());
+        chatRoomRepository.save(chatRoom);
 
         return response;
 
@@ -241,14 +272,15 @@ public class ChatService {
     }
 
     private static ChatMessage getChatMessage(
-            ChatMessageRequest request, Member sender, Member receiver) {
+            Long chatRoomId, ChatMessageRequest request, Member sender
+            , Member receiver) {
         String image = "";
         if (request.getImageUrl() != null) {
             image = request.getImageUrl();
         }
         return ChatMessage.builder()
-                .roomId(request.getChatRoomId())
                 .sender(sender)
+                .roomId(chatRoomId)
                 .receiver(receiver)
                 .type(ChatMessageType.message)
                 .message(request.getMessage())

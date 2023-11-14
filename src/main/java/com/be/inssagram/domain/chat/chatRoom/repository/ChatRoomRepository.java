@@ -17,7 +17,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     ChatRoom findByFirstParticipantIdAndSecondParticipantId(
             Long firstMemberId, Long secondMemberId);
 
-    List<ChatRoom> findByFirstParticipantIdOrSecondParticipantId(
+    List<ChatRoom> findByFirstParticipantIdOrSecondParticipantIdOrderByUpdatedAtDesc(
             Long memberId, Long memberId2);
 
 }
