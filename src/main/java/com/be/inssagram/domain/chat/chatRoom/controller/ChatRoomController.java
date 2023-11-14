@@ -1,9 +1,12 @@
 package com.be.inssagram.domain.chat.chatRoom.controller;
 
-import com.be.inssagram.domain.chat.chatRoom.service.ChatRoomService;
+import com.be.inssagram.domain.chat.chatRoom.dto.request.ChatRoomRequest;
+import com.be.inssagram.domain.chat.chatRoom.dto.response.ChatRoomResponse;
 import com.be.inssagram.domain.chat.chatRoom.entity.ChatRoom;
+import com.be.inssagram.domain.chat.chatRoom.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,38 +14,63 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/chat")
+@RequestMapping("/chat/room")
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
 
+    // 채팅방 생성
+    @Transactional
+    @PostMapping("/create")
+    @ResponseBody
+    public ChatRoomResponse createRoom(@RequestBody ChatRoomRequest request) {
+        return chatRoomService.createChatRoom(request);
+    }
+
+    // 특정 채팅방 조회
+    @GetMapping("/{roomId}")
+    @ResponseBody
+    public ChatRoomResponse searchRoom(@PathVariable Long roomId) {
+        return chatRoomService.findRoomById(roomId);
+    }
+
+    @Transactional
+    @GetMapping("/one-to-one")
+    @ResponseBody
+    public ChatRoomResponse searchRoomOneToOne(
+            @RequestParam(value = "first-member-id") Long firstMemberId,
+            @RequestParam(value = "second-member-id") Long secondMemberId
+    ) {
+        return chatRoomService.findByFirstParticipantIdAndSecondParticipantId(
+                firstMemberId, secondMemberId);
+    }
+
+    @Transactional
+    @GetMapping("/list")
+    @ResponseBody
+    public List<ChatRoomResponse> searchRoomsWithMemberId(
+            @RequestParam(value = "member-id") Long memberId
+    ) {
+        return chatRoomService.searchRoomsWithMemberId(memberId);
+    }
+
     // 채팅 리스트 화면
-    @GetMapping("/room")
+    @GetMapping("")
     public String rooms(Model model) {
         return "/chat/room";
     }
+
     // 모든 채팅방 목록 반환
-    @GetMapping("/rooms")
+    @GetMapping("/all")
     @ResponseBody
     public List<ChatRoom> room() {
         return chatRoomService.searchRooms();
     }
-    // 채팅방 생성
-    @PostMapping("/room")
-    @ResponseBody
-    public ChatRoom createRoom(@RequestParam String name) {
-        return chatRoomService.createChatRoom(name);
-    }
+
     // 채팅방 입장 화면
-    @GetMapping("/room/enter/{roomId}")
+    @GetMapping("/enter/{roomId}")
     public String roomDetail(Model model, @PathVariable String roomId) {
         model.addAttribute("roomId", roomId);
         return "/chat/roomdetail";
-    }
-    // 특정 채팅방 조회
-    @GetMapping("/room/{roomId}")
-    @ResponseBody
-    public ChatRoom roomInfo(@PathVariable Long roomId) {
-        return chatRoomService.findRoomById(roomId);
     }
 }

@@ -2,7 +2,6 @@ package com.be.inssagram.domain.chat.chatMessage.dto.response;
 
 import com.be.inssagram.domain.chat.ChatMessageType;
 import com.be.inssagram.domain.chat.chatMessage.entity.ChatMessage;
-import com.be.inssagram.domain.post.type.PostType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.*;
@@ -13,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ChatMessageWithPostResponse {
+public class ChatMessageWithStoryResponse {
 
     private Long chatMessageId;
     private Long chatRoomId;
@@ -25,22 +24,15 @@ public class ChatMessageWithPostResponse {
     @Enumerated(EnumType.STRING)
     private ChatMessageType type;
     private String createdAt;
-    @Enumerated(EnumType.STRING)
-    private PostType postType;
-    private Long postId;
-    private String postImage;
-    private String postContents;
-    private Long memberIdInPost;
-    private String memberProfileInPost;
-    private String memberNicknameInPost;
+    private Long storyId;
+    private String storyImage;
+    private Long memberIdInStory;
+    private String memberProfileInStory;
+    private String memberNicknameInStory;
 
 
-    public static ChatMessageWithPostResponse from(ChatMessage message) {
-        String postImage = "";
-        if (message.getPost().getImage() != null) {
-            postImage = message.getPost().getImage().get(0);
-        }
-        return ChatMessageWithPostResponse.builder()
+    public static ChatMessageWithStoryResponse from(ChatMessage message) {
+        return ChatMessageWithStoryResponse.builder()
                 .chatMessageId(message.getId())
                 .chatRoomId(message.getRoomId())
                 .senderNickname(message.getSender().getNickname())
@@ -50,12 +42,11 @@ public class ChatMessageWithPostResponse {
                 .type(message.getType())
                 .message(message.getMessage())
                 .createdAt(message.getCreatedAt())
-                .postType(PostType.post)
-                .postId(message.getPost().getId())
-                .postImage(postImage)
-                .postContents(message.getPost().getContents())
-                .memberIdInPost(message.getPost().getMember().getId())
-                .memberNicknameInPost(message.getPost().getMember().getNickname())
+                .storyId(message.getStory().getId())
+                .storyImage(message.getStory().getImages())
+                .memberIdInStory(message.getStory().getMember().getId())
+                .memberProfileInStory(message.getStory().getMember().getImage())
+                .memberNicknameInStory(message.getStory().getMember().getNickname())
                 .build();
     }
 }
