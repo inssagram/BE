@@ -153,7 +153,7 @@ public class PostService {
 
     @Transactional
     public List<PostInfoResponse> searchPostAll(String token) {
-        try {
+//        try {
             List<Post> posts = postRepository.findByType(PostType.post);
             List<PostInfoResponse> responses =
                     getPostInfoResponsesWithLikeInfo(posts);
@@ -163,10 +163,10 @@ public class PostService {
                 stateOfPostBookmarkAndFollow(postId, response, memberId);
             }
             return responses;
-        } catch (Exception e) {
-            // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
-            return Collections.emptyList();
-        }
+//        } catch (Exception e) {
+//            // 예외 처리: findAll 메서드에서 예외가 발생하면 빈 Page 객체를 반환
+//            return Collections.emptyList();
+//        }
     }
 
     @Transactional
