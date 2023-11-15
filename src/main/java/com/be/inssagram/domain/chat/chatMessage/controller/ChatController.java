@@ -12,13 +12,12 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class ChatController {
 
     private final ChatService chatService;
@@ -26,7 +25,6 @@ public class ChatController {
     private final static String CHAT_EXCHANGE_NAME = "chat.exchange";
     private final static String CHAT_QUEUE_NAME = "chat.queue";
 
-    //    @MessageMapping("chat.enter.{chatRoomId}")
     @GetMapping("/chat/enter/room")
     public ApiResponse<List<List<?>>> enter(
             @RequestParam(value = "room-id") Long chatRoomId
@@ -34,12 +32,12 @@ public class ChatController {
         return ApiResponse.createSuccess(chatService.enter(token, chatRoomId));
     }
 
-    @GetMapping("/chat/enter-after-search/room")
+    @GetMapping("/chat/enter-after-search/room/receiver")
     public ApiResponse<List<List<?>>> enterAfterSearch(
-            @RequestBody ChatMessageRequest request
+            @RequestParam(value = "receiverMemberId") Long receiverMemberId
             , @RequestHeader("Authorization") String token) {
         return ApiResponse.createSuccess(chatService.enterAfterSearch(
-                token, request));
+                token, receiverMemberId));
     }
 
     @MessageMapping("chat.message.{chatRoomId}")
@@ -69,22 +67,28 @@ public class ChatController {
                 token, chat, chatRoomId));
     }
 
-    @PostMapping("/share/story")
-    public void sendWithStory2(
+    @PostMapping("/chat/share/story")
+    public ApiResponse<ChatMessageWithStoryResponse> sendWithStory2(
             @RequestBody ChatMessageRequest chat
             , @RequestHeader("Authorization") String token
     ) {
-        chatService.sendWithStory2(
-                token, chat);
+        return ApiResponse.createSuccess(chatService.sendWithStory2(
+                token, chat));
     }
 
-    @PostMapping("/share/post")
-    public void sendWithPost2(
+    @PostMapping("/chat/share/post")
+    public ApiResponse<ChatMessageWithPostResponse> sendWithPost2(
             @RequestBody ChatMessageRequest chat
             , @RequestHeader("Authorization") String token
     ) {
-        chatService.sendWithPost2(
-                token, chat);
+        return ApiResponse.createSuccess(chatService.sendWithPost2(
+                token, chat));
+    }
+
+    @DeleteMapping("/chat/delete/{chatMessageId}")
+    private ApiResponse<?> deleteChatMessage(@PathVariable Long chatMessageId) {
+        chatService.deleteChatMessage(chatMessageId);
+        return ApiResponse.createMessage("삭제");
     }
 
     //receive()는 단순히 큐에 들어온 메세지를 소비만 한다. (현재는 디버그용도)
