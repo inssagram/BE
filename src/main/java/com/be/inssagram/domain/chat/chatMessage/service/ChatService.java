@@ -14,6 +14,7 @@ import com.be.inssagram.domain.chat.chatRoom.repository.ChatRoomRepository;
 import com.be.inssagram.domain.chat.chatRoom.service.ChatRoomService;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
 import com.be.inssagram.domain.stroy.entity.Story;
@@ -43,7 +44,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
     private final StoryRepository storyRepository;
-
+    private final NotificationService notificationService;
     private final ChatRoomService chatRoomService;
 
     private final TokenProvider tokenProvider;
@@ -93,6 +94,16 @@ public class ChatService {
 
         ChatMessageOnlyResponse response = ChatMessageOnlyResponse.from(
                 chatMessageRepository.save(chatMessage));
+
+        //채팅 알람
+        notificationService.notify(notificationService
+                .createNotifyDto(
+                        receiver,
+                        null,
+                        sender,
+                        request.getMessage(),
+                        chatRoomId
+                ));
 
         template.convertAndSend(
                 CHAT_EXCHANGE_NAME, "room." + chatRoomId, response); // exchange
@@ -185,6 +196,16 @@ public class ChatService {
         ChatMessageWithStoryResponse response = ChatMessageWithStoryResponse.from(
                 chatMessageRepository.save(chatMessage));
 
+        //채팅 알람
+        notificationService.notify(notificationService
+                .createNotifyDto(
+                        receiver,
+                        null,
+                        sender,
+                        sender.getNickname() + "님이 메세지를 보냈습니다",
+                        chatRoomId
+                ));
+
         template.convertAndSend(
                 CHAT_EXCHANGE_NAME, "room." + chatRoomId, response); // exchange
 
@@ -221,6 +242,16 @@ public class ChatService {
 
         ChatMessageWithPostResponse response = ChatMessageWithPostResponse.from(
                 chatMessageRepository.save(chatMessage));
+
+        //채팅 알람
+        notificationService.notify(notificationService
+                .createNotifyDto(
+                        receiver,
+                        null,
+                        sender,
+                        sender.getNickname() + "님이 메세지를 보냈습니다",
+                        chatRoomId
+                ));
 
         template.convertAndSend(
                 CHAT_EXCHANGE_NAME, "room." + chatRoomId, response);

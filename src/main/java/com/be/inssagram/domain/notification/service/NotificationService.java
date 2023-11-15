@@ -41,15 +41,27 @@ public class NotificationService {
     public SseEmitter subscribe(Long userId) {
         SseEmitter emitter = createEmitter(userId);
         List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(userId, false);
-        sendToClient(userId, setMessage("연결이 되었습니다", list.size()));
+        List<Notification> chatList = notificationRepository.findUnreadChatMessages(userId);
+        sendToClient(userId, setEnterMessage("연결이 되었습니다", list.size(), chatList.size()));
         return emitter;
     }
 
     //알람 전송
     public void notify(NotificationRequest request) {
         notificationRepository.save(saveNotification(request));
-        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(request.getReceiver_info().getId(), false);
-        sendToClient(request.getReceiver_info().getId(), setMessage(request.getMessage(), list.size()));
+        //안읽은 메세지 갯수 전송
+        if(request.getChatroom_id() == null) {
+            List<Notification> list = notificationRepository
+                    .findAllByReceiverIdAndReadStatus(request.getReceiver_info().getId(), false);
+            sendToClient(request.getReceiver_info().getId(), setMessage(request.getMessage(),
+                    list.size(), null, null));
+        }else{
+            List<Notification> chatList = notificationRepository
+                    .findUnreadChatMessages(request.getReceiver_info().getId());
+
+            sendToClient(request.getReceiver_info().getId(), setMessage(request.getMessage(),
+                    null, request.getChatroom_id(), chatList.size()));
+        }
     }
 
     //알림 삭제
@@ -77,14 +89,24 @@ public class NotificationService {
 
     //알림정보 생성
     public NotificationRequest createNotifyDto(Member receiver_info, Post post_info, Member sender_info,
-                                               String message){
+                                               String message, Long chatroom_id){
+        if(chatroom_id == null) {
+            return NotificationRequest.builder()
+                    .receiver_info(receiver_info)
+                    .post_info(post_info)
+                    .sender_info(sender_info)
+                    .message(message)
+                    .build();
+        }
         return NotificationRequest.builder()
                 .receiver_info(receiver_info)
-                .post_info(post_info)
+                .chatroom_id(chatroom_id)
                 .sender_info(sender_info)
                 .message(message)
                 .build();
     }
+
+
 
     /**
      * 클라이언트에게 데이터를 전송
@@ -96,7 +118,8 @@ public class NotificationService {
         SseEmitter emitter = emittersRepository.get(id);
         if (emitter != null) {
             try {
-                emitter.send(SseEmitter.event().id(String.valueOf(id)).name("sse").data(data, MediaType.APPLICATION_JSON));
+                emitter.send(SseEmitter.event().id(String.valueOf(id)).name("sse")
+                        .data(data, MediaType.APPLICATION_JSON));
             } catch (IOException exception) {
                 emittersRepository.deleteById(id);
                 emitter.completeWithError(exception);
@@ -104,10 +127,24 @@ public class NotificationService {
         }
     }
 
-    private MessageInfo setMessage(String msg, int unreadCount){
+    private MessageInfo setMessage(String msg, Integer unreadCount, Long chatroomId, Integer unreadChatCount){
+        if(chatroomId == null) {
+            return MessageInfo.builder()
+                    .message(msg)
+                    .unreadCount(unreadCount)
+                    .build();
+        }
+        return MessageInfo.builder()
+                .message(msg)
+                .unreadChatCount(unreadChatCount)
+                .build();
+    }
+
+    private MessageInfo setEnterMessage(String msg, Integer unreadCount, Integer unreadChatCount){
         return MessageInfo.builder()
                 .message(msg)
                 .unreadCount(unreadCount)
+                .unreadChatCount(unreadChatCount)
                 .build();
     }
 
@@ -143,7 +180,17 @@ public class NotificationService {
             }
             isFriend = true;
         }
-
+        if(request.getChatroom_id() != null){
+            return Notification.builder()
+                    .message(request.getMessage())
+                    .senderInfo(request.getSender_info())
+                    .chatroomId(request.getChatroom_id())
+                    .friendStatus(isFriend)
+                    .readStatus(false)
+                    .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
+                    .receiverId(request.getReceiver_info().getId())
+                    .build();
+        }
         return Notification.builder()
                 .message(request.getMessage())
                 .senderInfo(request.getSender_info())

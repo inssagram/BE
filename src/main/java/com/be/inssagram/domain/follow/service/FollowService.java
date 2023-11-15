@@ -61,7 +61,8 @@ public class FollowService {
                                 memberInfo,
                                 null,
                                 myInfo,
-                                myInfo.getNickname() + "님이 회원님을 팔로우하기 시작했습니다."
+                                myInfo.getNickname() + "님이 회원님을 팔로우하기 시작했습니다.",
+                                null
                         ));
             }
         }

@@ -15,4 +15,5 @@ public class NotificationRequest {
     private Post post_info;
     private Member sender_info;
     private String message;
+    private Long chatroom_id;
 }
