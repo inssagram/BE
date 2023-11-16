@@ -37,6 +37,8 @@ jobs:
           spring.datasource.password: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
           spring.mail.password: ${{ secrets.SPRING_MAIL_PASSWORD }}
           spring.rabbitmq.host: ${{ secrets.SPRING_RABBITMQ_URL }}
+          SPRING_APP_FIREBASE_BUCKET: ${{ secrets.SPRING_APP_FIREBASE_BUCKET }}
+          FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash

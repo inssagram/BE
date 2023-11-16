@@ -14,9 +14,6 @@ import lombok.*;
 public class ChatMessageRequest {
     @Enumerated(EnumType.STRING)
     private ChatMessageType type;
-    private Long chatMessageId;
-    private Long chatRoomId;
-    private Long senderMemberId;
     private Long receiverMemberId;
     private String message;
     private String imageUrl;

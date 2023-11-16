@@ -19,8 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLDelete(sql = "UPDATE inssagram.post SET deleted_at = current_timestamp WHERE post_id = ?")
-@Where(clause = "deleted_at is NULL")
+//@SQLDelete(sql = "UPDATE inssagram.post SET deleted_at = current_timestamp WHERE post_id = ?")
+//@Where(clause = "deleted_at is NULL")
 @Entity(name = "POST")
 public class Post extends BaseEntity {
 
@@ -35,6 +35,8 @@ public class Post extends BaseEntity {
     private PostType type;
 
     private List<String> image;
+    private List<String> fileNames;
+
     private String contents;
     private String location;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post",

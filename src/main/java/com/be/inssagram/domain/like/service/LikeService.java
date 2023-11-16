@@ -64,7 +64,9 @@ public class LikeService {
                             post.getMember(),
                             post,
                             member,
-                            member.getNickname() + "님이 회원님의 게시물을 좋아합니다"
+                            member.getNickname()
+                                    + "님이 회원님의 게시물을 좋아합니다",
+                            null
                     ));
         }
         likeRepository.save(like);
@@ -104,7 +106,10 @@ public class LikeService {
                             comment.getMember(),
                             post,
                             member,
-                            member.getNickname() + "님이 회원님의 댓글을 좋아합니다: " + comment.getContent()
+                            member.getNickname()
+                                    + "님이 회원님의 댓글을 좋아합니다: "
+                                    + comment.getContent(),
+                            null
                     ));
         }
         likeRepository.save(like);
@@ -160,7 +165,8 @@ public class LikeService {
         return getLikeMemberInfoResponses(token, likeList);
     }
 
-    private List<LikeMemberInfoResponse> getLikeMemberInfoResponses(String token, List<Like> likeList) {
+    private List<LikeMemberInfoResponse> getLikeMemberInfoResponses(
+            String token, List<Like> likeList) {
         Long memberId = tokenProvider.getMemberFromToken(token).getId();
 
         List<LikeMemberInfoResponse> responses = likeList.stream()

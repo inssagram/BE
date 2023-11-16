@@ -10,5 +10,7 @@ import lombok.Setter;
 @Builder
 public class MessageInfo {
     private String message;
-    private int unreadCount;
+    private Long chatroomId;
+    private Integer unreadCount;
+    private Integer unreadChatCount;
 }

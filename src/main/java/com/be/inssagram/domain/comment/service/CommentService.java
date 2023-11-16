@@ -224,7 +224,8 @@ public class CommentService {
                     friend,
                     post,
                     commenter,
-                    commenter.getNickname() + "님이 댓글에서 회원님을 언급했습니다: " + commentContent
+                    commenter.getNickname() + "님이 댓글에서 회원님을 언급했습니다: " + commentContent,
+                    null
             ));
         }
     }
@@ -234,7 +235,8 @@ public class CommentService {
                 post.getMember(),
                 post,
                 commenter,
-                commenter.getNickname() + "님이 회원님의 게시물에 댓글을 남겼습니다: " + commentContent
+                commenter.getNickname() + "님이 회원님의 게시물에 댓글을 남겼습니다: " + commentContent,
+                null
         ));
     }
 
@@ -243,7 +245,8 @@ public class CommentService {
                 commentAuthor.getMember(),
                 commentAuthor.getPost(),
                 commenter,
-                commenter.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: " + replyContent
+                commenter.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: " + replyContent,
+                null
         ));
     }
 
@@ -252,7 +255,8 @@ public class CommentService {
                 replyComment.getMember(),
                 replyComment.getParentComment().getPost(),
                 commenter,
-                commenter.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: " + replyContent
+                commenter.getNickname() + "님이 회원님의 댓글에 댓글을 남겼습니다: " + replyContent,
+                null
         ));
     }
 }

@@ -12,6 +12,7 @@ import java.util.Set;
 @Builder
 public class CreateStoryRequest {
     private String image;
+    private String fileName;
     private String contents;
     private String location;
     private Set<Long> taggedMemberIds;

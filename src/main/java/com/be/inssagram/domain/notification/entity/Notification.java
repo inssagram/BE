@@ -24,6 +24,8 @@ public class Notification {
     @JoinColumn(name = "post_Info")
     private Post postInfo;
 
+    private Long chatroomId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_Info")
     private Member senderInfo;

@@ -18,7 +18,7 @@ import org.springframework.data.elasticsearch.annotations.Mapping;
 public class HistoryIndex {
 
     @Id
-    @Field(name = "id", type = FieldType.Long)
+    @Field(name = "id", type = FieldType.Text)
     private Long id;
 
     @Field(name = "created_at", type = FieldType.Text)
