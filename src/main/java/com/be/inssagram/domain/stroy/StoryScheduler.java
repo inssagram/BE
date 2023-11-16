@@ -39,7 +39,7 @@ public class StoryScheduler {
             // Delete the image in Firebase Storage
             String fileName = story.getFileName();
             if (fileName != null && !fileName.isEmpty()) {
-                fileName = String.format("/%s/%s/%s",
+                fileName = String.format("%s/%s/%s",
                         "story", story.getMember().getNickname(), fileName);
                 firebaseStorageService.deleteFile(fileName);
             }

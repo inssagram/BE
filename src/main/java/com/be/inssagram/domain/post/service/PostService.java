@@ -142,7 +142,7 @@ public class PostService {
                 PostDoesNotExistException::new);
         List<String> fileNames = post.getFileNames();
         for (String fileName : fileNames) {
-            fileName = String.format("/%s/%s/%s",
+            fileName = String.format("%s/%s/%s",
                     "post", post.getMember().getNickname(), fileName);
             System.out.println(fileName);
             firebaseStorageService.deleteFile(fileName);
