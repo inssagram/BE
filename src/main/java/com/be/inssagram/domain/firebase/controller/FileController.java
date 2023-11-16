@@ -17,8 +17,14 @@ public class FileController {
     @DeleteMapping("/{fileName}")
     public String deleteFile(@PathVariable String fileName) {
 
+        fileName = String.format("/%s/%s/%s",
+                "post", "yeom", fileName);
+
+        System.out.println(fileName);
+
         boolean deleteFile = firebaseStorageService.deleteFile(
                 fileName);
+
         return !deleteFile ? "삭제 실패!" : "삭제 성공";
     }
 }
