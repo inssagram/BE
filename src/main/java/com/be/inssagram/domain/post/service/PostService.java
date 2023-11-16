@@ -173,6 +173,7 @@ public class PostService {
         List<Post> posts = postRepository.findByType(PostType.post);
 
         return getPostInfoResponses(memberId, posts);
+
     }
 
     @Transactional
