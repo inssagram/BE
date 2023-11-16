@@ -24,6 +24,7 @@ public class Story extends BaseEntity {
     private Member member;
     private String accessKey;
     private String images;
+    private String fileName;
     private String contents;
     private String location;
     private boolean parentFlag;

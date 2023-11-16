@@ -1,6 +1,7 @@
 package com.be.inssagram.domain.chat.chatRoom.dto.response;
 
 import com.be.inssagram.domain.chat.chatRoom.entity.ChatRoom;
+import com.be.inssagram.domain.member.entity.Member;
 import lombok.*;
 
 @Setter
@@ -38,4 +39,18 @@ public class ChatRoomResponse {
                 .secondMemberProfile(chatRoom.getSecondParticipant().getImage())
                 .build();
     }
+
+//    public static ChatRoomResponse createResponse(
+//            Long chatRoomId, Member sender, Member receiver) {
+//        return ChatRoomResponse.builder()
+//                .chatRoomId(chatRoomId)
+//                .firstMemberId(sender.getId())
+//                .firstMemberNickname(sender.getNickname())
+//                .firstMemberProfile(sender.getImage())
+//                .secondMemberId(receiver.getId())
+//                .secondMemberNickname(receiver.getNickname())
+//                .secondMemberProfile(receiver.getImage())
+//                .build();
+//    }
+
 }
