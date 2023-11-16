@@ -49,6 +49,7 @@ public class StoryService {
         Story story = Story.builder()
                 .member(member)
                 .images(request.getImage())
+                .fileName(request.getFileName())
                 .contents(request.getContents())
                 .location(request.getLocation())
                 .parentStory(parentStory)

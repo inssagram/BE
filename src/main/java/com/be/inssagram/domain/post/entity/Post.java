@@ -35,6 +35,8 @@ public class Post extends BaseEntity {
     private PostType type;
 
     private List<String> image;
+    private List<String> fileNames;
+
     private String contents;
     private String location;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post",

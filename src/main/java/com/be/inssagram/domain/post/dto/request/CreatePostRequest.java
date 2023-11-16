@@ -18,6 +18,7 @@ public class CreatePostRequest {
     @Enumerated(EnumType.STRING)
     private PostType type;
     private List<String> image;
+    private List<String> fileName;
     private String contents;
     private String location;
     private Set<Long> taggedMemberIds; // TaggedMember 목록
