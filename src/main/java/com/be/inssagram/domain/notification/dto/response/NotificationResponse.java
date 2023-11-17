@@ -17,24 +17,26 @@ public record NotificationResponse(
         String message,
         Long sender_id,
         String sender_image,
-        String sender_name
+        String sender_name,
+        Long chatroom_id
 ) {
     public static NotificationResponse fromEntity(Notification notification) {
-        if (notification.getPostInfo() == null) {
-            return followNotification(notification);
-        }
-            return NotificationResponse.builder()
-                    .id(notification.getId())
-                    .created_at(notification.getCreatedAt())
-                    .friend_status(notification.isFriendStatus())
-                    .read_status(notification.isReadStatus())
-                    .post_id(notification.getPostInfo().getId())
-                    .post_image(notification.getPostInfo().getImage().get(0))
-                    .message(notification.getMessage())
-                    .sender_id(notification.getSenderInfo().getId())
-                    .sender_image(notification.getSenderInfo().getImage())
-                    .sender_name(notification.getSenderInfo().getNickname())
-                    .build();
+        return (notification.getPostInfo() == null && notification.getChatroomId() == null)
+                ? followNotification(notification)
+                : (notification.getChatroomId() != null)
+                ? chatroomList(notification)
+                : NotificationResponse.builder()
+                .id(notification.getId())
+                .created_at(notification.getCreatedAt())
+                .friend_status(notification.isFriendStatus())
+                .read_status(notification.isReadStatus())
+                .post_id(notification.getPostInfo().getId())
+                .post_image(notification.getPostInfo().getImage().get(0))
+                .message(notification.getMessage())
+                .sender_id(notification.getSenderInfo().getId())
+                .sender_image(notification.getSenderInfo().getImage())
+                .sender_name(notification.getSenderInfo().getNickname())
+                .build();
     }
 
     private static NotificationResponse followNotification(Notification notification) {
@@ -45,6 +47,20 @@ public record NotificationResponse(
                 .read_status(notification.isReadStatus())
                 .post_id(null)
                 .post_image(null)
+                .message(notification.getMessage())
+                .sender_id(notification.getSenderInfo().getId())
+                .sender_image(notification.getSenderInfo().getImage())
+                .sender_name(notification.getSenderInfo().getNickname())
+                .build();
+    }
+
+    private static NotificationResponse chatroomList(Notification notification) {
+        return NotificationResponse.builder()
+                .id(notification.getId())
+                .created_at(notification.getCreatedAt())
+                .friend_status(notification.isFriendStatus())
+                .read_status(notification.isReadStatus())
+                .chatroom_id(notification.getChatroomId())
                 .message(notification.getMessage())
                 .sender_id(notification.getSenderInfo().getId())
                 .sender_image(notification.getSenderInfo().getImage())

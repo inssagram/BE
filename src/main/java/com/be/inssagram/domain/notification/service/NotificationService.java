@@ -1,6 +1,7 @@
 package com.be.inssagram.domain.notification.service;
 
 
+import com.be.inssagram.common.ApiResponse;
 import com.be.inssagram.domain.follow.entity.Follow;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
 import com.be.inssagram.domain.member.entity.Member;
@@ -40,7 +41,7 @@ public class NotificationService {
      */
     public SseEmitter subscribe(Long userId) {
         SseEmitter emitter = createEmitter(userId);
-        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(userId, false);
+        List<Notification> list = notificationRepository.findAllByReceiverIdAndReadStatus(userId);
         List<Notification> chatList = notificationRepository.findUnreadChatMessages(userId);
         sendToClient(userId, setEnterMessage("연결이 되었습니다", list.size(), chatList.size()));
         return emitter;
@@ -52,7 +53,7 @@ public class NotificationService {
         //안읽은 메세지 갯수 전송
         if(request.getChatroom_id() == null) {
             List<Notification> list = notificationRepository
-                    .findAllByReceiverIdAndReadStatus(request.getReceiver_info().getId(), false);
+                    .findAllByReceiverIdAndReadStatus(request.getReceiver_info().getId());
             sendToClient(request.getReceiver_info().getId(), setMessage(request.getMessage(),
                     list.size(), null, null));
         }else{
@@ -105,8 +106,6 @@ public class NotificationService {
                 .message(message)
                 .build();
     }
-
-
 
     /**
      * 클라이언트에게 데이터를 전송
@@ -172,33 +171,63 @@ public class NotificationService {
         boolean isFriend = false;
 
         if (exists != null) {
-            List<Notification> list = notificationRepository
+            List<Notification> notifications = notificationRepository
                     .findAllByReceiverIdAndSenderInfo(request.getReceiver_info().getId(), request.getSender_info());
-            for (Notification notification : list) {
+
+            for (Notification notification : notifications) {
                 notification.setFriendStatus(true);
-                notificationRepository.save(notification);
             }
+
+            try {
+                notificationRepository.saveAll(notifications);
+            } catch (Exception e) {
+                ApiResponse.createError(e.getMessage());
+            }
+
             isFriend = true;
         }
-        if(request.getChatroom_id() != null){
-            return Notification.builder()
-                    .message(request.getMessage())
-                    .senderInfo(request.getSender_info())
-                    .chatroomId(request.getChatroom_id())
-                    .friendStatus(isFriend)
-                    .readStatus(false)
-                    .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
-                    .receiverId(request.getReceiver_info().getId())
-                    .build();
+
+        // 이미 채팅 알림이 있는지 확인
+        if (request.getChatroom_id() != null) {
+            Notification existingNotification = notificationRepository.findByChatroomId(request.getChatroom_id());
+
+            if (existingNotification != null) {
+                // 존재하는 채팅 알람 업데이트
+                existingNotification.setMessage(request.getMessage());
+                existingNotification.setReadStatus(false);
+                existingNotification.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
+
+                try {
+                    notificationRepository.save(existingNotification);
+                } catch (Exception e) {
+                    ApiResponse.createError(e.getMessage());
+                }
+
+                return existingNotification;
+            }
         }
-        return Notification.builder()
+
+        // Create a new notification
+        return buildNotification(request, isFriend);
+    }
+
+    private Notification buildNotification(NotificationRequest request, boolean isFriend) {
+        LocalDateTime now = LocalDateTime.now();
+        String formattedDateTime = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+
+        Notification.NotificationBuilder builder = Notification.builder()
                 .message(request.getMessage())
                 .senderInfo(request.getSender_info())
-                .postInfo(request.getPost_info())
                 .friendStatus(isFriend)
                 .readStatus(false)
-                .createdAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")))
-                .receiverId(request.getReceiver_info().getId())
-                .build();
+                .createdAt(formattedDateTime)
+                .receiverId(request.getReceiver_info().getId());
+
+        if (request.getChatroom_id() != null) {
+            builder.chatroomId(request.getChatroom_id());
+        } else {
+            builder.postInfo(request.getPost_info());
+        }
+        return builder.build();
     }
 }

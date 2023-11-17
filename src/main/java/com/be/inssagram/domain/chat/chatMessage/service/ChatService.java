@@ -14,6 +14,9 @@ import com.be.inssagram.domain.chat.chatRoom.repository.ChatRoomRepository;
 import com.be.inssagram.domain.chat.chatRoom.service.ChatRoomService;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.domain.notification.dto.response.NotificationResponse;
+import com.be.inssagram.domain.notification.entity.Notification;
+import com.be.inssagram.domain.notification.repository.NotificationRepository;
 import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
@@ -27,6 +30,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -44,6 +48,7 @@ public class ChatService {
     private final MemberRepository memberRepository;
     private final StoryRepository storyRepository;
     private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
     private final ChatRoomService chatRoomService;
 
     private final TokenProvider tokenProvider;
@@ -158,8 +163,8 @@ public class ChatService {
                 chatMessageRepository.save(chatMessage));
 
         //채팅 알람
-        sendNotification(chatRoomId, sender, receiver,
-                sender.getNickname() + "님이 메세지를 보냈습니다");
+        sendNotification(chatRoomId, sender, receiver, request.getMessage()
+                );
 
         template.convertAndSend(
                 CHAT_EXCHANGE_NAME, "room." + chatRoomId, response);
@@ -200,7 +205,7 @@ public class ChatService {
                         receiver,
                         null,
                         sender,
-                        sender.getNickname() + "님이 메세지를 보냈습니다",
+                        request.getMessage(),
                         chatRoomId
                 ));
 
@@ -349,5 +354,16 @@ public class ChatService {
 
     }
 
+    @Transactional
+    public List<NotificationResponse> getChatroomLists (String token){
+        Member member = tokenProvider.getMemberFromToken(token);
+        List<Notification> list = notificationRepository.findAllChatMessages(member.getId());
+        List<NotificationResponse> responseList = new ArrayList<>();
+        for (Notification notification : list) {
+            NotificationResponse response = NotificationResponse.fromEntity(notification);
+            responseList.add(response);
+        }
+        return responseList;
+    }
 
 }

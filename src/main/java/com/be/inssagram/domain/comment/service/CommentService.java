@@ -219,7 +219,11 @@ public class CommentService {
     }
     private void notifyMentionedMembers(List<String> mentionList, Member commenter, Post post, String commentContent) {
         for (String targetMember : mentionList) {
+            //게시글 주인에게 언급할시는 알림 전송 x
             Member friend = memberRepository.findByNickname(targetMember);
+            if(post.getMember() == friend){
+                continue;
+            }
             notificationService.notify(notificationService.createNotifyDto(
                     friend,
                     post,
