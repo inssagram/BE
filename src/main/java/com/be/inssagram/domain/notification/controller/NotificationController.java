@@ -36,6 +36,13 @@ public class NotificationController {
         return ApiResponse.createMessage("삭제가 되었습니다");
     }
 
+    @DeleteMapping("/delete/all")
+    public ApiResponse<InfoResponse> deleteAllNotification(@RequestHeader("Authorization") String token) {
+        InfoResponse member = InfoResponse.fromEntity(tokenProvider.getMemberFromToken(token));
+        notificationService.deleteAllNotification(member.member_id());
+        return ApiResponse.createMessage("모든 알림이 삭제가 되었습니다");
+    }
+
     @GetMapping("/all")
     @Transactional
     public ApiResponse<List<NotificationResponse>> getMyNotifications(@RequestHeader("Authorization") String token) {

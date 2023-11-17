@@ -78,14 +78,20 @@ public class NotificationService {
             notification.setReadStatus(true);
             notificationRepository.save(notification);
         }
-        List<NotificationResponse> responseList = new ArrayList<>();
 
+        List<NotificationResponse> responseList = new ArrayList<>();
         for (Notification notification : list) {
             NotificationResponse response = NotificationResponse.fromEntity(notification);
             responseList.add(response);
         }
-
         return responseList;
+    }
+
+    public void deleteAllNotification(Long member_id) {
+        List<Notification> list = notificationRepository.findAllByReceiverId(member_id);
+        for (Notification notification : list) {
+            notificationRepository.delete(notification);
+        }
     }
 
     //알림정보 생성
