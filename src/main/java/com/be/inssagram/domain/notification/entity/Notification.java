@@ -5,6 +5,8 @@ import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
@@ -22,12 +24,14 @@ public class Notification {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_Info")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Post postInfo;
 
     private Long chatroomId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_Info")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member senderInfo;
 
     private String message;

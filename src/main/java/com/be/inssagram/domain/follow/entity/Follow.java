@@ -5,6 +5,8 @@ import com.be.inssagram.domain.hashTag.entity.HashTag;
 import com.be.inssagram.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 
 @Getter
@@ -19,9 +21,11 @@ public class Follow {
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requester_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member requesterInfo;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member followingInfo;
 
     private String hashtagName;
