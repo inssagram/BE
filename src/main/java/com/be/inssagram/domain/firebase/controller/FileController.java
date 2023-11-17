@@ -17,7 +17,7 @@ public class FileController {
     @DeleteMapping("/{fileName}")
     public String deleteFile(@PathVariable String fileName) {
 
-        fileName = String.format("/%s/%s/%s",
+        fileName = String.format("%s/%s/%s",
                 "post", "yeom", fileName);
 
         System.out.println(fileName);

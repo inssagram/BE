@@ -27,10 +27,11 @@ public class Comment extends BaseEntity {
     @Column(name = "COMMENT_ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // 댓글은 하나의 Post에 속합니다.
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Member member;
 
     private String content;
