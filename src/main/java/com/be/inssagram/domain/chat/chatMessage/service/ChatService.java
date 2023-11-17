@@ -58,7 +58,12 @@ public class ChatService {
     public List<ChatMessageResponse> enter(String token, Long chatRoomId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new RuntimeException("채팅 방을 찾을 수 없습니다"));
+
+        Notification chatNotification = notificationRepository.findByChatroomId(chatRoomId);
+        chatNotification.setReadStatus(true);
+        notificationRepository.save(chatNotification);
         chatRoomRepository.save(chatRoom);
+
         return getMessageList(chatRoomId);
     }
 
