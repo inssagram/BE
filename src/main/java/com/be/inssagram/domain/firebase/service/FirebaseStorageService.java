@@ -5,6 +5,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,18 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class FirebaseStorageService {
 
-    private final String bucketName = System.getenv("SPRING_APP_FIREBASE_BUCKET");
+//    private final String bucketName = System.getenv("SPRING_APP_FIREBASE_BUCKET");
+    @Value("${spring.app.firebase-key}")
+    private String FIREBASE_KEY;
+    @Value("${spring.app.firebase-bucket}")
+    private String bucketName;
     private Storage storage;
 
     @EventListener
     public void init(ApplicationReadyEvent event) {
         try {
-            String firebaseKey = System.getenv("FIREBASE_KEY");
+//            String firebaseKey = System.getenv("FIREBASE_KEY");
+            String firebaseKey = FIREBASE_KEY;
             if (firebaseKey != null && !firebaseKey.isEmpty()) {
                 // Create a GoogleCredentials object from the environment variable
                 GoogleCredentials credentials = GoogleCredentials.fromStream(

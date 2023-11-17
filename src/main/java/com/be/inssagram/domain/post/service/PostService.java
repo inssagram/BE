@@ -143,13 +143,17 @@ public class PostService {
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(
                 PostDoesNotExistException::new);
-        List<String> fileNames = post.getFileNames();
-        for (String fileName : fileNames) {
-            fileName = String.format("%s/%s/%s",
-                    "post", post.getMember().getNickname(), fileName);
-            System.out.println(bucketName);
-            System.out.println(fileName);
-            firebaseStorageService.deleteFile(fileName);
+        if (post.getFileNames() != null) {
+            List<String> fileNames = post.getFileNames();
+            for (String fileName : fileNames) {
+                fileName = String.format("%s/%s/%s",
+                        "post", post.getMember().getNickname(), fileName);
+                System.out.println(bucketName);
+                System.out.println(fileName);
+                firebaseStorageService.deleteFile(fileName);
+            }
+        } else {
+
         }
         postRepository.save(post);  // 테스트 코드에서 확인 위한 작업.
         postRepository.delete(post);
