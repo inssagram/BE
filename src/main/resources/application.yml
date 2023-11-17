@@ -33,3 +33,7 @@ spring:
     port: 5672
     username: "guest"
     password: "guest"
+  app:
+    firebase-bucket: "${SPRING_APP_FIREBASE_BUCKET}"
+    firebase-key: "${FIREBASE_KEY}"
+
