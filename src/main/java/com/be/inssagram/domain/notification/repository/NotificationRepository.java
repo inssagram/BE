@@ -13,12 +13,15 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     Notification findByIdAndReceiverId (Long id, Long receiverId);
 
+    Notification findByChatroomId (Long chatroomId);
+
     @Query("SELECT n FROM Notification n WHERE n.receiverId = :receiverId AND n.chatroomId IS NULL")
     List<Notification> findAllByReceiverId (@Param("receiverId") Long receiverId);
 
     List<Notification> findAllByReceiverIdAndSenderInfo (Long receiverId, Member senderInfo);
 
-    List<Notification> findAllByReceiverIdAndReadStatus(Long receiverId, boolean readStatus);
+    @Query("SELECT n FROM Notification n WHERE n.receiverId = :receiverId AND n.readStatus = false AND n.chatroomId IS NULL")
+    List<Notification> findAllByReceiverIdAndReadStatus(@Param("receiverId") Long receiverId);
 
     @Query("SELECT n FROM Notification n WHERE n.receiverId = :receiverId AND n.readStatus = false AND n.chatroomId IS NOT NULL")
     List<Notification> findUnreadChatMessages(

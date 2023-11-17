@@ -16,10 +16,10 @@ public class Tag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TAG_ID")
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Member member;
-//    private Long postId;
-    @ManyToOne
+    //private Long postId;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Post post;
     private Long imageId;
 }

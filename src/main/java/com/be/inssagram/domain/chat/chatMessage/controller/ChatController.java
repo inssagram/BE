@@ -7,6 +7,8 @@ import com.be.inssagram.domain.chat.chatMessage.dto.response.ChatMessageWithPost
 import com.be.inssagram.domain.chat.chatMessage.dto.response.ChatMessageWithStoryResponse;
 import com.be.inssagram.domain.chat.chatMessage.entity.ChatMessage;
 import com.be.inssagram.domain.chat.chatMessage.service.ChatService;
+import com.be.inssagram.domain.member.entity.Member;
+import com.be.inssagram.domain.notification.dto.response.NotificationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -29,6 +31,13 @@ public class ChatController {
             @RequestParam(value = "room-id") Long chatRoomId
             , @RequestHeader("Authorization") String token) {
         return ApiResponse.createSuccess(chatService.enter(token, chatRoomId));
+    }
+
+    @GetMapping("/chat")
+    public ApiResponse<List<NotificationResponse>> getChatroom(
+            @RequestHeader("Authorization") String token) {
+        List<NotificationResponse> result = chatService.getChatroomLists(token);
+        return ApiResponse.createSuccessWithMessage(result ,"채팅방 목록을 불러왔습니다");
     }
 
     @GetMapping("/chat/enter-after-search/room/receiver")
