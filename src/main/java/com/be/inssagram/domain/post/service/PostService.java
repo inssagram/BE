@@ -51,6 +51,9 @@ public class PostService {
 
     private final TokenProvider tokenProvider;
 
+
+    private final String bucketName = System.getenv("SPRING_APP_FIREBASE_BUCKET");
+
     @Transactional
     public PostInfoResponse createPost(String token, CreatePostRequest request) {
 
@@ -144,6 +147,7 @@ public class PostService {
         for (String fileName : fileNames) {
             fileName = String.format("%s/%s/%s",
                     "post", post.getMember().getNickname(), fileName);
+            System.out.println(bucketName);
             System.out.println(fileName);
             firebaseStorageService.deleteFile(fileName);
         }

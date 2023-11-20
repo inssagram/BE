@@ -19,7 +19,7 @@ public class Story extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "STORY_ID")
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "MEMBER_ID", nullable = false)
     private Member member;
     private String accessKey;
