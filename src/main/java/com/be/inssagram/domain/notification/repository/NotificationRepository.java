@@ -13,7 +13,7 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     Notification findByIdAndReceiverId (Long id, Long receiverId);
 
-    Notification findByChatroomId (Long chatroomId);
+    Notification findByChatroomIdAndReceiverId(Long chatroomId, Long receiverId);
 
     @Query("SELECT n FROM Notification n WHERE n.receiverId = :receiverId AND n.chatroomId IS NULL")
     List<Notification> findAllByReceiverId (@Param("receiverId") Long receiverId);
