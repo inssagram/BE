@@ -195,7 +195,7 @@ public class NotificationService {
 
         // 이미 채팅 알림이 있는지 확인
         if (request.getChatroom_id() != null) {
-            Notification existingNotification = notificationRepository.findByChatroomId(request.getChatroom_id());
+            Notification existingNotification = notificationRepository.findByChatroomIdAndReceiverId(request.getChatroom_id(), request.getReceiver_info().getId());
 
             if (existingNotification != null) {
                 // 존재하는 채팅 알람 업데이트
