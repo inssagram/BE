@@ -8,6 +8,7 @@ import com.be.inssagram.domain.chat.chatRoom.entity.ChatRoom;
 import com.be.inssagram.domain.chat.chatRoom.repository.ChatRoomRepository;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.domain.notification.service.NotificationService;
 import com.be.inssagram.exception.member.UserDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
 //    private final TokenProvider tokenProvider;
 
@@ -53,10 +55,29 @@ public class ChatRoomService {
         Member secondParticipant = memberRepository.findById(secondId)
                 .orElseThrow(UserDoesNotExistException::new);
 
-        return ChatRoomResponse2.from(chatRoomRepository.save(ChatRoom.builder()
+        ChatRoom newChatRoom = chatRoomRepository.save(ChatRoom.builder()
                 .firstParticipant(firstParticipant)
                 .secondParticipant(secondParticipant)
-                .build()));
+                .build());
+
+        //채팅방 생성 알림 보내기
+        notificationService.notify(notificationService.createNotifyDto(
+                firstParticipant,
+                null,
+                secondParticipant,
+                secondParticipant.getNickname() + "님과 대화를 시작하셨습니다",
+                newChatRoom.getRoomId()
+        ));
+
+        notificationService.notify(notificationService.createNotifyDto(
+                secondParticipant,
+                null,
+                firstParticipant,
+                firstParticipant.getNickname() + "님과 대화를 시작하셨습니다",
+                newChatRoom.getRoomId()
+        ));
+
+        return ChatRoomResponse2.from(newChatRoom);
     }
 
     @Transactional
