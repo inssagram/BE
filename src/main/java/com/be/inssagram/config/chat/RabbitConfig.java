@@ -54,14 +54,6 @@ public class RabbitConfig {
         return rabbitTemplate;
     }
 
-//    @Bean
-//    public SimpleMessageListenerContainer container(){
-//        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-//        container.setConnectionFactory(connectionFactory());
-//        container.setQueueNames(CHAT_QUEUE_NAME);
-//        return container;
-//    }
-
     // RabbitMQ와의 연결을 관리하는 클래스
     @Bean
     public ConnectionFactory connectionFactory() {

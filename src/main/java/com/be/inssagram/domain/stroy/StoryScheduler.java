@@ -5,6 +5,7 @@ import com.be.inssagram.domain.stroy.entity.Story;
 import com.be.inssagram.domain.stroy.repository.StoryRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +24,7 @@ public class StoryScheduler {
     }
 
     // 매 시 정각에 실행
+    @Transactional
     @Scheduled(cron = "0 0 * * * *")
     public void deleteOldStories() {
         LocalDateTime currentDateTime = LocalDateTime.now();
