@@ -27,10 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -190,6 +187,7 @@ public class PostService {
         return getPostInfoResponses(memberId, posts);
     }
 
+    // 메인에서 내가 팔로우한 사람 + 내 포스트 리스트 조회
     @Transactional
     public List<PostInfoResponse> searchPostsWithFollowingMember(String token) {
         Long memberId = tokenProvider.getMemberFromToken(token).getId();
@@ -206,11 +204,17 @@ public class PostService {
             List<Post> posts = postRepository.findByMemberIdAndType(
                     followingMemberId, PostType.post);
 
+            // 내 포스트도 추가
+            posts.addAll(postRepository.findByMemberIdAndType(
+                    memberId, PostType.post));
+
             List<PostInfoResponse> responses = getPostInfoResponses(memberId, posts);
 
             result.addAll(responses);
         }
-        return result;
+        return result.stream()
+                .sorted(Comparator.comparing(PostInfoResponse::getCreatedAt)
+                        .reversed()).collect(Collectors.toList());
     }
 
     @Transactional

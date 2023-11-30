@@ -39,8 +39,10 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp")
                 .setAllowedOrigins("http://localhost:3000")
-                .withSockJS();
-        ;
+                .withSockJS()
+                .setHeartbeatTime(5000)  // 하트비트 주기: 5초
+                .setDisconnectDelay(5000)  // 연결 종료 지연: 5초
+                ;
     }
 
     @Override

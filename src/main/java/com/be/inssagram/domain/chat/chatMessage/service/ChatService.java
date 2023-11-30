@@ -283,7 +283,7 @@ public class ChatService {
 
     public List<ChatMessageResponse> getMessageList(Long chatRoomId) {
         List<ChatMessage> messages = chatMessageRepository
-                .findByRoomIdOrderByCreatedAtDesc(chatRoomId);
+                .findByRoomIdOrderByCreatedAt(chatRoomId);
 
         return messages.stream().map(ChatMessageResponse::from).toList();
 
