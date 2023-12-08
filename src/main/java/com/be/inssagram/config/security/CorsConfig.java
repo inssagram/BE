@@ -18,7 +18,8 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of("http://localhost:3000",
                 "https://inssagram-rb9u8ngxq-joshyeom.vercel.app/",
-                "https://inssagram-fe.vercel.app/"));
+                "https://inssagram-fe.vercel.app/",
+                "https://fe-lyart-nu.vercel.app/"));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.addExposedHeader("Authorization");

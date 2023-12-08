@@ -40,7 +40,8 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws-stomp")
                 .setAllowedOrigins("http://localhost:3000",
                         "https://inssagram-rb9u8ngxq-joshyeom.vercel.app/",
-                        "https://inssagram-fe.vercel.app/")
+                        "https://inssagram-fe.vercel.app/",
+                        "https://fe-lyart-nu.vercel.app/")
                 .withSockJS()
                 .setHeartbeatTime(5000)  // 하트비트 주기: 5초
                 .setDisconnectDelay(5000)  // 연결 종료 지연: 5초
