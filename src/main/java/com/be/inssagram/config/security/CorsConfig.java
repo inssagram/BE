@@ -19,6 +19,7 @@ public class CorsConfig {
         config.setAllowedOrigins(List.of("http://localhost:3000",
                 "https://inssagram-rb9u8ngxq-joshyeom.vercel.app/",
                 "https://inssagram-fe.vercel.app/",
+                "inssagram-two.vercel.app/",
                 "https://fe-lyart-nu.vercel.app/",
                 "https://fe-joshyeom.vercel.app/"));
         config.addAllowedHeader("*");
