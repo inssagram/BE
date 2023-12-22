@@ -20,6 +20,7 @@ public class CorsConfig {
                 "https://inssagram-rb9u8ngxq-joshyeom.vercel.app/",
                 "https://inssagram-fe.vercel.app/",
                 "inssagram-two.vercel.app/",
+                "http://localhost:5000",                        
                 "https://fe-lyart-nu.vercel.app/",
                 "https://fe-joshyeom.vercel.app/"));
         config.addAllowedHeader("*");
