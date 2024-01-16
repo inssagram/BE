@@ -19,6 +19,7 @@ import com.be.inssagram.exception.member.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,16 @@ public class MemberService {
     private final FollowRepository followRepository;
     private final TokenProvider tokenProvider;
     private final MailService mailService;
+
+    //회원정보 엘라스틱에 sync 하기
+    @Scheduled(fixedDelay = 3600000) // 1시간 마다 sync
+    public void syncMembersToElasticsearch() {
+        List<Member> allMembers = memberRepository.findAll();
+
+        for (Member member : allMembers) {
+            memberSearchRepository.save(MemberIndex.from(member));
+        }
+    }
 
     //회원가입
     public void signup (SignupRequest request) {
