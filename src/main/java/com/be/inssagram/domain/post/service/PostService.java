@@ -1,6 +1,7 @@
 package com.be.inssagram.domain.post.service;
 
 import com.be.inssagram.config.Jwt.TokenProvider;
+import com.be.inssagram.domain.bookmark.entity.Bookmark;
 import com.be.inssagram.domain.bookmark.repository.BookmarkRepository;
 import com.be.inssagram.domain.firebase.service.FirebaseStorageService;
 import com.be.inssagram.domain.follow.repository.FollowRepository;
@@ -174,7 +175,6 @@ public class PostService {
         List<Post> posts = postRepository.findByType(PostType.post);
 
         return getPostInfoResponses(memberId, posts);
-
     }
 
     @Transactional
@@ -313,8 +313,8 @@ public class PostService {
             response.setPostLike(true);
         }
 
-        if (bookmarkRepository.findByMemberIdAndPostId(
-                memberId, postId).isPresent()) {
+        List<Bookmark> bookmarks = bookmarkRepository.findAllByMemberIdAndPostId(memberId, postId);
+        if (!bookmarks.isEmpty()) {
             response.setBookmarked(true);
         }
 
