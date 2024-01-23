@@ -44,8 +44,8 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
                         "https://fe-lyart-nu.vercel.app/",
                         "https://fe-joshyeom.vercel.app/")
                 .withSockJS()
-                .setHeartbeatTime(5000)  // 하트비트 주기: 5초
-                .setDisconnectDelay(5000)  // 연결 종료 지연: 5초
+                // .setHeartbeatTime(5000)  // 하트비트 주기: 5초
+                // .setDisconnectDelay(5000)  // 연결 종료 지연: 5초
                 ;
     }
 
