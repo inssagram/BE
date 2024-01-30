@@ -7,6 +7,7 @@ import com.be.inssagram.domain.bookmark.entity.Bookmark;
 import com.be.inssagram.domain.bookmark.repository.BookmarkRepository;
 import com.be.inssagram.domain.post.entity.Post;
 import com.be.inssagram.domain.post.repository.PostRepository;
+import com.be.inssagram.exception.common.AlreadyExistException;
 import com.be.inssagram.exception.common.DataDoesNotExistException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,13 @@ public class BookmarkService {
 
     //게시물 북마크 기능
     public void bookmarkPost(BookmarkRequest request, Long memberId) {
-        bookmarkRepository.save(Bookmark.from(request, memberId));
+        Bookmark bookmark = bookmarkRepository.findByMemberIdAndPostId(memberId, request.getPostId()).orElse(null);
+        if(bookmark == null) {
+            bookmarkRepository.save(Bookmark.from(request, memberId));
+        }
+        if(bookmark != null) {
+            throw new AlreadyExistException();
+        }
     }
 
     //게시물 북마크 해제
