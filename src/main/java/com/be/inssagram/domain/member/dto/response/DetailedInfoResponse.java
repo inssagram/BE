@@ -18,7 +18,7 @@ public record DetailedInfoResponse(
         List<FollowingList> following,
         int posts
 ) {
-    public static DetailedInfoResponse fromEntity(Member member, List<FollowingList> following, List<FollowerList> followers) {
+    public static DetailedInfoResponse fromEntity(Member member, List<FollowingList> following, List<FollowerList> followers, int posts) {
         return DetailedInfoResponse.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
@@ -27,6 +27,7 @@ public record DetailedInfoResponse(
                 .description(member.getDescription())
                 .followers(followers)
                 .following(following)
+                .posts(posts)
                 .build();
     }
 }

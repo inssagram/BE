@@ -74,7 +74,8 @@ public class StoryService {
                 .map(follow -> new FollowingList(
                         follow.getFollowingInfo().getId(),
                         follow.getFollowingInfo().getNickname(),
-                        follow.getFollowingInfo().getImage()))
+                        follow.getFollowingInfo().getImage(),
+                        follow.getFollowingInfo().getDescription()))
                 .toList();
         Map<FollowingList, java.time.LocalDateTime> map = new HashMap<>();
         for (FollowingList follower : followingLists) {

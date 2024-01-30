@@ -15,6 +15,8 @@ import com.be.inssagram.domain.member.entity.Auth;
 import com.be.inssagram.domain.member.entity.Member;
 import com.be.inssagram.domain.member.repository.AuthRepository;
 import com.be.inssagram.domain.member.repository.MemberRepository;
+import com.be.inssagram.domain.post.entity.Post;
+import com.be.inssagram.domain.post.repository.PostRepository;
 import com.be.inssagram.exception.member.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +41,7 @@ public class MemberService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
     private final MemberSearchRepository memberSearchRepository;
+    private final PostRepository postRepository;
     private final FollowRepository followRepository;
     private final TokenProvider tokenProvider;
     private final MailService mailService;
@@ -61,7 +64,7 @@ public class MemberService {
         }
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         Member member = memberRepository.save(setAccount(request));
-        //Elastic Search 에 반영
+        //ElasticSearch 에 반영
         memberSearchRepository.save(MemberIndex.from(member));
     }
 
@@ -175,17 +178,22 @@ public class MemberService {
                 .map(follow -> new FollowingList(
                         follow.getFollowingInfo().getId(),
                         follow.getFollowingInfo().getNickname(),
-                        follow.getFollowingInfo().getImage()))
+                        follow.getFollowingInfo().getImage(),
+                        follow.getFollowingInfo().getDescription()))
                 .collect(Collectors.toList());
 
         List<FollowerList> followerLists = followers.stream()
                 .map(follow -> new FollowerList(
                         follow.getRequesterInfo().getId(),
                         follow.getRequesterInfo().getNickname(),
-                        follow.getRequesterInfo().getImage()))
+                        follow.getRequesterInfo().getImage(),
+                        follow.getRequesterInfo().getDescription()))
                 .collect(Collectors.toList());
 
-        return DetailedInfoResponse.fromEntity(member, followingLists, followerLists);
+        List<Post> posts = postRepository.findAllByMemberId(member.getId());
+        int totalPosts = posts.size();
+
+        return DetailedInfoResponse.fromEntity(member, followingLists, followerLists, totalPosts);
     }
 
     private Member setAccount (SignupRequest request) {
