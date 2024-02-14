@@ -87,9 +87,11 @@ public class MemberController {
     }
 
     //회원 상세조회
-    @GetMapping("/member/detail/{id}")
-    public ApiResponse<DetailedInfoResponse> getMemberDetail(@PathVariable Long id){
-        DetailedInfoResponse result = memberService.getMemberDetail(id);
+    @PostMapping("/member/detail/{id}")
+    public ApiResponse<DetailedInfoResponse> getMemberDetail(@RequestHeader("Authorization") String token,
+                                                             @PathVariable Long id){
+        Member member = tokenProvider.getMemberFromToken(token);
+        DetailedInfoResponse result = memberService.getMemberDetail(id, member);
         return ApiResponse.createSuccessWithMessage(result, "정보를 불러왔습니다");
     }
 }

@@ -11,12 +11,14 @@ public class FollowingList {
     private String following_Name;
     private String following_Image;
     private String following_Description;
+    private Boolean friend_Status;
 
-    public FollowingList(Long memberId, String memberName, String memberImage, String memberDescription) {
+    public FollowingList(Long memberId, String memberName, String memberImage, String memberDescription, Boolean friendStatus) {
         this.following_Id = memberId;
         this.following_Name = memberName;
         this.following_Image = memberImage;
         this.following_Description = memberDescription;
+        this.friend_Status = friendStatus;
     }
 
 }

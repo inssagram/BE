@@ -51,6 +51,7 @@ public class FollowService {
         Follow exists = followRepository.findByRequesterInfoAndFollowingInfo(myInfo, memberInfo);
         if (exists != null) {
             followRepository.delete(exists);
+            notificationService.updateFriendStatus(myInfo, memberInfo);
             return "팔로잉을 해지하셧습니다";
         } else {
             if (request.getHashtagName() == null) {

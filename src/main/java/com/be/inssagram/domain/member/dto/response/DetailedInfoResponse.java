@@ -16,9 +16,10 @@ public record DetailedInfoResponse(
         String description,
         List<FollowerList> followers,
         List<FollowingList> following,
-        int posts
+        int posts,
+        Boolean friendStatus
 ) {
-    public static DetailedInfoResponse fromEntity(Member member, List<FollowingList> following, List<FollowerList> followers, int posts) {
+    public static DetailedInfoResponse fromEntity(Member member, List<FollowingList> following, List<FollowerList> followers, int posts, Boolean friendStatus) {
         return DetailedInfoResponse.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
@@ -28,6 +29,7 @@ public record DetailedInfoResponse(
                 .followers(followers)
                 .following(following)
                 .posts(posts)
+                .friendStatus(friendStatus)
                 .build();
     }
 }

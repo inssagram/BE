@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface FollowRepository extends JpaRepository<Follow, Long> {
     Follow findByRequesterInfoAndFollowingInfo(Member requesterInfo, Member memberInfo);
     Optional<Follow> findByRequesterInfoIdAndFollowingInfoId(Long requesterInfoId, Long memberInfoId);
-
+    Boolean existsByRequesterInfoIdAndFollowingInfoId(Long requesterInfo,Long memberInfoId);
     List<Follow> findAllByFollowingInfo(Member memberInfo);
 
     List<Follow> findAllByRequesterInfo(Member requesterInfo);

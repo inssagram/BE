@@ -65,34 +65,34 @@ public class StoryService {
         return response;
     }
 
-    @Transactional
-    public List<FollowingList> searchMemberHaveStory(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(UserDoesNotExistException::new);
-
-        List<Follow> following = followRepository.findAllByRequesterInfo(member);
-        List<FollowingList> followingLists = following.stream()
-                .map(follow -> new FollowingList(
-                        follow.getFollowingInfo().getId(),
-                        follow.getFollowingInfo().getNickname(),
-                        follow.getFollowingInfo().getImage(),
-                        follow.getFollowingInfo().getDescription()))
-                .toList();
-        Map<FollowingList, java.time.LocalDateTime> map = new HashMap<>();
-        for (FollowingList follower : followingLists) {
-            if (storyRepository.existsByMemberIdAndParentFlag(follower.getFollowing_Id(), true)) {
-                Story story = storyRepository.findByMemberIdAndParentFlag(follower.getFollowing_Id(), true)
-                        .orElseThrow();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-                map.put(follower, java.time.LocalDateTime.parse(story.getUpdatedAt(), formatter));
-            }
-        }
-        List<Map.Entry<FollowingList, LocalDateTime>> list = new ArrayList<>(map.entrySet());
-        // LocalDate를 기반으로 정렬하는 Comparator 생성
-        Comparator<Map.Entry<FollowingList, LocalDateTime>> comparator = Map.Entry.comparingByValue();
-        // 내림차순으로 정렬
-        list.sort(comparator.reversed());
-        return list.stream().map(Map.Entry::getKey).toList();
-    }
+//    @Transactional
+//    public List<FollowingList> searchMemberHaveStory(Long memberId) {
+//        Member member = memberRepository.findById(memberId).orElseThrow(UserDoesNotExistException::new);
+//
+//        List<Follow> following = followRepository.findAllByRequesterInfo(member);
+//        List<FollowingList> followingLists = following.stream()
+//                .map(follow -> new FollowingList(
+//                        follow.getFollowingInfo().getId(),
+//                        follow.getFollowingInfo().getNickname(),
+//                        follow.getFollowingInfo().getImage(),
+//                        follow.getFollowingInfo().getDescription()))
+//                .toList();
+//        Map<FollowingList, java.time.LocalDateTime> map = new HashMap<>();
+//        for (FollowingList follower : followingLists) {
+//            if (storyRepository.existsByMemberIdAndParentFlag(follower.getFollowing_Id(), true)) {
+//                Story story = storyRepository.findByMemberIdAndParentFlag(follower.getFollowing_Id(), true)
+//                        .orElseThrow();
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+//                map.put(follower, java.time.LocalDateTime.parse(story.getUpdatedAt(), formatter));
+//            }
+//        }
+//        List<Map.Entry<FollowingList, LocalDateTime>> list = new ArrayList<>(map.entrySet());
+//        // LocalDate를 기반으로 정렬하는 Comparator 생성
+//        Comparator<Map.Entry<FollowingList, LocalDateTime>> comparator = Map.Entry.comparingByValue();
+//        // 내림차순으로 정렬
+//        list.sort(comparator.reversed());
+//        return list.stream().map(Map.Entry::getKey).toList();
+//    }
 
     @Transactional
     public StoryInfoResponse searchParentStoryByMemberId(Long memberId) {

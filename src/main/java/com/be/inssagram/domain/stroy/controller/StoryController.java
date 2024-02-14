@@ -35,13 +35,13 @@ public class StoryController {
                 storyService.searchParentStoryByMemberId(memberId));
     }
 
-    @GetMapping("/story/search-memberlist/member")
-    public ApiResponse<List<FollowingList>> searchMemberHaveStory(
-            @RequestParam(value = "member-id") Long memberId
-    ) {
-        return ApiResponse.createSuccess(
-                storyService.searchMemberHaveStory(memberId));
-    }
+//    @GetMapping("/story/search-memberlist/member")
+//    public ApiResponse<List<FollowingList>> searchMemberHaveStory(
+//            @RequestParam(value = "member-id") Long memberId
+//    ) {
+//        return ApiResponse.createSuccess(
+//                storyService.searchMemberHaveStory(memberId));
+//    }
 
     @GetMapping("/story/search-childstory/member")
     public ApiResponse<List<StoryInfoResponse>> searchStoryWithChildStoryByMemberId(

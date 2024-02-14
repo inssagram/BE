@@ -168,9 +168,15 @@ public class MemberService {
 
     //회원 상세조회
     @Transactional
-    public DetailedInfoResponse getMemberDetail(Long id){
+    public DetailedInfoResponse getMemberDetail(Long id, Member myInfo){
         Member member = memberRepository.findById(id)
                 .orElseThrow(UserDoesNotExistException::new);
+
+        Boolean friendStatus = false;
+        Follow isFollowing = followRepository.findByRequesterInfoAndFollowingInfo(myInfo, member);
+        if(isFollowing != null){
+            friendStatus = true;
+        }
         List<Follow> following = followRepository.findAllByRequesterInfo(member);
         List<Follow> followers = followRepository.findAllByFollowingInfo(member);
 
@@ -179,7 +185,10 @@ public class MemberService {
                         follow.getFollowingInfo().getId(),
                         follow.getFollowingInfo().getNickname(),
                         follow.getFollowingInfo().getImage(),
-                        follow.getFollowingInfo().getDescription()))
+                        follow.getFollowingInfo().getDescription(),
+                        followRepository.existsByRequesterInfoIdAndFollowingInfoId(myInfo.getId(), follow.getFollowingInfo().getId())
+                        )
+                    )
                 .collect(Collectors.toList());
 
         List<FollowerList> followerLists = followers.stream()
@@ -187,13 +196,16 @@ public class MemberService {
                         follow.getRequesterInfo().getId(),
                         follow.getRequesterInfo().getNickname(),
                         follow.getRequesterInfo().getImage(),
-                        follow.getRequesterInfo().getDescription()))
+                        follow.getRequesterInfo().getDescription(),
+                        followRepository.existsByRequesterInfoIdAndFollowingInfoId(myInfo.getId(), follow.getRequesterInfo().getId())
+                        )
+                    )
                 .collect(Collectors.toList());
 
         List<Post> posts = postRepository.findAllByMemberId(member.getId());
         int totalPosts = posts.size();
 
-        return DetailedInfoResponse.fromEntity(member, followingLists, followerLists, totalPosts);
+        return DetailedInfoResponse.fromEntity(member, followingLists, followerLists, totalPosts, friendStatus);
     }
 
     private Member setAccount (SignupRequest request) {

@@ -65,6 +65,16 @@ public class NotificationService {
         }
     }
 
+    //알림 친구 팔로우 업데이트
+    public void updateFriendStatus(Member myInfo, Member memberInfo) {
+        List<Notification> notifications = notificationRepository.findAllByReceiverIdAndSenderInfo(myInfo.getId(), memberInfo);
+        for (Notification notification : notifications) {
+            notification.setFriendStatus(false);
+        }
+        notificationRepository.saveAll(notifications);
+    }
+
+
     //알림 삭제
     public void deleteNotification(Long member_id, Long notification_id) {
         Notification notification = notificationRepository.findByIdAndReceiverId(notification_id, member_id);
