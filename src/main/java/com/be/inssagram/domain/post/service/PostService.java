@@ -197,24 +197,22 @@ public class PostService {
                 .map(x -> x.getFollowingInfo().getId())
                 .toList();
 
-        List<PostInfoResponse> result = new ArrayList<>();
+        // 팔로우하는 멤버들과 본인의 아이디를 포함하여 포스트를 한 번에 가져옴
+        List<Long> allMemberIds = new ArrayList<>(followingMemberIds);
+        allMemberIds.add(memberId);
 
-        for (Long followingMemberId : followingMemberIds) {
+        List<Post> posts = postRepository.findByMemberIdInAndType(allMemberIds, PostType.post);
 
-            List<Post> posts = postRepository.findByMemberIdAndType(
-                    followingMemberId, PostType.post);
+        // 중복된 포스트 제거
+        Set<Post> uniquePosts = new HashSet<>(posts);
 
-            // 내 포스트도 추가
-            posts.addAll(postRepository.findByMemberIdAndType(
-                    memberId, PostType.post));
+        // 최종 결과 생성
+        List<PostInfoResponse> result = getPostInfoResponses(memberId, new ArrayList<>(uniquePosts));
 
-            List<PostInfoResponse> responses = getPostInfoResponses(memberId, posts);
-
-            result.addAll(responses);
-        }
         return result.stream()
                 .sorted(Comparator.comparing(PostInfoResponse::getCreatedAt)
-                        .reversed()).collect(Collectors.toList());
+                        .reversed())
+                .collect(Collectors.toList());
     }
 
     @Transactional
